@@ -1,0 +1,29 @@
+{
+  "name": "mimicgame",
+  "version": "0.0.1",
+  "author": "Filip Gołębiewski",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "react": "^0.13.3",
+    "parse": "^1.5.0",
+    "parse-react": "^0.4.2",
+    "body-parser": "^1.4.3",
+    "express": "^4.4.5",
+    "nodemon": "^1.4.1"
+  },
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "reactify": "^1.1.1",
+    "watchify": "^3.3.1"
+  },
+  "scripts": {
+    "watch": "watchify -o target/public/js/bundle.js -v -d js/app.js",
+    "build": "browserify js/app.js -o target/public/js/bundle.js",
+    "start": "npm run watch & nodemon devserver.js"
+  },
+  "browserify": {
+    "transform": [
+      "reactify"
+    ]
+  }
+}

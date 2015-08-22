@@ -1,0 +1,14 @@
+{
+  "global": {
+    "parseVersion": "1.5.0"
+  },
+  "applications": {
+    "MimicGame": {
+      "applicationId": "<YOUR APP ID>",
+      "masterKey": "<YOUR APP MASTER KEY>"
+    },
+    "_default": {
+      "link": "MimicGame"
+    }
+  }
+}
