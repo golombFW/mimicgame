@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/golombFW/mimicgame.git"
+  },
+  "bugs": {
+    "url": "https://github.com/golombFW/mimicgame/issues"
+  },
   "dependencies": {
     "react": "^0.13.3",
     "parse": "^1.5.0",
