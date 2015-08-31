@@ -2,3 +2,4 @@
 node_modules/
 target/config/global.json
 target/public/js/bundle.js
+npm-debug.log

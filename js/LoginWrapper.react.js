@@ -2,14 +2,22 @@ var React = require('react');
 var Parse = require('parse').Parse;
 var ParseReact = require('parse-react');
 var Utils = require('./utils/Utils.js');
+var keys = require('./KeyConfig.js');
 
 var AppWrapper = require('./AppWrapper.react.js');
+var UserTopBar = require('./UserTopBar.react.js');
+var AppFooter = require('./AppFooter.react.js');
 var LoadingBar = Utils.LoadingBar1;
+var Logo = Utils.AppLogo;
 
 var LoginWrapper = React.createClass({
     mixins: [ParseReact.Mixin],
     getInitialState: function () {
-        return {FBUser: null}
+        return {
+            FBUser: null,
+            FBUserFriends: null,
+            FBLoaded: false
+        }
     },
     observe: function () {
         return {
@@ -22,17 +30,17 @@ var LoginWrapper = React.createClass({
     componentDidMount: function () {
         window.fbAsyncInit = function () {
             Parse.FacebookUtils.init({ // this line replaces FB.init({
-                appId: '476535895837963', // Facebook App ID
-                status: true,  // check Facebook Login status
+                appId: keys.FacebookAppId, // Facebook App ID
+                status: false,  // check Facebook Login status
                 cookie: true,  // enable cookies to allow Parse to access the session
-                xfbml: true,  // initialize Facebook social plugins on the page
+                xfbml: false,  // initialize Facebook social plugins on the page
                 version: 'v2.4' // point to the latest Facebook Graph API version
             });
 
             FB.getLoginStatus(function (response) {
                 if (response.status !== 'connected') {
                     console.log("User not logged");
-                    var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser"></div>';
+                    var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
                     var div = document.getElementById('social-login-button-facebook');
                     div.innerHTML = s;
                 } else {
@@ -52,7 +60,7 @@ var LoginWrapper = React.createClass({
             }
             js = d.createElement(s);
             js.id = id;
-            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4&appId=476535895837963";
+            js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.4&appId=" + keys.FacebookAppId;
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     },
@@ -65,28 +73,43 @@ var LoginWrapper = React.createClass({
             }
             return (
                 <div>Hello World! <h1 id="fb-welcome">{this.state.FBUser.name}</h1>
+                    <UserTopBar />
                     <AppWrapper />
+                    <AppFooter />
                 </div>
             );
         }
         return (
-            <div>
-                <div id="social-login-button-facebook"/>
+            <div className="login-view">
+                <Logo size="big"/>
+
+                <div className="welcome-footer-dark">
+                    <div id="social-login-button-facebook"/>
+                    <AppFooter />
+                </div>
             </div>
         );
     },
     getMyFBIdentity: function () {
-        FB.api('/me', function (response) {
+        FB.api('/me', {fields: 'name, first_name, last_name, email, gender, link, locale, test_group, cover'}, function (response) {
             console.log('Successful login for: ' + response.name);
             this.setState({FBUser: response});
 
         }.bind(this));
+        FB.api('/me/friends', function (response) {
+            if (response && !response.error) {
+                console.log('Fetch friends list, size: ' + response.data.length);
+                this.setState({FBUserFriends: response.data});
+            }
+        }.bind(this));
     },
     loginUser: function () {
         if (!this.data.user) {
-            Parse.FacebookUtils.logIn(null, {
+            Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
                 success: function (user) {
-                    this.getMyFBIdentity();
+                    if (this.state.FBUser === null) {
+                        this.getMyFBIdentity();
+                    }
                     if (!user.existed()) {
                         console.log("User signed up and logged in through Facebook!");
                         if (this.state.FBUser !== null) {
@@ -106,8 +129,7 @@ var LoginWrapper = React.createClass({
                     console.log("User cancelled the Facebook login or did not fully authorize.");
                 }
             });
-        }
-        if (this.state.FBUser === null) {
+        } else if (this.state.FBUser === null) {
             this.getMyFBIdentity();
         }
     }

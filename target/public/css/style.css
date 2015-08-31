@@ -1,18 +1,66 @@
 body {
     background-color: #4985D6;
+    font-family: "Helvetica Neue", Helvetica, "Myriad Pro", "Lucida Grande", sans-serif;
+}
+
+.container-fluid {
+    padding: 0;
+}
+
+.horizontal-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#social-login-button-facebook {
+    text-align: center;
+    margin: auto;
+
+}
+
+.app-footer {
+    text-align: center;
+    padding: 10vmin;
+}
+
+.app-footer a {
+    text-decoration: none;
+    color: inherit;
+    margin-right: 5ex;
+}
+
+.app-footer a:hover {
+    color: #9e9ba1;
+}
+
+.about {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #222;
+    color: white;
+    font-weight: 200;
+    text-align: justify;
+    padding: 2em;
+}
+
+.about .close-button {
+    float: right;
+}
+
+.about .close-button:hover {
+    color: grey;
 }
 
 /*
 Utils styles
 */
-.LoadingBar1_container {
-    width: 100%;
-    height: 100%;
-    display: inline-flex;
-    vertical-align: middle;
-}
-.LoadingBar1 {
-    margin: auto;
+.loading-bar1 {
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
     text-align: center;
     font-size: x-large;
     font-weight: 300;
@@ -20,8 +68,21 @@ Utils styles
     color: #fff;
 }
 
-.LoadingBar1 div {
+.loading-bar1 div {
     margin: auto;
+}
+
+.app-logo {
+    text-align: center;
+    color: #fff;
+    font-weight: 300;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    text-shadow: 2px 2px 4px #000000;
+    margin: 8px;
+}
+
+.big-text {
+    font-size: 12vw;
 }
 
 /*
