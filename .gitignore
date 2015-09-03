@@ -1,5 +1,6 @@
 .idea/
 node_modules/
 target/config/global.json
+target/public/css/style.css
 target/public/js/bundle.js
 npm-debug.log

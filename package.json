@@ -14,6 +14,7 @@
     "react": "^0.13.3",
     "parse": "^1.5.0",
     "parse-react": "^0.4.2",
+    "react-bootstrap-modal": "^1.2.1",
     "body-parser": "^1.4.3",
     "express": "^4.4.5",
     "nodemon": "^1.4.1"
@@ -22,11 +23,17 @@
     "browserify": "^11.0.1",
     "reactify": "^1.1.1",
     "watchify": "^3.3.1",
-    "stripify": "^3.0.0"
+    "stripify": "^3.0.0",
+    "less": "^2.5.1",
+    "catw": "^1.0.1"
   },
   "scripts": {
-    "watch": "watchify -o target/public/js/bundle.js -v -d js/app.js",
-    "build": "browserify js/app.js -o target/public/js/bundle.js",
+    "watch-css": "catw -c 'lessc --include-path=./css:./css/rbm-patch -' 'css/style.less' -o target/public/css/style.css -v",
+    "watch-js": "watchify -o target/public/js/bundle.js -v -d js/app.js",
+    "build-js": "browserify js/app.js -o target/public/js/bundle.js",
+    "build-css": "catw -c 'lessc -' 'css/style.less' > target/public/css/style.css",
+    "watch": "npm run watch-css & npm run watch-js",
+    "build": "npm run build-css && npm run build-js",
     "start": "npm run watch & nodemon devserver.js"
   },
   "browserify": {

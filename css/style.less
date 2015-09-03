@@ -1,0 +1,101 @@
+body {
+  background-color: #4985D6;
+  font-family: "Helvetica Neue", Helvetica, "Myriad Pro", "Lucida Grande", sans-serif;
+}
+
+.container-fluid {
+  padding: 0;
+
+}
+
+.horizontal-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#social-login-button-facebook {
+  text-align: center;
+  margin: auto;
+
+}
+
+.app-footer {
+  text-align: center;
+  padding: 10vmin;
+}
+
+.app-footer a {
+  text-decoration: none;
+  color: inherit;
+  margin-right: 5ex;
+}
+
+.app-footer a:hover {
+  color: #9e9ba1;
+}
+
+/*
+Modal modifications
+*/
+.modal-content {
+  background-color: @modal-content-bg;
+  color: @modal-content-color;
+  font-weight: 200;
+  text-align: justify;
+  padding: 2em;
+}
+
+.modal-header {
+  border-bottom-color: @modal-header-border-color;
+}
+
+.modal-title {
+  color: @modal-title-color;
+}
+
+.close {
+  color: #d4c073;
+  text-shadow: 0 1px 0 #8a8a8a;
+  opacity: 0.4;
+}
+
+.close:hover, .close:focus {
+  color: #f4e08a;
+
+}
+
+/*
+Utils styles
+*/
+.loading-bar1 {
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: x-large;
+  font-weight: 300;
+  font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+  color: #fff;
+}
+
+.loading-bar1 div {
+  margin: auto;
+}
+
+.app-logo {
+  text-align: center;
+  color: #fff;
+  font-weight: 300;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+  text-shadow: 2px 2px 4px #000000;
+  margin: 8px;
+}
+
+.big-text {
+  font-size: 12vw;
+}
+
+
+@import "spinkit";
+@import "rbm-patch/rbm-patch";

@@ -1,21 +1,23 @@
 var React = require('react');
+var Modal = require('react-bootstrap-modal');
 
 var classNameModifier = '';
 var About = React.createClass({
     render: function () {
         return (
-            <div className={this.props.display !== true ? 'about hidden' : 'about'}>
-                <span className="close-button glyphicon glyphicon-remove" onClick={this.props.closeFunc}></span>
-
-                <h1>O aplikacji</h1>
-
-                <p>
-                    Uwaga, wszystkie zdjęcia zapisane podczas rozgrywki mogą
-                    zostać wykorzystane do budowy bazy danych zdjęć ludzikch
-                    emocji na Politechnice Gdańskiej. Korzystając z aplikacji
-                    wyrażasz zgodę na takie wykorzystanie umieszczanych zdjęć.
-                </p>
-            </div>
+            <Modal show={this.props.display} onHide={this.props.closeFunc} aria-labelledby="ModalHeader">
+                <Modal.Header closeButton>
+                    <Modal.Title id='ModalHeader'>O aplikacji</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        Uwaga, wszystkie zdjęcia zapisane podczas rozgrywki mogą
+                        zostać wykorzystane do budowy bazy danych zdjęć ludzikch
+                        emocji na Politechnice Gdańskiej. Korzystając z aplikacji
+                        wyrażasz zgodę na takie wykorzystanie umieszczanych zdjęć.
+                    </p>
+                </Modal.Body>
+            </Modal>
         );
     }
 });
