@@ -31,7 +31,7 @@
     "watch-css": "catw -c 'lessc --include-path=./css:./css/rbm-patch -' 'css/style.less' -o target/public/css/style.css -v",
     "watch-js": "watchify -o target/public/js/bundle.js -v -d js/app.js",
     "build-js": "browserify js/app.js -o target/public/js/bundle.js",
-    "build-css": "catw -c 'lessc -' 'css/style.less' > target/public/css/style.css",
+    "build-css": "catw -c 'lessc --include-path=./css:./css/rbm-patch -' 'css/style.less' > target/public/css/style.css",
     "watch": "npm run watch-css & npm run watch-js",
     "build": "npm run build-css && npm run build-js",
     "start": "npm run watch & nodemon devserver.js"
