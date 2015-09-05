@@ -1,8 +1,12 @@
 var React = require('react');
 var Parse = require('parse').Parse;
 var ParseReact = require('parse-react');
+var Reflux = require('reflux');
 var Utils = require('./utils/Utils.js');
-var keys = require('./KeyConfig.js');
+var Keys = require('./KeyConfig.js');
+
+var FacebookUserActions = require('./actions/FacebookUserActions.js');
+var FacebookUserStore = require('./stores/FacebookUserStore.js');
 
 var AppWrapper = require('./AppWrapper.react.js');
 var UserTopBar = require('./UserTopBar.react.js');
@@ -11,14 +15,7 @@ var LoadingBar = Utils.LoadingBar1;
 var Logo = Utils.AppLogo;
 
 var LoginWrapper = React.createClass({
-    mixins: [ParseReact.Mixin],
-    getInitialState: function () {
-        return {
-            FBUser: null,
-            FBUserFriends: null,
-            FBLoaded: false
-        }
-    },
+    mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
     observe: function () {
         return {
             user: ParseReact.currentUser
@@ -30,7 +27,7 @@ var LoginWrapper = React.createClass({
     componentDidMount: function () {
         window.fbAsyncInit = function () {
             Parse.FacebookUtils.init({ // this line replaces FB.init({
-                appId: keys.FacebookAppId, // Facebook App ID
+                appId: Keys.FacebookAppId, // Facebook App ID
                 status: false,  // check Facebook Login status
                 cookie: true,  // enable cookies to allow Parse to access the session
                 xfbml: false,  // initialize Facebook social plugins on the page
@@ -60,19 +57,19 @@ var LoginWrapper = React.createClass({
             }
             js = d.createElement(s);
             js.id = id;
-            js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.4&appId=" + keys.FacebookAppId;
+            js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.4&appId=" + Keys.FacebookAppId;
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     },
     render: function () {
         if (this.data.user) {
-            if (this.state.FBUser == null) {
+            if (this.state.facebookUser == null) {
                 return (
                     <LoadingBar/>
                 );
             }
             return (
-                <div>Hello World! <h1 id="fb-welcome">{this.state.FBUser.name}</h1>
+                <div>
                     <UserTopBar />
                     <AppWrapper />
                     <AppFooter />
@@ -91,29 +88,20 @@ var LoginWrapper = React.createClass({
         );
     },
     getMyFBIdentity: function () {
-        FB.api('/me', {fields: 'name, first_name, last_name, email, gender, link, locale, test_group, cover'}, function (response) {
-            console.log('Successful login for: ' + response.name);
-            this.setState({FBUser: response});
-
-        }.bind(this));
-        FB.api('/me/friends', function (response) {
-            if (response && !response.error) {
-                console.log('Fetch friends list, size: ' + response.data.length);
-                this.setState({FBUserFriends: response.data});
-            }
-        }.bind(this));
+        FacebookUserActions.fetchUser();
+        FacebookUserActions.fetchFriendsList();
     },
     loginUser: function () {
         if (!this.data.user) {
             Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
                 success: function (user) {
-                    if (this.state.FBUser === null) {
+                    if (this.state.facebookUser == null) {
                         this.getMyFBIdentity();
                     }
                     if (!user.existed()) {
                         console.log("User signed up and logged in through Facebook!");
-                        if (this.state.FBUser !== null) {
-                            user.set("facebookId", this.state.FBUser.id);
+                        if (this.state.facebookUser != null) {
+                            user.set("facebookId", this.state.facebookUser.id);
                             user.save(null, {
                                 success: function (user) {
                                     console.log("FacebookId added to user account");
@@ -123,13 +111,12 @@ var LoginWrapper = React.createClass({
                     } else {
                         console.log("User logged in through Facebook!");
                     }
-
                 }.bind(this),
                 error: function (user, error) {
                     console.log("User cancelled the Facebook login or did not fully authorize.");
                 }
             });
-        } else if (this.state.FBUser === null) {
+        } else if (this.state.facebookUser == null) {
             this.getMyFBIdentity();
         }
     }

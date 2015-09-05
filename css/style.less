@@ -1,11 +1,24 @@
+@import "variables";
+
 body {
-  background-color: #4985D6;
+  background-color: @background-color;
   font-family: "Helvetica Neue", Helvetica, "Myriad Pro", "Lucida Grande", sans-serif;
+  color: @app-font-color;
+}
+
+#page-container {
+  background-color: @background-color;
+  width: 100%;
+  height: 100%;
 }
 
 .container-fluid {
   padding: 0;
+}
 
+#app {
+  width: 100%;
+  height: 100%;
 }
 
 .horizontal-center {
@@ -16,22 +29,32 @@ body {
 #social-login-button-facebook {
   text-align: center;
   margin: auto;
-
 }
 
 .app-footer {
   text-align: center;
-  padding: 10vmin;
+  padding: 10px;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    margin-right: 5ex;
+  }
+
+  a:hover {
+    color: @app-bg-hover-color;
+  }
 }
 
-.app-footer a {
-  text-decoration: none;
-  color: inherit;
-  margin-right: 5ex;
+.user-topbar {
+  background-color: darken(@background-color, 15%);
+  padding: 10px;
 }
 
-.app-footer a:hover {
-  color: #9e9ba1;
+.app-wrapper {
+  background-color: @app-background-color;
+  width: 95%;
+  margin: auto;
 }
 
 /*
@@ -61,7 +84,22 @@ Modal modifications
 
 .close:hover, .close:focus {
   color: #f4e08a;
+}
 
+/*
+Components styles
+*/
+
+#fullscreen-button {
+  position: absolute;
+  bottom: 2%;
+  right: 2%;
+  font-size: x-large;
+
+}
+
+#fullscreen-button:hover, #fullscreen-button:focus {
+  color: @app-bg-hover-color;
 }
 
 /*
@@ -71,16 +109,16 @@ Utils styles
   left: 50%;
   top: 50%;
   position: absolute;
-  transform: translate(-50%, -50%);
+  .translate(-50%, -50%);
   text-align: center;
   font-size: x-large;
   font-weight: 300;
   font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
   color: #fff;
-}
 
-.loading-bar1 div {
-  margin: auto;
+  div {
+    margin: auto;
+  }
 }
 
 .app-logo {
@@ -95,7 +133,6 @@ Utils styles
 .big-text {
   font-size: 12vw;
 }
-
 
 @import "spinkit";
 @import "rbm-patch/rbm-patch";

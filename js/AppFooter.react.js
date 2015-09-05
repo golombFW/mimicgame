@@ -1,5 +1,6 @@
 var React = require('react');
-var About = require('./About.react.js');
+var About = require('./components/About.react.js');
+var FullScreenButton = require('./components/FullScreenButton.react.js');
 
 var AppFooter = React.createClass({
     getInitialState: function () {
@@ -21,6 +22,7 @@ var AppFooter = React.createClass({
                 <span><a onClick={this.showAbout} href="#">O projekcie</a></span>
                 <span>Filip Gołębiewski 2015</span>
                 <About closeFunc={this.closeAbout} display={this.state.displayAbout}/>
+                <FullScreenButton />
             </div>
         );
     }

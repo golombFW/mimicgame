@@ -1,7 +1,6 @@
 var React = require('react');
 var Modal = require('react-bootstrap-modal');
 
-var classNameModifier = '';
 var About = React.createClass({
     render: function () {
         return (

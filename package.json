@@ -11,10 +11,12 @@
     "url": "https://github.com/golombFW/mimicgame/issues"
   },
   "dependencies": {
+    "jquery": "^2.1.4",
     "react": "^0.13.3",
     "parse": "^1.5.0",
     "parse-react": "^0.4.2",
     "react-bootstrap-modal": "^1.2.1",
+    "reflux": "^0.2.12",
     "body-parser": "^1.4.3",
     "express": "^4.4.5",
     "nodemon": "^1.4.1"
@@ -22,7 +24,7 @@
   "devDependencies": {
     "browserify": "^11.0.1",
     "reactify": "^1.1.1",
-    "watchify": "^3.3.1",
+    "watchify": "^3.4.0",
     "stripify": "^3.0.0",
     "less": "^2.5.1",
     "catw": "^1.0.1"

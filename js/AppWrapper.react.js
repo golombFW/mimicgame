@@ -22,7 +22,8 @@ var AppWrapper = React.createClass({
                     <Logo />
 
                     <nav className="menu">
-                        <a className="btn btn-default" role="button" onClick={this.selectView.bind(this, "TEST")}>graj</a><br/>
+                        <a className="btn btn-default" role="button"
+                           onClick={this.selectView.bind(this, "TEST")}>graj</a><br/>
                         <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
                     </nav>
                 </div>
