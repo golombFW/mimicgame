@@ -63,7 +63,7 @@ var LoginWrapper = React.createClass({
     },
     render: function () {
         if (this.data.user) {
-            if (this.state.facebookUser == null) {
+            if (null == this.state.facebookUser) {
                 return (
                     <LoadingBar/>
                 );
@@ -89,18 +89,19 @@ var LoginWrapper = React.createClass({
     },
     getMyFBIdentity: function () {
         FacebookUserActions.fetchUser();
+        FacebookUserActions.fetchAvatar();
         FacebookUserActions.fetchFriendsList();
     },
     loginUser: function () {
         if (!this.data.user) {
             Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
                 success: function (user) {
-                    if (this.state.facebookUser == null) {
+                    if (null == this.state.facebookUser) {
                         this.getMyFBIdentity();
                     }
                     if (!user.existed()) {
                         console.log("User signed up and logged in through Facebook!");
-                        if (this.state.facebookUser != null) {
+                        if (null != this.state.facebookUser) {
                             user.set("facebookId", this.state.facebookUser.id);
                             user.save(null, {
                                 success: function (user) {
@@ -116,7 +117,7 @@ var LoginWrapper = React.createClass({
                     console.log("User cancelled the Facebook login or did not fully authorize.");
                 }
             });
-        } else if (this.state.facebookUser == null) {
+        } else if (null == this.state.facebookUser) {
             this.getMyFBIdentity();
         }
     }

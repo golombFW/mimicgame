@@ -3,7 +3,8 @@ var Reflux = require('reflux');
 var FacebookUserActions = Reflux.createActions([
     'fetchUser',
     'setUser',
-    'fetchFriendsList'
+    'fetchFriendsList',
+    'fetchAvatar'
 ]);
 
 module.exports = FacebookUserActions;

@@ -1,4 +1,8 @@
 @import "variables";
+@import "spinkit";
+@import "mixins";
+@import "libs/rbm-patch";
+@import "libs/lesshat-prefixed";
 
 body {
   background-color: @background-color;
@@ -47,8 +51,11 @@ body {
 }
 
 .user-topbar {
-  background-color: darken(@background-color, 15%);
-  padding: 10px;
+  .lh-background-image(linear-gradient(to bottom, @topbar-bg-color 0%, @topbar-bg-gradient-color 25%, @topbar-bg-gradient-color 56%, @topbar-bg-color 100%));
+  .lh-box-shadow(0 1 4 black);
+  min-height: 60px;
+  width: 100%;
+  position: relative;
 }
 
 .app-wrapper {
@@ -102,6 +109,66 @@ Components styles
   color: @app-bg-hover-color;
 }
 
+#user-panel {
+  position: absolute;
+  right: 2.5%;
+  top: 0;
+  width: 40%;
+  display: table;
+  table-layout: fixed;
+  word-break: break-all;
+  word-wrap: break-word;
+  vertical-align: middle;
+  text-align: right;
+
+  .username {
+    color: @topbar-button-color;
+    font-size: large;
+    font-family: "Aladin", Helvetica, sans-serif;
+    .insetshadow(@topbar-button-color);
+  }
+
+  .col {
+    height: 100%;
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+
+  .avatar-col {
+    width: 70px;
+  }
+
+  .settings-col {
+    width: 40px;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  a {
+    text-decoration: none;
+    color: @topbar-button-color;
+  }
+
+  a:hover {
+    color: @topbar-button-color-hover;
+  }
+}
+
+#user-panel-avatar {
+  padding: 4px;
+  background-color: @topbar-avatar-bg-color;
+  .lh-drop-shadow(1 1 4 black);
+  .lh-rotate(3.5);
+  display: inline-block;
+  position: relative;
+  bottom: -5px;
+
+  img {
+    border: solid 1px #aca695;
+  }
+}
+
 /*
 Utils styles
 */
@@ -115,10 +182,6 @@ Utils styles
   font-weight: 300;
   font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
   color: #fff;
-
-  div {
-    margin: auto;
-  }
 }
 
 .app-logo {
@@ -134,5 +197,3 @@ Utils styles
   font-size: 12vw;
 }
 
-@import "spinkit";
-@import "rbm-patch/rbm-patch";
