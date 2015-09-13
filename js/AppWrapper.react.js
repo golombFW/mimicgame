@@ -1,47 +1,32 @@
 var React = require('react');
-var Parse = require('parse').Parse;
-var ParseReact = require('parse-react');
+var Reflux = require('reflux');
 var Utils = require('./utils/Utils.js');
 
-var Logo = Utils.AppLogo;
+var AppStateStore = require('./stores/AppStateStore.js');
+var AppState = require('./AppState.js');
+
 var LoadingBar = Utils.LoadingBar1;
 
-var contents = {
-    "TEST": <LoadingBar/>
-};
+/* Views */
+var Menu = require('./views/Menu.react.js');
+var UserSettings = require('./views/UserSettings.react.js');
+
 var AppWrapper = React.createClass({
+    mixins: [Reflux.connect(AppStateStore, 'currentAppState')],
+    contents: {},
+
     getInitialState: function () {
-        return {
-            currentView: "MENU"
-        }
+        this.contents[AppState.MENU] = <Menu/>;
+        this.contents[AppState.USER_SETTINGS] = <UserSettings/>;
+
+        this.contents[AppState.TEST] = <LoadingBar/>;
     },
     render: function () {
-        if (this.state.currentView === "MENU") {
-            return (
-                <div className="app-wrapper">
-                    <Logo />
-
-                    <nav className="menu">
-                        <a className="btn btn-default" role="button"
-                           onClick={this.selectView.bind(this, "TEST")}>graj</a><br/>
-                        <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
-                    </nav>
-                </div>
-            );
-        }
         return (
-            <div className="app-wrapper">
-                {contents[this.state.currentView]}
+            <div id="app-wrapper">
+                {this.contents[this.state.currentAppState]}
             </div>
         );
-
-    },
-    selectView: function (tab) {
-        this.setState({currentView: tab});
-    },
-    logout: function () {
-        Parse.User.logOut();
-        FB.logout();
     }
 });
 

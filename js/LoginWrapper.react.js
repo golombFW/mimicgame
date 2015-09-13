@@ -77,7 +77,7 @@ var LoginWrapper = React.createClass({
             );
         }
         return (
-            <div className="login-view">
+            <div id="login-view">
                 <Logo size="big"/>
 
                 <div className="welcome-footer-dark">
@@ -122,4 +122,5 @@ var LoginWrapper = React.createClass({
         }
     }
 });
+
 module.exports = LoginWrapper;

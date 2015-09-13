@@ -1,4 +1,5 @@
 var Reflux = require('reflux');
+
 var FacebookUserActions = require('../actions/FacebookUserActions.js');
 
 var FacebookUserStore = Reflux.createStore({
