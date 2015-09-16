@@ -11,6 +11,7 @@ var FacebookUserStore = require('./stores/FacebookUserStore.js');
 var AppWrapper = require('./AppWrapper.react.js');
 var UserTopBar = require('./UserTopBar.react.js');
 var AppFooter = require('./AppFooter.react.js');
+var AppDisable = require('./components/AppDisable.react.js');
 var LoadingBar = Utils.LoadingBar1;
 var Logo = Utils.AppLogo;
 
@@ -20,6 +21,11 @@ var LoginWrapper = React.createClass({
         return {
             user: ParseReact.currentUser
         };
+    },
+    getInitialState: function () {
+        return {
+            config: null
+        }
     },
     componentWillMount: function () {
         window['loginUser'] = this.loginUser;
@@ -35,8 +41,14 @@ var LoginWrapper = React.createClass({
             });
 
             FB.getLoginStatus(function (response) {
+                console.log("fb login status: " + response.status);
                 if (response.status !== 'connected') {
-                    console.log("User not logged");
+                    console.log("User fb not logged");
+
+                    if (null != this.data.user) {
+                        Parse.User.logOut();
+                    }
+
                     var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
                     var div = document.getElementById('social-login-button-facebook');
                     div.innerHTML = s;
@@ -60,9 +72,20 @@ var LoginWrapper = React.createClass({
             js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.4&appId=" + Keys.FacebookAppId;
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
+
+        var minutes = 5;
+        var interval = 1000 * 60 * minutes;
+        this.fetchConfig();
+        setInterval(this.fetchConfig, interval);
     },
     render: function () {
+        if (null != this.state.config && this.state.config.get("appDisable")) {
+            return (
+                <AppDisable info={this.state.config.get("appDisableText")}/>
+            );
+        }
         if (this.data.user) {
+            console.log("user: " + this.data.user);
             if (null == this.state.facebookUser) {
                 return (
                     <LoadingBar/>
@@ -120,6 +143,16 @@ var LoginWrapper = React.createClass({
         } else if (null == this.state.facebookUser) {
             this.getMyFBIdentity();
         }
+    },
+    fetchConfig: function () {
+        Parse.Config.get().then(
+            function (config) {
+                this.setState({config: config});
+                console.log("Config was fetched from server.")
+            }.bind(this), function (error) {
+                console.log("Failed to fetch. Using Cached Config.");
+            }
+        );
     }
 });
 
