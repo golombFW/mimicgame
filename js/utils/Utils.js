@@ -1,5 +1,12 @@
+var Components = {
+    LoadingBar1: require('./components/LoadingBar1.react.js'),
+    AppLogo: require('./components/AppLogo.react.js'),
+    VerticalSeparator: require('./components/VerticalSeparator.react.js')
+};
+
+var User = require('./jsutils/UserUtils.js');
+
 module.exports = {
-    LoadingBar1: require('./LoadingBar1.react.js'),
-    AppLogo: require('./AppLogo.react.js'),
-    VerticalSeparator: require('./VerticalSeparator.react.js')
+    Components: Components,
+    User: User
 };

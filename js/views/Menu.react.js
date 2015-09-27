@@ -4,7 +4,7 @@ var Utils = require('../utils/Utils.js');
 var AppStateActions = require('../actions/AppStateActions.js');
 var AppState = require('../AppState.js');
 
-var Logo = Utils.AppLogo;
+var Logo = Utils.Components.AppLogo;
 
 var Menu = React.createClass({
     render: function () {

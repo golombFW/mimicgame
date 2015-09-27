@@ -12,11 +12,12 @@ var AppWrapper = require('./AppWrapper.react.js');
 var UserTopBar = require('./UserTopBar.react.js');
 var AppFooter = require('./AppFooter.react.js');
 var AppDisable = require('./components/AppDisable.react.js');
-var LoadingBar = Utils.LoadingBar1;
-var Logo = Utils.AppLogo;
+var LoadingBar = Utils.Components.LoadingBar1;
+var Logo = Utils.Components.AppLogo;
 
 var LoginWrapper = React.createClass({
     mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
+
     observe: function () {
         return {
             user: ParseReact.currentUser
@@ -69,7 +70,7 @@ var LoginWrapper = React.createClass({
             }
             js = d.createElement(s);
             js.id = id;
-            js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.4&appId=" + Keys.FacebookAppId;
+            js.src = "//connect.facebook.net/pl_PL/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
 
@@ -85,7 +86,6 @@ var LoginWrapper = React.createClass({
             );
         }
         if (this.data.user) {
-            console.log("user: " + this.data.user);
             if (null == this.state.facebookUser) {
                 return (
                     <LoadingBar/>
@@ -124,6 +124,7 @@ var LoginWrapper = React.createClass({
                     }
                     if (!user.existed()) {
                         console.log("User signed up and logged in through Facebook!");
+                        //fixme: possible race
                         if (null != this.state.facebookUser) {
                             user.set("facebookId", this.state.facebookUser.id);
                             user.save(null, {

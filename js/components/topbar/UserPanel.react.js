@@ -1,9 +1,10 @@
 var React = require('react');
 var ParseReact = require('parse-react');
 var Reflux = require('reflux');
+var UserUtils = require('../../utils/Utils.js').User;
 
-var FacebookUserStore = require('../stores/FacebookUserStore.js');
-var AppStateActions = require('../actions/AppStateActions.js');
+var FacebookUserStore = require('../../stores/FacebookUserStore.js');
+var AppStateActions = require('../../actions/AppStateActions.js');
 
 var UserPanel = React.createClass({
         mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
@@ -16,7 +17,7 @@ var UserPanel = React.createClass({
             };
         },
         componentWillUpdate: function () {
-            if (this.isUpdateNeeded() && null != this.state.facebookUser) {
+            if (null != this.state.facebookUser) {
                 this.username = this.getUsername();
 
                 if (null == this.avatarUrl && null != this.state.facebookUser.avatar) {
@@ -44,8 +45,7 @@ var UserPanel = React.createClass({
             return null == this.username || null == this.avatarUrl;
         },
         getUsername: function () {
-            //todo: get username from parse user
-            return this.state.facebookUser.first_name.slice(0, 25);
+            return UserUtils.getUserName(this.state.facebookUser.first_name, this.data.user.nick);
         },
         openSettings: function () {
             AppStateActions.openUserSettings();
