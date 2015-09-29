@@ -1,4 +1,5 @@
 var React = require('react');
+var Parse = require('parse').Parse;
 var Utils = require('../utils/Utils.js');
 
 var AppStateActions = require('../actions/AppStateActions.js');
