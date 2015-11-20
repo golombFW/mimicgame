@@ -1,5 +1,5 @@
 var React = require('react');
-var Modal = require('react-bootstrap-modal');
+var Modal = require('react-bootstrap').Modal;
 
 var About = React.createClass({
     render: function () {
@@ -11,7 +11,7 @@ var About = React.createClass({
                 <Modal.Body>
                     <p>
                         Uwaga, wszystkie zdjęcia zapisane podczas rozgrywki mogą
-                        zostać wykorzystane do budowy bazy danych zdjęć ludzikch
+                        zostać wykorzystane do budowy bazy danych zdjęć ludzkich
                         emocji na Politechnice Gdańskiej. Korzystając z aplikacji
                         wyrażasz zgodę na takie wykorzystanie umieszczanych zdjęć.
                     </p>
