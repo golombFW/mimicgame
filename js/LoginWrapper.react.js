@@ -16,7 +16,8 @@ var LoadingBar = Utils.Components.LoadingBar1;
 var Logo = Utils.Components.AppLogo;
 
 var LoginWrapper = React.createClass({
-    mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
+    mixins: [ParseReact.Mixin, Reflux.listenTo(FacebookUserStore, 'onFacebookUserUpdated')],
+    shouldUpdateParseUser: false,
 
     observe: function () {
         return {
@@ -54,7 +55,7 @@ var LoginWrapper = React.createClass({
                     var div = document.getElementById('social-login-button-facebook');
                     div.innerHTML = s;
                 } else {
-                    console.log("User logged");
+                    console.log("User logged to FB");
                     this.loginUser();
                 }
 
@@ -110,40 +111,53 @@ var LoginWrapper = React.createClass({
             </div>
         );
     },
+    onFacebookUserUpdated: function (fbUser) {
+        this.setState({facebookUser: fbUser});
+        if (this.shouldUpdateParseUser) {
+            //todo add additional facebook data
+            this.shouldUpdateParseUser = false;
+        }
+    },
     getMyFBIdentity: function () {
         FacebookUserActions.fetchUser();
         FacebookUserActions.fetchAvatar();
         FacebookUserActions.fetchFriendsList();
     },
     loginUser: function () {
-        if (!this.data.user) {
-            Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
-                success: function (user) {
+        if (this.data.user) {
+            Parse.User.current().fetch().then(function (result) {
+                console.log("Parse User fetch successful");
+                return result;
+            }, function (error) {
+                Parse.User.logOut();
+                console.log(error);
+                return Parse.Promise.as("There was an error while fetching user, trying to execute login.");
+            }).then(function (result) {
+                this.executeFBLogin();
+            }.bind(this))
+        } else {
+            this.executeFBLogin();
+        }
+    },
+    executeFBLogin: function () {
+        Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
+            success: function (user) {
+                if (!user.existed()) {
+                    console.log("User signed up and logged in through Facebook!");
+                    this.shouldUpdateParseUser = true;
+                    this.getMyFBIdentity();
+                } else {
+                    console.log("User logged in through Facebook!");
                     if (null == this.state.facebookUser) {
                         this.getMyFBIdentity();
                     }
-                    if (!user.existed()) {
-                        console.log("User signed up and logged in through Facebook!");
-                        //fixme: possible race
-                        if (null != this.state.facebookUser) {
-                            user.set("facebookId", this.state.facebookUser.id);
-                            user.save(null, {
-                                success: function (user) {
-                                    console.log("FacebookId added to user account");
-                                }
-                            });
-                        }
-                    } else {
-                        console.log("User logged in through Facebook!");
-                    }
-                }.bind(this),
-                error: function (user, error) {
-                    console.log("User cancelled the Facebook login or did not fully authorize.");
                 }
-            });
-        } else if (null == this.state.facebookUser) {
-            this.getMyFBIdentity();
-        }
+            }.bind(this),
+            error: function (user, error) {
+                console.log("User cancelled the Facebook login or did not fully authorize.");
+                //todo information for user that login failed and link to refresh page
+            }
+        });
     },
     fetchConfig: function () {
         Parse.Config.get().then(
