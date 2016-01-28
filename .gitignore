@@ -1,6 +1,8 @@
 .idea/
 node_modules/
-target/config/global.json
 target/public/css/style.css
+target-prod/
+/target/.parse.project
+/target/.parse.local
 target/public/js/bundle.js
 npm-debug.log

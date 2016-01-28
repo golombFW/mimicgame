@@ -26,12 +26,12 @@ app.all('/', function (req, res) {
     }
 });
 
-var httpServer = http.createServer(app);
+//var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(app.get('port'), function () {
-    console.log('Server HTTP started: http://localhost:' + app.get('port') + '/');
-});
+//httpServer.listen(app.get('port'), function () {
+//    console.log('Server HTTP started: http://localhost:' + app.get('port') + '/');
+//});
 httpsServer.listen(app.get('port') + 1, function () {
     console.log('Server HTTPS started: https://localhost:' + (app.get('port') + 1) + '/');
 });

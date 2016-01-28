@@ -39,7 +39,7 @@ var LoginWrapper = React.createClass({
                 status: false,  // check Facebook Login status
                 cookie: true,  // enable cookies to allow Parse to access the session
                 xfbml: false,  // initialize Facebook social plugins on the page
-                version: 'v2.4' // point to the latest Facebook Graph API version
+                version: 'v2.5' // point to the latest Facebook Graph API version
             });
 
             FB.getLoginStatus(function (response) {
@@ -56,9 +56,8 @@ var LoginWrapper = React.createClass({
                     div.innerHTML = s;
                 } else {
                     console.log("User logged to FB");
-                    this.loginUser();
                 }
-
+                this.loginUser(response.status);
                 FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
 
             }.bind(this));
@@ -123,7 +122,7 @@ var LoginWrapper = React.createClass({
         FacebookUserActions.fetchAvatar();
         FacebookUserActions.fetchFriendsList();
     },
-    loginUser: function () {
+    loginUser: function (fbStatus) {
         if (this.data.user) {
             Parse.User.current().fetch().then(function (result) {
                 console.log("Parse User fetch successful");

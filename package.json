@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -11,23 +11,23 @@
     "url": "https://github.com/golombFW/mimicgame/issues"
   },
   "dependencies": {
-    "react": "0.14.3",
-    "react-dom": "0.14.3",
-    "react-addons-linked-state-mixin": "0.14.3",
-    "parse": "1.6.13",
+    "react": "0.14.6",
+    "react-dom": "0.14.6",
+    "react-addons-linked-state-mixin": "0.14.6",
+    "parse": "1.6.14",
     "parse-react": "0.5.0",
-    "react-bootstrap": "0.28.1",
+    "react-bootstrap": "0.28.2",
     "reflux": "0.3.0",
     "webcamjs": "1.0.6",
     "body-parser": "^1.14.2",
-    "express": "^4.4.5",
+    "express": "^4.13.4",
     "nodemon": "^1.8.1"
   },
   "devDependencies": {
-    "browserify": "^12.0.1",
+    "browserify": "^13.0.0",
     "reactify": "^1.1.1",
-    "watchify": "^3.6.1",
-    "stripify": "^3.0.0",
+    "watchify": "^3.7.0",
+    "stripify": "^4.0.0",
     "less": "^2.5.3",
     "catw": "^1.0.1"
   },

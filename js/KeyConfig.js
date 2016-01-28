@@ -1,7 +1,6 @@
-var KeyConfig = {
-    FacebookAppId: '476535895837963',
-    ParseAppId: 'tMWQH7ybkZBT5eRTm60nYpeEGJMFfN4gM8Q2Enra',
-    ParseJavaScriptKey: 'Iac3Ms8magoc7sCMzaRmTuroC33UhSlA55ThxWlr'
-};
+var env = require('./env.json');
+
+var node_env = process.env.NODE_ENV || 'development';
+var KeyConfig = env[node_env];
 
 module.exports = KeyConfig;
