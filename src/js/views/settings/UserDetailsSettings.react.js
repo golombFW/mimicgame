@@ -40,9 +40,9 @@ var UserDetailsSettings = React.createClass({
             //fixme: modifying user by Parse.User.current() doesn't work properly, this.data.user is not modified. Change this code if fixed.
             ParseReact.Mutation.Set(this.data.user.id, {
                 nick: userName
-            }).dispatch().then((result) => {
+            }).dispatch().then(function(result) {
                 console.log("Username saved, new username: " + Parse.User.current().get("nick"));
-            }, (error) => {
+            }, function(error) {
                 console.error("Something going wrong while updating user");
             });
         }

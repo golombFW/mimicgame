@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -25,24 +25,22 @@
   },
   "devDependencies": {
     "browserify": "^13.0.0",
+    "envify": "^3.4.0",
+    "gulp": "^3.9.0",
+    "gulp-html-replace": "^1.5.5",
+    "gulp-less": "^3.0.5",
+    "gulp-nodemon": "^2.0.6",
+    "gulp-streamify": "^1.0.2",
+    "gulp-uglify": "^1.5.1",
+    "gulp-watch-less2": "^2.0.4",
     "reactify": "^1.1.1",
-    "watchify": "^3.7.0",
     "stripify": "^4.0.0",
-    "less": "^2.5.3",
-    "catw": "^1.0.1"
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
   },
   "scripts": {
-    "watch-css": "catw -c 'lessc --include-path=./css:./css/libs -' 'css/**/**.less' -o target/public/css/style.css -v",
-    "watch-js": "watchify -o target/public/js/bundle.js -v -d js/app.js",
-    "build-js": "browserify js/app.js -o target/public/js/bundle.js",
-    "build-css": "catw -c 'lessc --include-path=./css:./css/libs -' 'css/**/**.less' > target/public/css/style.css",
-    "watch": "npm run watch-css & npm run watch-js",
-    "build": "npm run build-css && npm run build-js",
-    "start": "npm run watch & nodemon devserver.js"
-  },
-  "browserify": {
-    "transform": [
-      "reactify"
-    ]
+    "build-prod": "gulp production",
+    "build": "gulp build-dev",
+    "start": "gulp"
   }
 }

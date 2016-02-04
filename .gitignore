@@ -2,6 +2,7 @@
 node_modules/
 target/public/css/style.css
 target-prod/
+/target/cloud
 /target/.parse.project
 /target/.parse.local
 target/public/js/bundle.js

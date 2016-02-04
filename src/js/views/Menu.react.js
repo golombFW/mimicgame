@@ -13,7 +13,7 @@ var Menu = React.createClass({
             <div id="app-menu">
                 <nav className="menu">
                     <a className="btn btn-default" role="button"
-                       onClick={this.selectView.bind(this, AppState.TEST)}>graj</a><br/>
+                       onClick={this.selectView.bind(this, AppState.CAMERA_VIEW)}>graj</a><br/>
                     <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
                 </nav>
             </div>

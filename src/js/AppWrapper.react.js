@@ -9,6 +9,7 @@ var LoadingBar = Utils.Components.LoadingBar1;
 /* Views */
 var Menu = require('./views/Menu.react.js');
 var UserSettings = require('./views/UserSettings.react.js');
+var CameraView = require('./views/CameraShot.react.js');
 
 var AppWrapper = React.createClass({
     mixins: [Reflux.connect(AppStateStore, 'currentAppState')],
@@ -17,6 +18,7 @@ var AppWrapper = React.createClass({
     getInitialState: function () {
         this.contents[AppState.MENU] = <Menu/>;
         this.contents[AppState.USER_SETTINGS] = <UserSettings/>;
+        this.contents[AppState.CAMERA_VIEW]  = <CameraView />;
 
         this.contents[AppState.TEST] = <LoadingBar/>;
     },

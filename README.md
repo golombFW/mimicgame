@@ -7,6 +7,7 @@ in Computer Science at Gdansk University of Technology.
 ##Getting Started
 This project to get working needs **Node.js** or io.js and **npm** package manager
 installed on your machine.
+It also needs **gulp-cli**.
 
 It also needs to set up a new Parse app at [Parse.com](https://parse.com) and setup 
 a new facebook app at [developers.facebook.com](https://developers.facebook.com/)
