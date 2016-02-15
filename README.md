@@ -15,7 +15,7 @@ a new facebook app at [developers.facebook.com](https://developers.facebook.com/
 **Remember to turn on and configure facebook authentication in Parse app settings!**
 ###1. Change application ids and keys
 Once you've set up Parse and Facebook, insert your app's Parse Application Id, 
-Parse JavaScript Key and Facebook App ID into the config file [`KeyConfig.js`](js/KeyConfig.js).
+Parse JavaScript Key and Facebook App ID into the config file [`env.json`](src/js/env.json).
 
 ###2. How to build and run application
 In project root (same path like this README file) run following commands

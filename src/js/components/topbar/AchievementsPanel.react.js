@@ -4,7 +4,9 @@ var AchievementsPanel = React.createClass({
     render: function () {
         return (
             <div id="achievements-panel">
-                achievements panel draft
+                {
+                    //achievements panel draft
+                }
             </div>
         );
     }

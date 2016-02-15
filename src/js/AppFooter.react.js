@@ -20,13 +20,13 @@ var AppFooter = React.createClass({
             <div className="app-footer">
                 <span>
                     <a href="https://github.com/golombFW/mimicgame" target="_blank">
-                        <i className="fa fa-github"></i> Get Sources
+                        <i className="fa fa-github"></i> Źródła
                     </a>
                 </span>
                 <span>
                     <a onClick={this.showAbout} href="#">O projekcie</a>
                 </span>
-                <span>Filip Gołębiewski 2015</span>
+                <span>Filip Gołębiewski 2015-2016</span>
                 <About closeFunc={this.closeAbout} display={this.state.displayAbout}/>
                 <FullScreenButton />
             </div>

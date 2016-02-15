@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
+var stripify = require('stripify');
 var htmlreplace = require('gulp-html-replace');
 var source = require('vinyl-source-stream');
 var less = require('gulp-less');
@@ -11,7 +12,7 @@ var envify = require('envify');
 var streamify = require('gulp-streamify');
 var nodemon = require('gulp-nodemon');
 var pathJoin = require('path');
-//var gutil = require('gulp-util');
+var gutil = require('gulp-util');
 
 var path = {
     HTML_SRC: 'src/appindex.html',
@@ -61,6 +62,7 @@ gulp.task('watch', function () {
             console.log('JS updated');
         })
         .bundle()
+        .on('error', gutil.log)
         .pipe(source(path.OUT))
         .pipe(gulp.dest(pathJoin.join(path.DEST_DEV, path.DEST_JS)));
 });
@@ -76,14 +78,11 @@ gulp.task('watch-css', function () {
 gulp.task('build', function () {
     browserify({
         entries: [path.JS_ENTRY_POINT],
-        transform: [[reactify], ['envify', {'global': true, '_': 'purge', NODE_ENV: 'production'}]]
+        transform: [[reactify], ['envify', {'global': true, '_': 'purge', NODE_ENV: 'production'}], [stripify]]
     })
-    //.transform(envify({
-    //    NODE_ENV: 'production'
-    //}))
         .bundle()
         .pipe(source(path.MINIFIED_OUT))
-        //.pipe(uglify().on('error', gutil.log))
+        .on('error', gutil.log)
         .pipe(streamify(uglify()))
         .pipe(gulp.dest(pathJoin.join(path.DEST_PROD, path.DEST_JS)));
 });
@@ -123,5 +122,5 @@ gulp.task('start', function () {
 });
 
 gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-cloud', 'build', 'build-less']);
-gulp.task('build-dev',['copy-html', 'copy-cloud', 'watch', 'watch-css']);
+gulp.task('build-dev', ['copy-html', 'copy-cloud', 'watch', 'watch-css']);
 gulp.task('default', ['build-dev', 'start']);
