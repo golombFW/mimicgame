@@ -16,24 +16,28 @@ Parse.Cloud.beforeSave(Parse.User, function (request, response) {
                 response.error(error);
             }
         });
+    } else {
+        response.success();
     }
 });
 
-Parse.Cloud.afterSave(Parse.User, function (request, response) {
+Parse.Cloud.afterSave(Parse.User, function (request) {
     Parse.Cloud.useMasterKey();
     var facebookUser = request.object.get("FacebookUser");
     if (facebookUser) {
         facebookUser.fetch().then(function (fbUser) {
-            fbUser.set("User", request.object);
-            fbUser.save(null, {
-                success: function (user) {
-                    response.success(user);
-                },
-                error: function (obj, error) {
-                    console.error("afterSave User: " + error.message);
-                    response.error(error);
-                }
-            });
+            if (null == fbUser.get("User")) {
+                fbUser.set("User", request.object);
+                fbUser.save(null, {
+                    success: function (user) {
+                    },
+                    error: function (obj, error) {
+                        console.error("afterSave User: " + error.message);
+                    }
+                });
+            }
         })
+    } else {
+        console.error("Invalid state, user should have FacebookUser object");
     }
 });
