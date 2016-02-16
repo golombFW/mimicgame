@@ -16,6 +16,7 @@ var AppFooter = React.createClass({
         this.setState({displayAbout: false});
     },
     render: function () {
+        var version = "Wersja " + process.env.APP_VERSION || "";
         return (
             <div className="app-footer">
                 <span>
@@ -28,6 +29,8 @@ var AppFooter = React.createClass({
                 </span>
                 <span>Filip Gołębiewski 2015-2016</span>
                 <About closeFunc={this.closeAbout} display={this.state.displayAbout}/>
+                <br/>
+                {version}
                 <FullScreenButton />
             </div>
         );

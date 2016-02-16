@@ -5,6 +5,7 @@ var htmlreplace = require('gulp-html-replace');
 var source = require('vinyl-source-stream');
 var less = require('gulp-less');
 var watchLess = require('gulp-watch-less2');
+var plumber = require('gulp-plumber');
 var browserify = require('browserify');
 var watchify = require('watchify');
 var reactify = require('reactify');
@@ -50,13 +51,14 @@ gulp.task('watch', function () {
 
     var watcher = watchify(browserify({
         entries: [path.JS_ENTRY_POINT],
-        transform: [reactify],
+        transform: [[reactify], ['envify', {'global': true, '_': 'purge', APP_VERSION: new Date().toJSON()}]],
         debug: true,
         cache: {}, packageCache: {}, fullPaths: true
     }));
 
     return watcher.on('update', function () {
             watcher.bundle()
+                .on('error', gutil.log)
                 .pipe(source(path.OUT))
                 .pipe(gulp.dest(pathJoin.join(path.DEST_DEV, path.DEST_JS)));
             console.log('JS updated');
@@ -70,15 +72,17 @@ gulp.task('watch', function () {
 gulp.task('watch-css', function () {
     console.log('css updated');
     return gulp.src(path.CSS_SRC)
+        .pipe(plumber())
         .pipe(watchLess(path.CSS_SRC, {verbose: true}))
         .pipe(less())
+        .on('error', gutil.log)
         .pipe(gulp.dest(pathJoin.join(path.DEST_DEV, path.DEST_CSS)));
 });
 
 gulp.task('build', function () {
     browserify({
         entries: [path.JS_ENTRY_POINT],
-        transform: [[reactify], ['envify', {'global': true, '_': 'purge', NODE_ENV: 'production'}], [stripify]]
+        transform: [[reactify], ['envify', {'global': true, '_': 'purge', NODE_ENV: 'production', APP_VERSION: new Date().toJSON()}], [stripify]]
     })
         .bundle()
         .pipe(source(path.MINIFIED_OUT))
@@ -91,6 +95,7 @@ gulp.task('build-less', function () {
     console.log("style updated");
     return gulp.src(path.CSS_SRC)
         .pipe(less())
+        .on('error', gutil.log)
         .pipe(gulp.dest(pathJoin.join(path.DEST_PROD, path.DEST_CSS)));
 });
 
