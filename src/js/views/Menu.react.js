@@ -10,12 +10,32 @@ var Logo = Utils.Components.AppLogo;
 var Menu = React.createClass({
     render: function () {
         return (
-            <div id="app-menu">
+            <div id="app-menu" className="app-view-default">
+                <div id="game-requests-table">
+                    {
+                        //Wyzwanie 1
+                        //Wyzwanie 2
+                    }
+                </div>
                 <nav className="menu">
                     <a className="btn btn-default" role="button"
-                       onClick={this.selectView.bind(this, AppState.CAMERA_VIEW)}>graj</a><br/>
+                       onClick={this.selectView.bind(this, AppState.NEW_GAME_MENU)}>Nowa Gra</a><br/>
+                    <a className="btn btn-default" role="button"
+                       onClick={this.selectView.bind(this, AppState.CAMERA_VIEW)}>Camera Test</a><br/>
                     <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
                 </nav>
+                <div id="actual-games-tab">
+                    {
+                        //Gra 1
+                        //Gra 2
+                    }
+                </div>
+                <div id="previous-games-tab">
+                    {
+                        //Edek1 wygrana
+                        //Anonim23 przegrana
+                    }
+                </div>
             </div>
         );
     },

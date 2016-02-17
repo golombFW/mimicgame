@@ -6,7 +6,7 @@ var SettingsState = require('../../SettingsState.js');
 var SettingsMenu = React.createClass({
     contents: [
         [SettingsState.USER, "Użytkownik", "fa fa-user"],
-        [SettingsState.PRIVACY, "Prywatność", null]
+        [SettingsState.PRIVACY, "Prywatność", "fa fa-user-secret"]
     ],
 
     render: function () {

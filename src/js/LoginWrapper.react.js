@@ -88,7 +88,7 @@ var LoginWrapper = React.createClass({
         if (this.data.user) {
             if (null == this.state.facebookUser) {
                 return (
-                    <LoadingBar/>
+                    <LoadingBar center={true}/>
                 );
             }
             return (
@@ -104,7 +104,7 @@ var LoginWrapper = React.createClass({
                 <Logo size="big"/>
 
                 <div className="welcome-footer-dark">
-                    <div id="social-login-button-facebook"/>
+                    <div id="social-login-button-facebook"></div>
                     <AppFooter />
                 </div>
             </div>
@@ -139,6 +139,7 @@ var LoginWrapper = React.createClass({
         }
     },
     executeFBLogin: function () {
+        console.log("ExecuteFBLogin");
         Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
             success: function (user) {
                 if (!user.existed()) {
