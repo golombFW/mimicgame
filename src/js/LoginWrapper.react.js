@@ -2,6 +2,7 @@ var React = require('react');
 var Parse = require('parse').Parse;
 var ParseReact = require('parse-react');
 var Reflux = require('reflux');
+var moment = require('moment');
 var Utils = require('./utils/Utils.js');
 var Keys = require('./KeyConfig.js');
 
@@ -54,12 +55,13 @@ var LoginWrapper = React.createClass({
                     var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
                     var div = document.getElementById('social-login-button-facebook');
                     div.innerHTML = s;
+
+                    this.loginUser();
                 } else {
                     console.log("User logged to FB");
+                    this.loginUser(response)
                 }
-                this.loginUser(response.status);
                 FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
-
             }.bind(this));
         }.bind(this);
 
@@ -122,7 +124,12 @@ var LoginWrapper = React.createClass({
         FacebookUserActions.fetchAvatar();
         FacebookUserActions.fetchFriendsList();
     },
-    loginUser: function (fbStatus) {
+    loginUser: function (response) {
+        var authData;
+        if (response) {
+            authData = response.authResponse;
+        }
+
         if (this.data.user) {
             Parse.User.current().fetch().then(function (result) {
                 console.log("Parse User fetch successful");
@@ -132,15 +139,29 @@ var LoginWrapper = React.createClass({
                 console.log(error);
                 return Parse.Promise.as("There was an error while fetching user, trying to execute login.");
             }).then(function (result) {
-                this.executeFBLogin();
+                this.executeFBLogin(authData);
             }.bind(this))
         } else {
-            this.executeFBLogin();
+            this.executeFBLogin(authData);
         }
     },
-    executeFBLogin: function () {
+    executeFBLogin: function (authData) {
         console.log("ExecuteFBLogin");
-        Parse.FacebookUtils.logIn("public_profile, email, user_friends", {
+        var permissions;
+
+        if (null != authData) {
+            var expiration = moment().add('seconds', authData.expiresIn).format(
+                "YYYY-MM-DDTHH:mm:ss.SSS\\Z");
+            permissions = {
+                id: authData.userID,
+                access_token: authData.accessToken,
+                expiration_date: expiration
+            };
+        } else {
+            permissions = "public_profile, email, user_friends";
+        }
+
+        Parse.FacebookUtils.logIn(permissions, {
             success: function (user) {
                 if (!user.existed()) {
                     console.log("User signed up and logged in through Facebook!");
@@ -155,7 +176,7 @@ var LoginWrapper = React.createClass({
             }.bind(this),
             error: function (user, error) {
                 console.log("User cancelled the Facebook login or did not fully authorize.");
-                //todo information for user that login failed and link to refresh page
+                //todo invalid? - information for user that login failed and link to refresh page
             }
         });
     },
