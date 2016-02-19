@@ -55,6 +55,9 @@ exports.joinAnonymousGame = function (player, options) {
                 var row = Math.floor(Math.random() * count);
                 matchQuery.limit(1);
                 matchQuery.skip(row); // random num is 0 to count-1 so we can use it as skip directly
+                matchQuery.include(_matchPlayer1Key);
+                matchQuery.include(_matchPlayer2Key);
+
                 matchQuery.find({
                     success: function (results) {
                         _log("Fetched random game: " + JSON.stringify(results[0]), player);
@@ -65,7 +68,7 @@ exports.joinAnonymousGame = function (player, options) {
                         } else {
                             // If something happened to the match give up and create a new one
                             _log("Creating new game since random selection not found", player);
-                            _createNewMatch(player, options);
+                            _getOrCreateMatch(player, options);
                         }
                     },
                     error: options.error
@@ -73,7 +76,7 @@ exports.joinAnonymousGame = function (player, options) {
             } else {
                 // If no matches were found, create new one
                 _log("Creating new game since no available games were found", player);
-                _createNewMatch(player, options);
+                _getOrCreateMatch(player, options);
             }
         },
         error: options.error
@@ -108,10 +111,46 @@ _joinMatchAttempt = function (match, player, options) {
                 // If someone else joined game first, give up and create new one
                 console.error("COLLISION");
                 _log("Game lock failed, giving up and creating new game.", player);
-                _createNewMatch(player, options);
+                _getOrCreateMatch(player, options);
             }
         },
         error: options.error
+    });
+};
+
+_getOrCreateMatch = function (player, options) {
+    //try to find existing waiting match
+    var playerPrevMatchQuery = new Parse.Query(Match);
+    playerPrevMatchQuery.equalTo(_matchStatusKey, _matchStatusKeyWaiting);
+    playerPrevMatchQuery.equalTo(_matchPlayer1Key, player);
+    playerPrevMatchQuery.include(_matchPlayer1Key);
+    playerPrevMatchQuery.include(_matchPlayer2Key);
+
+    playerPrevMatchQuery.count({
+        success: function (count) {
+            _log("Found " + count + " player games: ", player);
+            if (count > 0) {
+                playerPrevMatchQuery.limit(1);
+                playerPrevMatchQuery.find({
+                    success: function (results) {
+                        _log("Fetched player previous game: " + JSON.stringify(results[0]), player);
+                        if (results.length > 0) {
+                            // Attempt to join fetched game
+                            _log("Returning previous player game: " + JSON.stringify(results[0]), player);
+                            options.success(results[0], true);
+                        } else {
+                            // If something happened to the match give up and create a new one
+                            _log("Creating new game since previous player game selection not found", player);
+                            _createNewMatch(player, options);
+                        }
+                    },
+                    error: options.error
+                });
+            } else {
+                //create new match
+                _createNewMatch(player, options);
+            }
+        }
     });
 };
 

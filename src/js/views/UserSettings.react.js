@@ -1,6 +1,6 @@
 var React = require('react');
 
-var SettingsState = require('../SettingsState.js');
+var SettingsState = require('../states/SettingsState.js');
 
 var SettingsMenu = require('../components/settings/SettingsMenu.react.js');
 var UserDetailsSettings = require('./settings/UserDetailsSettings.react.js');

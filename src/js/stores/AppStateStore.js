@@ -1,7 +1,7 @@
 var Reflux = require('reflux');
 
 var AppStateActions = require('../actions/AppStateActions.js');
-var AppState = require('../AppState.js');
+var AppState = require('../states/AppState.js');
 
 var AppStateStore = Reflux.createStore({
     listenables: [AppStateActions],

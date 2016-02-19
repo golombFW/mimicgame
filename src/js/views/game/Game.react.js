@@ -1,5 +1,5 @@
 var React = require('react');
-var GameState = require('../../GameState.js');
+var GameState = require('../../states/GameState.js');
 
 var Game = React.createClass({
     render: function () {

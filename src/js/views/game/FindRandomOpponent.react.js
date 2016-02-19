@@ -4,7 +4,6 @@ var MenuButton = require('../../components/MenuButton.react.js');
 var Utils = require('../../utils/Utils.js');
 var LoadingBar = Utils.Components.LoadingBar1;
 
-
 var _matchStatusKey = "gameStatus";
 var _matchStatusKeyWaiting = "waiting";
 var _matchStatusKeyInProgress = "in_progress";
@@ -61,7 +60,17 @@ var FindRandomOpponent = React.createClass({
             match.fetch().then(function (newMatch) {
                 if (newMatch.get(_matchStatusKey) !== _matchStatusKeyWaiting) {
                     console.log("New state of match: " + newMatch.get(_matchStatusKey));
-                    this.setState({match: newMatch});
+                    var matchQuery = new Parse.Query(newMatch);
+                    matchQuery.include("player1");
+                    matchQuery.include("player2");
+                    matchQuery.get(match.id, {
+                        success: function (queriedMatch) {
+                            this.setState({match: queriedMatch});
+                        }.bind(this),
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
                 }
                 console.log("Match fetched");
             }.bind(this), function (obj, error) {

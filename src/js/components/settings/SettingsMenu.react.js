@@ -1,6 +1,6 @@
 var React = require('react');
 
-var SettingsState = require('../../SettingsState.js');
+var SettingsState = require('../../states/SettingsState.js');
 
 
 var SettingsMenu = React.createClass({

@@ -2,7 +2,7 @@ var React = require('react');
 var MenuButton = require('../../components/MenuButton.react.js');
 
 var AppStateActions = require('../../actions/AppStateActions.js');
-var AppState = require('../../AppState.js');
+var AppState = require('../../states/AppState.js');
 
 var NewGameMenu = React.createClass({
     render: function() {

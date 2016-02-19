@@ -1,14 +1,24 @@
 var React = require('react');
 var Parse = require('parse').Parse;
+var Reflux = require('reflux');
 var Utils = require('../utils/Utils.js');
 
 var AppStateActions = require('../actions/AppStateActions.js');
-var AppState = require('../AppState.js');
+var AppState = require('../states/AppState.js');
+
+var AppDataStore = require('../stores/AppDataStore.js');
+var AppDataActions = require('../actions/AppDataActions.js');
 
 var Logo = Utils.Components.AppLogo;
+var ActualGamesPanel = require('../components/main_menu/ActualGamesPanel.react.js');
 
 var Menu = React.createClass({
+    mixins: [Reflux.connect(AppDataStore, 'appData')],
+    componentDidMount: function () {
+        AppDataActions.fetchGamesInfo();
+    },
     render: function () {
+        var actualGames = this.state.appData.gamesInfo.actualGames;
         return (
             <div id="app-menu" className="app-view-default">
                 <div id="game-requests-table">
@@ -24,12 +34,9 @@ var Menu = React.createClass({
                        onClick={this.selectView.bind(this, AppState.CAMERA_VIEW)}>Camera Test</a><br/>
                     <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
                 </nav>
-                <div id="actual-games-tab">
-                    {
-                        //Gra 1
-                        //Gra 2
-                    }
-                </div>
+
+                <ActualGamesPanel games={actualGames}/>
+
                 <div id="previous-games-tab">
                     {
                         //Edek1 wygrana

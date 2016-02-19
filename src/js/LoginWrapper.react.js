@@ -150,7 +150,7 @@ var LoginWrapper = React.createClass({
         var permissions;
 
         if (null != authData) {
-            var expiration = moment().add('seconds', authData.expiresIn).format(
+            var expiration = moment().add(authData.expiresIn, 'seconds').format(
                 "YYYY-MM-DDTHH:mm:ss.SSS\\Z");
             permissions = {
                 id: authData.userID,

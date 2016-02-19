@@ -3,7 +3,7 @@ var Reflux = require('reflux');
 var Utils = require('./utils/Utils.js');
 
 var AppStateStore = require('./stores/AppStateStore.js');
-var AppState = require('./AppState.js');
+var AppState = require('./states/AppState.js');
 var LoadingBar = Utils.Components.LoadingBar1;
 
 /* Views */
