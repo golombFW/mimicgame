@@ -4,13 +4,14 @@ var SettingsState = require('../states/SettingsState.js');
 
 var SettingsMenu = require('../components/settings/SettingsMenu.react.js');
 var UserDetailsSettings = require('./settings/UserDetailsSettings.react.js');
+var PrivacySettings = require('./settings/PrivacySettings.react.js');
 
 var UserSettings = React.createClass({
     contents: {},
 
     getInitialState: function () {
         this.contents[SettingsState.USER] = <UserDetailsSettings/>;
-        this.contents[SettingsState.PRIVACY] = <UserDetailsSettings/>;
+        this.contents[SettingsState.PRIVACY] = <PrivacySettings/>;
 
         return {
             currentTab: SettingsState.USER

@@ -24,7 +24,7 @@ var UserDetailsSettings = React.createClass({
                 </div>
                 <div className="panel-body">
                     <div className="form-group">
-                        <label for="userName">Nick</label>
+                        <label htmlFor="userName">Nick</label>
                         <SettingsInput id="userName" placeholder="Podaj nick" ref="userName" onSave={this.saveUserName}>
                             {this.getUserName()}
                         </SettingsInput>
@@ -40,10 +40,10 @@ var UserDetailsSettings = React.createClass({
             //fixme: modifying user by Parse.User.current() doesn't work properly, this.data.user is not modified. Change this code if fixed.
             ParseReact.Mutation.Set(this.data.user.id, {
                 nick: userName
-            }).dispatch().then(function(result) {
+            }).dispatch().then(function (result) {
                 console.log("Username saved, new username: " + Parse.User.current().get("nick"));
-            }, function(error) {
-                console.error("Something going wrong while updating user");
+            }, function (error) {
+                console.error("Something going wrong while updating user, error: " + error.message);
             });
         }
 

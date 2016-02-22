@@ -32,7 +32,7 @@ var SettingsInput = React.createClass({
         var labelId = this.props.id + "-label";
         return (
             <div>
-                <span id={labelId} ref={this.props.id}>{this.props.children}</span>
+                <span id={labelId} ref={this.props.id}>{this.props.children} </span>
                 <button className="btn btn-default btn-xs" type="button" onClick={this.editValue}>
                     <i className="fa fa-pencil"></i> Zmień
                 </button>

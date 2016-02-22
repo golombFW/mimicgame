@@ -7,3 +7,4 @@ target-prod/
 /target/.parse.local
 target/public/js/bundle.js
 npm-debug.log
+/target/public/appindex.html

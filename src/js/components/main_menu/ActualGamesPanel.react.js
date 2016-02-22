@@ -22,10 +22,10 @@ var ActualGamesPanel = React.createClass({
                 return (
                     <div key={s.id} className="match-info">
                         <div clssName="opponent-info">Przeciwko {opponent.get("nick")}</div>
-                        <button className="btn btn-default btn-xs">Graj</button>
+                        <button className="btn btn-default btn-xs" onClick={this.startGame.bind(this, s)}>Graj</button>
                     </div>
                 );
-            });
+            }.bind(this));
         }
         return (
             <div id="actual-games-panel">
@@ -33,11 +33,14 @@ var ActualGamesPanel = React.createClass({
             </div>
         );
     },
-    compareGames: function(a, b) {
+    compareGames: function (a, b) {
         //sort by modifiedDate
         var dateA = moment(a.updatedAt);
         var dateB = moment(b.updatedAt);
         return dateB - dateA;
+    },
+    startGame: function (match) {
+        alert('test');
     }
 });
 

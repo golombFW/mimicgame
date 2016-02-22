@@ -116,6 +116,16 @@ var LoginWrapper = React.createClass({
         this.setState({facebookUser: fbUser});
         if (this.shouldUpdateParseUser) {
             //todo add additional facebook data
+
+            //set nick to facebook user first name
+            var nick = Utils.User.getUserName(fbUser.first_name, this.data.user.nick, true);
+            ParseReact.Mutation.Set(this.data.user.id, {
+                nick: nick
+            }).dispatch().then(function (result) {
+                console.log("Username saved, new username: " + Parse.User.current().get("nick"));
+            }, function (error) {
+                console.error("Something going wrong while updating user, error code: " + error.message);
+            });
             this.shouldUpdateParseUser = false;
         }
     },

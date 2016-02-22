@@ -32,6 +32,7 @@ var AppDataStore = Reflux.createStore({
 
         var completedMatches = Parse.Query.or(player1Matches, player2Matches);
         completedMatches.equalTo("gameStatus", "finished");
+        completedMatches.descending("updatedAt");
         completedMatches.limit(_COMPLETED_GAMES_LIMIT);
 
         var matches = Parse.Query.or(actualMatches, completedMatches);
