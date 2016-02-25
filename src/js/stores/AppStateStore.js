@@ -25,6 +25,13 @@ var AppStateStore = Reflux.createStore({
     closeUserSettings: function () {
         this.changeState(this.prevAppState);
     },
+    toggleUserSettings: function () {
+        if (this.currentAppState !== AppState.USER_SETTINGS) {
+            this.openUserSettings();
+        } else {
+            this.closeUserSettings();
+        }
+    },
     goToMenu: function () {
         this.changeState(AppState.MENU);
     }

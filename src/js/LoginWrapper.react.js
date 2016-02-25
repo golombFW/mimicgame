@@ -1,13 +1,15 @@
 var React = require('react');
 var Parse = require('parse').Parse;
-var ParseReact = require('parse-react');
-var Reflux = require('reflux');
+var StateMixin = require('reflux-state-mixin');
 var moment = require('moment');
 var Utils = require('./utils/Utils.js');
+var $ = Utils.$;
 var Keys = require('./KeyConfig.js');
 
 var FacebookUserActions = require('./actions/FacebookUserActions.js');
 var FacebookUserStore = require('./stores/FacebookUserStore.js');
+
+var UserStore = require('./stores/UserStore.js');
 
 var AppWrapper = require('./AppWrapper.react.js');
 var UserTopBar = require('./UserTopBar.react.js');
@@ -17,14 +19,8 @@ var LoadingBar = Utils.Components.LoadingBar1;
 var Logo = Utils.Components.AppLogo;
 
 var LoginWrapper = React.createClass({
-    mixins: [ParseReact.Mixin, Reflux.listenTo(FacebookUserStore, 'onFacebookUserUpdated')],
-    shouldUpdateParseUser: false,
+    mixins: [StateMixin.connect(UserStore), StateMixin.connect(FacebookUserStore)],
 
-    observe: function () {
-        return {
-            user: ParseReact.currentUser
-        };
-    },
     getInitialState: function () {
         return {
             config: null
@@ -45,10 +41,10 @@ var LoginWrapper = React.createClass({
 
             FB.getLoginStatus(function (response) {
                 console.log("fb login status: " + response.status);
-                if (response.status !== 'connected') {
+                if ('connected' !== response.status) {
                     console.log("User fb not logged");
 
-                    if (null != this.data.user) {
+                    if (this.state.user) {
                         Parse.User.logOut();
                     }
 
@@ -82,13 +78,13 @@ var LoginWrapper = React.createClass({
         setInterval(this.fetchConfig, interval);
     },
     render: function () {
-        if (null != this.state.config && this.state.config.get("appDisable")) {
+        if (this.state.config && this.state.config.get("appDisable")) {
             return (
                 <AppDisable info={this.state.config.get("appDisableText")}/>
             );
         }
-        if (this.data.user) {
-            if (null == this.state.facebookUser) {
+        if (this.state.user) {
+            if (!this.state.facebookUser) {
                 return (
                     <LoadingBar center={true}/>
                 );
@@ -112,26 +108,9 @@ var LoginWrapper = React.createClass({
             </div>
         );
     },
-    onFacebookUserUpdated: function (fbUser) {
-        this.setState({facebookUser: fbUser});
-        if (this.shouldUpdateParseUser) {
-            //todo add additional facebook data
-
-            //set nick to facebook user first name
-            var nick = Utils.User.getUserName(fbUser.first_name, this.data.user.nick, true);
-            ParseReact.Mutation.Set(this.data.user.id, {
-                nick: nick
-            }).dispatch().then(function (result) {
-                console.log("Username saved, new username: " + Parse.User.current().get("nick"));
-            }, function (error) {
-                console.error("Something going wrong while updating user, error code: " + error.message);
-            });
-            this.shouldUpdateParseUser = false;
-        }
-    },
-    getMyFBIdentity: function () {
-        FacebookUserActions.fetchUser();
-        FacebookUserActions.fetchAvatar();
+    getMyFBIdentity: function (isUpdateNeeded) {
+        FacebookUserActions.fetchUser(isUpdateNeeded);
+        FacebookUserActions.fetchAvatar(isUpdateNeeded);
         FacebookUserActions.fetchFriendsList();
     },
     loginUser: function (response) {
@@ -140,7 +119,7 @@ var LoginWrapper = React.createClass({
             authData = response.authResponse;
         }
 
-        if (this.data.user) {
+        if (this.state.user) {
             Parse.User.current().fetch().then(function (result) {
                 console.log("Parse User fetch successful");
                 return result;
@@ -175,11 +154,10 @@ var LoginWrapper = React.createClass({
             success: function (user) {
                 if (!user.existed()) {
                     console.log("User signed up and logged in through Facebook!");
-                    this.shouldUpdateParseUser = true;
-                    this.getMyFBIdentity();
+                    this.getMyFBIdentity(true);
                 } else {
                     console.log("User logged in through Facebook!");
-                    if (null == this.state.facebookUser) {
+                    if ($.isNullOrEmpty(this.state.facebookUser)) {
                         this.getMyFBIdentity();
                     }
                 }

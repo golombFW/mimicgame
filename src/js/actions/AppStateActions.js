@@ -4,7 +4,9 @@ var AppStateActions = Reflux.createActions([
     'changeState',
     'openUserSettings',
     'closeUserSettings',
-    'goToMenu'
+    'toggleUserSettings',
+    'goToMenu',
+    'openGameView'
 ]);
 
 module.exports = AppStateActions;

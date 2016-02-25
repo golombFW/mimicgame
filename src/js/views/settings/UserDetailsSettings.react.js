@@ -1,21 +1,18 @@
 var React = require('react');
 var Parse = require('parse').Parse;
-var ParseReact = require('parse-react');
+var StateMixin = require('reflux-state-mixin');
 var Reflux = require('reflux');
 var UserUtils = require('../../utils/Utils.js').User;
 
 var FacebookUserStore = require('../../stores/FacebookUserStore.js');
+var UserStore = require('../../stores/UserStore.js');
+var UserActions = require('../../actions/UserActions.js');
 
 var SettingsInput = require("../../components/settings/SettingsInput.react.js");
 
 var UserDetailsSettings = React.createClass({
-    mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
+    mixins: [StateMixin.connect(UserStore), Reflux.connect(FacebookUserStore, 'facebookUser')],
 
-    observe: function () {
-        return {
-            user: ParseReact.currentUser
-        };
-    },
     render: function () {
         return (
             <div className="panel panel-default">
@@ -34,33 +31,21 @@ var UserDetailsSettings = React.createClass({
         );
     },
     saveUserName: function (userName) {
-        if (null != userName && "" !== userName && userName !== this.data.user.nick) {
+        if (userName && "" !== userName && userName !== this.state.user.get("nick")) {
             console.log("Save new username: " + userName);
 
-            //fixme: modifying user by Parse.User.current() doesn't work properly, this.data.user is not modified. Change this code if fixed.
-            ParseReact.Mutation.Set(this.data.user.id, {
+            Parse.User.current().save({
                 nick: userName
-            }).dispatch().then(function (result) {
+            }).then(function (result) {
                 console.log("Username saved, new username: " + Parse.User.current().get("nick"));
+                UserActions.updateUser();
             }, function (error) {
                 console.error("Something going wrong while updating user, error: " + error.message);
             });
         }
-
-        //Parse.User.current()
-        //    .save({
-        //        nick: userName
-        //    }).then((result) => {
-        //        console.log("Username saved: " + result);
-        //        console.log("new username: " + Parse.User.current().get("nick"));
-        //
-        //    }, (error) => {
-        //        console.error("Something going wrong while updating user");
-        //    });
-
     },
     getUserName: function () {
-        return UserUtils.getUserName(this.state.facebookUser.first_name, this.data.user.nick, true);
+        return UserUtils.getUserName(this.state.facebookUser.first_name, this.state.user.get("nick"), true);
     }
 });
 

@@ -3,9 +3,9 @@ var ReactDOM = require('react-dom');
 var Parse = require('parse').Parse;
 var Keys = require('./KeyConfig.js');
 
-var LoginWrapper = require('./LoginWrapper.react.js');
-
 Parse.initialize(Keys.ParseAppId, Keys.ParseJavaScriptKey);
+
+var LoginWrapper = require('./LoginWrapper.react.js');
 
 ReactDOM.render(
     <LoginWrapper />,

@@ -1,7 +1,10 @@
 var React = require('react');
 var Parse = require('parse').Parse;
-var ParseReact = require('parse-react');
+var StateMixin = require('reflux-state-mixin');
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
+
+var UserStore = require('../../stores/UserStore.js');
+
 var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
 
 var PhotoPrivacyValues = [
@@ -11,13 +14,7 @@ var PhotoPrivacyValues = [
 var UserSettings = Parse.Object.extend("UserSettings");
 
 var PrivacySettings = React.createClass({
-    mixins: [ParseReact.Mixin, LinkedStateMixin],
-
-    observe: function () {
-        return {
-            user: ParseReact.currentUser
-        };
-    },
+    mixins: [StateMixin.connect(UserStore), LinkedStateMixin],
 
     getInitialState: function () {
         return {
@@ -26,7 +23,8 @@ var PrivacySettings = React.createClass({
         };
     },
     componentDidMount: function () {
-        var settings = new UserSettings({id: this.data.user.settings.objectId});
+        var settings = this.state.user.get("settings");
+
         settings.fetch().then(function (newSettings) {
                 var photoPrivacy;
                 if (null != newSettings) {
@@ -47,7 +45,7 @@ var PrivacySettings = React.createClass({
 
         var photoPrivacyValueLink = this.linkState("photoPrivacySetting");
 
-        if (null == settings) {
+        if (!settings) {
             return <LoadingBar/>
         }
         return (
@@ -67,8 +65,10 @@ var PrivacySettings = React.createClass({
                                 );
                             })}
                         </select><br/>
-                        <span>Uwaga, opcja będzie zastosowana tylko do rozgrywek, które dopiero zaczniesz. Zdjęcia zrobione w
-                        poprzednich rozgrywkach, będą miały opcję ustawioną przez Ciebie w czasie ich rozpoczęcia.</span>
+                        <p className="note">Uwaga, opcja będzie zastosowana tylko do rozgrywek, które dopiero zaczniesz.
+                            Zdjęcia zrobione w
+                            poprzednich rozgrywkach, będą miały opcję ustawioną przez Ciebie w czasie ich
+                            rozpoczęcia.</p>
                     </div>
                 </div>
             </div>

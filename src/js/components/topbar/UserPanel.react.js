@@ -1,24 +1,23 @@
 var React = require('react');
-var ParseReact = require('parse-react');
-var Reflux = require('reflux');
-var UserUtils = require('../../utils/Utils.js').User;
+var StateMixin = require('reflux-state-mixin');
+var Utils = require('../../utils/Utils.js');
+var UserUtils = Utils.User;
+var $ = Utils.$;
 
 var FacebookUserStore = require('../../stores/FacebookUserStore.js');
+var UserStore = require('../../stores/UserStore.js');
 var AppStateActions = require('../../actions/AppStateActions.js');
 
 var UserPanel = React.createClass({
-        mixins: [ParseReact.Mixin, Reflux.connect(FacebookUserStore, 'facebookUser')],
+        mixins: [StateMixin.connect(UserStore), StateMixin.connect(FacebookUserStore, 'facebookUser')],
         username: null,
         avatarUrl: null,
 
-        observe: function () {
-            return {
-                user: ParseReact.currentUser
-            };
-        },
-        componentWillUpdate: function () {
-            if (null != this.state.facebookUser) {
-                this.username = this.getUsername();
+        componentDidUpdate: function () {
+            if (!$.isNullOrEmpty(this.state.facebookUser && this.state.user)) {
+                if (null != this.state.facebookUser.first_name) {
+                    this.username = this.getUsername();
+                }
 
                 if (null == this.avatarUrl && null != this.state.facebookUser.avatar) {
                     this.avatarUrl = this.state.facebookUser.avatar.url;
@@ -41,14 +40,11 @@ var UserPanel = React.createClass({
                 </div>
             );
         },
-        isUpdateNeeded: function () {
-            return null == this.username || null == this.avatarUrl;
-        },
         getUsername: function () {
-            return UserUtils.getUserName(this.state.facebookUser.first_name, this.data.user.nick);
+            return UserUtils.getUserName(this.state.facebookUser.first_name, this.state.user.get("nick"));
         },
         openSettings: function () {
-            AppStateActions.openUserSettings();
+            AppStateActions.toggleUserSettings();
         }
     }
 );
