@@ -37,7 +37,9 @@ var AppDataStore = Reflux.createStore({
 
         var matches = Parse.Query.or(actualMatches, completedMatches);
         matches.include("player1");
+        matches.include("player1.FacebookUser");
         matches.include("player2");
+        matches.include("player2.FacebookUser");
 
         var self = this;
 

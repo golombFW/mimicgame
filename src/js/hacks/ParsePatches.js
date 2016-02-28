@@ -13,22 +13,26 @@ var patches = {
      */
     signUp: function signUp(attrs, options) {
         return oldSignUp.call(this, attrs, options).then(function () {
-            UserActions.updateUser();
+            console.info("User update after signup");
+            UserActions.updateUser(false);
         });
     },
     logIn: function logIn(options) {
         return oldLogIn.call(this, options).then(function () {
-            UserActions.updateUser();
+            console.info("User update after login");
+            UserActions.updateUser(false);
         });
     },
     _linkWith: function _linkWith(provider, options) {
         return oldLinkWith.call(this, provider, options).then(function () {
-            UserActions.updateUser();
+            console.info("User update after linkWith");
+            UserActions.updateUser(false);
         });
     },
     logOut: function logOut() {
         var promise = oldLogOut();
-        UserActions.updateUser();
+        console.info("User update after logout");
+        UserActions.updateUser(false);
         return promise;
     }
 };

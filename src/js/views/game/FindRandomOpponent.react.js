@@ -4,6 +4,10 @@ var MenuButton = require('../../components/MenuButton.react.js');
 var Utils = require('../../utils/Utils.js');
 var LoadingBar = Utils.Components.LoadingBar1;
 
+var GameManagerActions = require('../../actions/GameManagerActions.js');
+var AppStateActions = require('../../actions/AppStateActions.js');
+var AppState = require('../../states/AppState.js');
+
 var _matchStatusKey = "gameStatus";
 var _matchStatusKeyWaiting = "waiting";
 var _matchStatusKeyInProgress = "in_progress";
@@ -27,7 +31,7 @@ var FindRandomOpponent = React.createClass({
 
         var loadingText = "Wyszukiwanie przeciwnika";
         var match = this.state.match;
-        if (null != match && match.get(_matchStatusKey) === _matchStatusKeyWaiting) {
+        if (match && match.get(_matchStatusKey) === _matchStatusKeyWaiting) {
             loadingText = "Brak aktywnych graczy. Oczekiwanie na przeciwnika..."
         }
         var content = (
@@ -36,7 +40,7 @@ var FindRandomOpponent = React.createClass({
             </div>
         );
 
-        if (null != match && match.get(_matchStatusKey) === _matchStatusKeyInProgress) {
+        if (match && match.get(_matchStatusKey) === _matchStatusKeyInProgress) {
             content = (
                 <div id="find-opponent-match">
                     <span>Znaleziono przeciwnika!</span>
@@ -51,6 +55,9 @@ var FindRandomOpponent = React.createClass({
         return (
             <div id="app-find-random-opponent" className="app-view-default">
                 {content}
+                <div>
+                    <MenuButton onClick={this.backToMenu} icon="fa fa-arrow-left">Powrót</MenuButton>
+                </div>
             </div>
         );
     },
@@ -81,7 +88,11 @@ var FindRandomOpponent = React.createClass({
         }
     },
     startGame: function () {
-        alert("Test. Prace trwają!");
+        GameManagerActions.startGame(this.state.match);
+    },
+    backToMenu: function () {
+        AppStateActions.changeState(AppState.NEW_GAME_MENU);
+        //todo cancel match
     }
 });
 

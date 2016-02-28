@@ -14,16 +14,10 @@ var UserPanel = React.createClass({
         avatarUrl: null,
 
         componentDidUpdate: function () {
-            if (!$.isNullOrEmpty(this.state.facebookUser && this.state.user)) {
-                if (null != this.state.facebookUser.first_name) {
-                    this.username = this.getUsername();
-                }
-
-                if (null == this.avatarUrl && null != this.state.facebookUser.avatar) {
-                    this.avatarUrl = this.state.facebookUser.avatar.url;
-                }
+            if (!$.isNullOrEmpty(this.state.facebookUser) && this.state.user) {
+                this.username = this.getUsername();
+                this.avatarUrl = this.getAvatar();
             }
-            //this.username = new Array(75 + 1).join('x'); //test
         },
         render: function () {
             return (
@@ -41,7 +35,19 @@ var UserPanel = React.createClass({
             );
         },
         getUsername: function () {
-            return UserUtils.getUserName(this.state.facebookUser.first_name, this.state.user.get("nick"));
+            if (this.state.facebookUser.first_name) {
+                return UserUtils.getUserName(this.state.facebookUser.first_name, this.state.user.get("nick"));
+            }
+            return null;
+        },
+        getAvatar: function () {
+            if (this.state.user.get("FacebookUser").get("avatar")) {
+                return this.state.user.get("FacebookUser").get("avatar").url;
+            } else if (this.state.facebookUser.avatar) {
+                return this.state.facebookUser.avatar.url;
+            } else {
+                return null;
+            }
         },
         openSettings: function () {
             AppStateActions.toggleUserSettings();

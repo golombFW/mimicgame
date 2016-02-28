@@ -3,6 +3,9 @@ var ReactDOM = require('react-dom');
 var Parse = require('parse').Parse;
 var Keys = require('./KeyConfig.js');
 
+require('velocity-animate');
+require('velocity-animate/velocity.ui');
+
 Parse.initialize(Keys.ParseAppId, Keys.ParseJavaScriptKey);
 
 var LoginWrapper = require('./LoginWrapper.react.js');

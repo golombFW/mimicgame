@@ -10,6 +10,7 @@ var FacebookUserActions = require('./actions/FacebookUserActions.js');
 var FacebookUserStore = require('./stores/FacebookUserStore.js');
 
 var UserStore = require('./stores/UserStore.js');
+var UserActions = require('./actions/UserActions.js');
 
 var AppWrapper = require('./AppWrapper.react.js');
 var UserTopBar = require('./UserTopBar.react.js');
@@ -84,13 +85,13 @@ var LoginWrapper = React.createClass({
             );
         }
         if (this.state.user) {
-            if (!this.state.facebookUser) {
+            if ($.isNullOrEmpty(this.state.facebookUser)) {
                 return (
                     <LoadingBar center={true}/>
                 );
             }
             return (
-                <div>
+                <div id="app-view">
                     <UserTopBar />
                     <AppWrapper />
                     <AppFooter />
@@ -138,7 +139,7 @@ var LoginWrapper = React.createClass({
         console.log("ExecuteFBLogin");
         var permissions;
 
-        if (null != authData) {
+        if (authData) {
             var expiration = moment().add(authData.expiresIn, 'seconds').format(
                 "YYYY-MM-DDTHH:mm:ss.SSS\\Z");
             permissions = {
@@ -161,6 +162,7 @@ var LoginWrapper = React.createClass({
                         this.getMyFBIdentity();
                     }
                 }
+                UserActions.updateUser();
             }.bind(this),
             error: function (user, error) {
                 console.log("User cancelled the Facebook login or did not fully authorize.");

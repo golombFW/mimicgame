@@ -30,7 +30,7 @@ var SettingsMenu = React.createClass({
 
                             return (
                                 <a role="button" key={value[0]} className={className}
-                                        onClick={this.props.changeTabFunc.bind(null, value[0])}>
+                                   onClick={this.props.changeTabFunc.bind(null, value[0])}>
                                     {icon} {value[1]}
                                 </a>
                             )

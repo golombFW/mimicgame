@@ -34,6 +34,9 @@ var AppStateStore = Reflux.createStore({
     },
     goToMenu: function () {
         this.changeState(AppState.MENU);
+    },
+    openGameView: function () {
+        this.changeState(AppState.GAME);
     }
 });
 

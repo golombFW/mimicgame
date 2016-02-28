@@ -6,7 +6,7 @@ var Functions = {
         return 0 === Object.keys(obj).length
     },
     isNullOrEmpty: function (obj) {
-        return null == obj || this.isEmpty(obj)
+        return !obj || this.isEmpty(obj)
     }
 };
 

@@ -5,6 +5,7 @@
 // === Model classes and keys ===
 
 var _matchClassName = "Match";
+var _facebookUserAttrName = "FacebookUser";
 var _matchLockKey = "gameLock";
 var _matchLockKeyInitial = 1;
 var _matchLockKeyMax = 2;
@@ -50,18 +51,20 @@ exports.joinAnonymousGame = function (player, options) {
     matchQuery.count({
         success: function (count) {
             _log("Found " + count + " available games: ", player);
-            if (count > 0) {
+            if (0 < count) {
                 // If matches were found, fetch random one
                 var row = Math.floor(Math.random() * count);
                 matchQuery.limit(1);
                 matchQuery.skip(row); // random num is 0 to count-1 so we can use it as skip directly
                 matchQuery.include(_matchPlayer1Key);
+                matchQuery.include(_matchPlayer1Key + "." + _facebookUserAttrName);
                 matchQuery.include(_matchPlayer2Key);
+                matchQuery.include(_matchPlayer2Key + "." + _facebookUserAttrName);
 
                 matchQuery.find({
                     success: function (results) {
                         _log("Fetched random game: " + JSON.stringify(results[0]), player);
-                        if (results.length > 0) {
+                        if (0 < results.length) {
                             // Attempt to join fetched game
                             _log("Attempting to join game: " + JSON.stringify(results[0]), player);
                             _joinMatchAttempt(results[0], player, options);
@@ -97,6 +100,7 @@ _joinMatchAttempt = function (match, player, options) {
                 _log("Game lock successful, joining game.", player);
                 match.set(_matchPlayer2Key, player);
                 match.set(_matchStatusKey, _matchStatusKeyInProgress);
+
                 match.save(null, {
                     success: function (newMatch) {
                         // Return the game
@@ -124,17 +128,19 @@ _getOrCreateMatch = function (player, options) {
     playerPrevMatchQuery.equalTo(_matchStatusKey, _matchStatusKeyWaiting);
     playerPrevMatchQuery.equalTo(_matchPlayer1Key, player);
     playerPrevMatchQuery.include(_matchPlayer1Key);
+    playerPrevMatchQuery.include(_matchPlayer1Key + "." + _facebookUserAttrName);
     playerPrevMatchQuery.include(_matchPlayer2Key);
+    playerPrevMatchQuery.include(_matchPlayer2Key + "." + _facebookUserAttrName);
 
     playerPrevMatchQuery.count({
         success: function (count) {
             _log("Found " + count + " player games: ", player);
-            if (count > 0) {
+            if (0 < count) {
                 playerPrevMatchQuery.limit(1);
                 playerPrevMatchQuery.find({
                     success: function (results) {
                         _log("Fetched player previous game: " + JSON.stringify(results[0]), player);
-                        if (results.length > 0) {
+                        if (0 < results.length) {
                             // Attempt to join fetched game
                             _log("Returning previous player game: " + JSON.stringify(results[0]), player);
                             options.success(results[0], true);
@@ -178,4 +184,11 @@ _createNewMatch = function (player, options) {
 
 _log = function (message, player) {
     console.log(player.get("username") + "$ " + message);
+};
+
+//
+
+_createMatchInfo = function () {
+    var info = Parse.Object.extend("MatchInfo");
+
 };

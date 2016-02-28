@@ -21,12 +21,26 @@ var UserStore = Reflux.createStore({
             user: user
         });
     },
-    updateUser: function () {
-        var user = Parse.User.current();
-        if (user && user instanceof Parse.Object) {
-            user = user.clone();
+    updateUser: function (useQuery) {
+        var parseUser = Parse.User.current();
+        if ('undefined' === typeof useQuery) {
+            useQuery = true;
         }
-        this.setUser(user);
+        if (parseUser && useQuery) {
+            var userId = parseUser.id;
+            var query = new Parse.Query(Parse.User);
+            query.include("FacebookUser");
+            query.include("settings");
+            query.get(userId).then(function (user) {
+                console.log("User update successful: " + JSON.stringify(user));
+                this.setUser(user);
+            }, function (error) {
+                console.error("Cannot update user: " + error.message);
+            });
+        } else {
+            this.setUser(parseUser);
+        }
+
     }
 });
 

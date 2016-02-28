@@ -27,7 +27,7 @@ var PrivacySettings = React.createClass({
 
         settings.fetch().then(function (newSettings) {
                 var photoPrivacy;
-                if (null != newSettings) {
+                if (newSettings) {
                     photoPrivacy = settings.get("photoPrivacy");
                 }
                 this.setState({

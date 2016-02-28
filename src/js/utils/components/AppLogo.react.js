@@ -24,7 +24,7 @@ var AppLogo = React.createClass({
     render: function () {
         var desc = null;
 
-        if (null != this.props.showdesc) {
+        if (this.props.showdesc) {
             desc = <span className="description hidden">project</span>;
         }
 
@@ -37,7 +37,7 @@ var AppLogo = React.createClass({
             </div>
         );
 
-        if (null != this.props.href) {
+        if (this.props.href) {
             return (
                 <a href="#" onClick={this.props.href}>
                     {logo}

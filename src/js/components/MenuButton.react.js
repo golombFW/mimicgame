@@ -7,11 +7,11 @@ var MenuButton = React.createClass({
     },
     render: function () {
         var icon;
-        if(this.props.icon != null) {
+        if (this.props.icon) {
             icon = <span><i className={this.props.icon}></i> </span>
         }
         var classes = "btn btn-default btn-menubutton";
-        if(this.props.disabled != null) {
+        if (this.props.disabled) {
             classes += " disabled";
         }
         return (

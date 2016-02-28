@@ -16,21 +16,21 @@ var AppFooter = React.createClass({
         this.setState({displayAbout: false});
     },
     render: function () {
-        var version = "Wersja " + process.env.APP_VERSION || "";
+        var version = " ver" + process.env.APP_VERSION || "";
         return (
-            <div className="app-footer">
-                <span>
+            <div id="app-footer">
+                <span className="footer-info">
                     <a href="https://github.com/golombFW/mimicgame" target="_blank">
                         <i className="fa fa-github"></i> Źródła
                     </a>
                 </span>
-                <span>
+                <span className="footer-info">
                     <a onClick={this.showAbout} href="#">O projekcie</a>
                 </span>
-                <span>Filip Gołębiewski 2015-2016</span>
+                <span className="footer-info">Filip Gołębiewski 2016</span>
+                <span>{version}</span>
+
                 <About closeFunc={this.closeAbout} display={this.state.displayAbout}/>
-                <br/>
-                {version}
                 <FullScreenButton />
             </div>
         );

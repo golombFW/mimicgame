@@ -12,8 +12,6 @@ body {
 
 #page-container {
   background-color: @background-color;
-  width: 100%;
-  height: 100%;
 }
 
 .container-fluid {
@@ -21,6 +19,12 @@ body {
 }
 
 #app {
+  width: 100vw;
+  height: 100vh;
+  background-color: @background-color;
+}
+
+#app-view {
   width: 100%;
   height: 100%;
 }
@@ -42,18 +46,22 @@ body {
   }
 }
 
-.app-footer {
+#app-footer {
   text-align: center;
-  padding: 10px;
+  padding: 0.5em;
+  height: @footer-height;
 
   a {
     text-decoration: none;
     color: inherit;
-    margin-right: 5ex;
   }
 
   a:hover {
     color: @app-bg-hover-color;
+  }
+
+  .footer-info {
+    margin-right: 5ex;
   }
 }
 
@@ -95,16 +103,25 @@ body {
   background-color: @app-background-color;
   border: solid 1px #adadad;
   border-radius: 6px;
-  margin-top: 20px;
 }
 
-.app-view-default {
-  padding-top: 20px;
-  padding-bottom: 20px;
+.app-view-default-container {
+  padding-top: 1em;
+  height: 100%;
+}
+
+#game-info {
+  text-align: center;
+  height: 2.5em;
+
+  img.opponent-avatar {
+    height: 2.5em;
+  }
 }
 
 #app-wrapper {
   margin: auto;
+  height: calc(~"100vh - " @footer-height ~ " - " @topbar-height);
 
   @media (min-width: @screen-sm-min) {
     width: 100% - @app-padding-sm;
@@ -121,6 +138,27 @@ body {
   }
 }
 
+#app-game {
+  width: 100%;
+  height: 100%;
+}
+
+.app-game-default-container {
+  .row {
+    margin: 0;
+  }
+  .row > div {
+    padding: 5px;
+  }
+
+  width: 100%;
+
+  .game-content {
+    .app-wrapper-default();
+    height: calc(~"100% - 2.5em");
+  }
+}
+
 #app-camera-view {
   .app-wrapper-default();
 }
@@ -129,6 +167,7 @@ body {
   width: 100%;
   height: 100%;
 }
+
 /*
 Modal modifications
 */
@@ -163,7 +202,7 @@ Components styles
 */
 
 #fullscreen-button {
-  position: absolute;
+  position: fixed;
   bottom: 2%;
   right: 2%;
   font-size: x-large;
@@ -237,6 +276,30 @@ Components styles
   display: inline-block;
 }
 
+.menu-horizontal-container {
+  height: 33.33%;
+  position: relative;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+
+.menu-panel-container {
+
+}
+
+.menu-panel {
+  background-color: @app-menu-panel-bg-color;
+  color: @app-menu-panel-font-color;
+  height: 100%;
+  .lh-border-radius(1.5%);
+  padding: 1ex;
+}
+
+.menu-panel-content {
+  overflow: scroll;
+  height: 100%;
+}
+
 /*
 Utils styles
 */
@@ -247,6 +310,7 @@ Utils styles
   position: absolute;
   .translate(-50%, -50%);
 }
+
 .loading-bar1 {
   text-align: center;
   font-size: x-large;
@@ -257,8 +321,7 @@ Utils styles
 
 .app-logo {
   color: #fff;
-  font-weight: 300;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+  font-family: Pacifico, sans-serif;
   text-shadow: 2px 2px 4px #000000;
 }
 

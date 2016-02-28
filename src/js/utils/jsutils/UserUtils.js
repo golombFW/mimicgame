@@ -2,12 +2,12 @@ var ExceptionMessages = require('../../Messages.js').ExceptionMessages;
 
 var UserUtils = {
     getUserName: function (facebookUserName, parseUserName, slice) {
-        slice = typeof slice !== 'undefined' ? slice : true;
+        slice = 'undefined' !== typeof slice ? slice : true;
 
         var userName;
-        if (null != parseUserName) {
+        if (parseUserName) {
             userName = parseUserName;
-        } else if (null != facebookUserName) {
+        } else if (facebookUserName) {
             userName = facebookUserName;
         } else {
             throw ExceptionMessages.UserNameIllegalState;

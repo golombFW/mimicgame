@@ -33,7 +33,7 @@ Parse.Cloud.afterSave(Parse.User, function (request) {
     var facebookUser = request.object.get("FacebookUser");
     if (facebookUser) {
         facebookUser.fetch().then(function (fbUser) {
-            if (null == fbUser.get("User")) {
+            if (!fbUser.get("User")) {
                 fbUser.set("User", request.object);
                 _setFacebookUserACL(fbUser, request.object);
                 fbUser.save(null, {
@@ -57,7 +57,7 @@ var _setAdditionalData = function (user, response) {
 
     (function () {
         var promise = new Parse.Promise();
-        if (null === user.get("settings") || undefined === user.get("settings")) {
+        if (!user.get("settings")) {
             var UserSettings = Parse.Object.extend("UserSettings");
             var settings = new UserSettings();
 
