@@ -88,7 +88,7 @@ body {
   }
 
   .app-logo {
-    font-size: 24px;
+    font-size: @logo-font-size-small;
     position: relative;
     top: 50%;
     .translate(0, -50%);
@@ -112,16 +112,17 @@ body {
 
 #game-info {
   text-align: center;
-  height: 2.5em;
+  height: @gameinfo-height;
+  padding: 0.2em;
 
   img.opponent-avatar {
-    height: 2.5em;
+    height: @gameinfo-height - 0.4em;
   }
 }
 
 #app-wrapper {
   margin: auto;
-  height: calc(~"100vh - " @footer-height ~ " - " @topbar-height);
+  .lh-calc(height, ~"100vh - " @footer-height ~ " - " @topbar-height);
 
   @media (min-width: @screen-sm-min) {
     width: 100% - @app-padding-sm;
@@ -138,6 +139,15 @@ body {
   }
 }
 
+#actual-games-panel {
+  .opponent-avatar-container {
+    display: inline-block;
+  }
+  .opponent-avatar {
+    height: 1.7em;
+  }
+}
+
 #app-game {
   width: 100%;
   height: 100%;
@@ -147,15 +157,12 @@ body {
   .row {
     margin: 0;
   }
-  .row > div {
-    padding: 5px;
-  }
 
   width: 100%;
 
   .game-content {
     .app-wrapper-default();
-    height: calc(~"100% - 2.5em");
+    .lh-calc(height, ~"100% - " @gameinfo-height);
   }
 }
 
@@ -163,9 +170,43 @@ body {
   .app-wrapper-default();
 }
 
-#camera-canvas {
+.camera-view-description {
+  height: @camera-view-description-height;
+}
+
+.camera-view-area {
+  .lh-calc(height, ~"100% - " @camera-view-description-height);
+}
+
+.camera-view-preview {
+  height: 100%;
+}
+
+#camera-preview-container {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+#camera-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#camera-canvas-photo-area {
+  border: 0.2em #FFE214 solid;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  .translate(-50%, 0);
+}
+
+#camera-options {
+  height: 100%;
+  background-color: @app-background-color-dark;
+
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 /*
@@ -203,10 +244,9 @@ Components styles
 
 #fullscreen-button {
   position: fixed;
-  bottom: 2%;
-  right: 2%;
+  bottom: 1%;
+  right: 1%;
   font-size: x-large;
-
 }
 
 #fullscreen-button:hover, #fullscreen-button:focus {
@@ -216,6 +256,7 @@ Components styles
 #user-panel {
   float: right;
   width: 40%;
+  height: @topbar-height;
   display: inline-table;
   table-layout: fixed;
   word-break: break-all;
@@ -225,7 +266,7 @@ Components styles
 
   .username {
     color: @topbar-button-color;
-    font-size: large;
+    font-size: 1.2em;
     font-family: "Aladin", Helvetica, sans-serif;
     .insetshadow(@topbar-button-color);
   }
@@ -238,7 +279,7 @@ Components styles
   }
 
   .avatar-col {
-    width: 70px;
+    width: 4/3*@topbar-height;
   }
 
   .settings-col {
@@ -258,7 +299,7 @@ Components styles
 }
 
 #user-panel-avatar {
-  padding: 4px;
+  padding: 2/30*@topbar-height;
   background-color: @topbar-avatar-bg-color;
   .lh-drop-shadow(1 1 4 black);
   .lh-rotate(3.5);
@@ -267,6 +308,7 @@ Components styles
   bottom: -5px;
 
   img {
+    height: @topbar-height*0.8;
     border: solid 1px #aca695;
   }
 }
@@ -298,6 +340,19 @@ Components styles
 .menu-panel-content {
   overflow: scroll;
   height: 100%;
+}
+
+.btn-answerbutton {
+  padding: 1.5em 1.5em;
+  font-size: 2em;
+  background-color: @btn-answer-bg-color1;
+  .lh-background-image(linear-gradient(135deg, @btn-answer-bg-color1 0%, @btn-answer-bg-color2 100%));
+  border: 0.07em darken(@btn-answer-bg-color2, 10%) solid;
+  .lh-drop-shadow(0.1em 0.1em 0.2em black);
+}
+
+.btn-answerbutton:hover {
+  .lh-background-image(linear-gradient(135deg, @btn-answer-bg-color2 0%, darken(@btn-answer-bg-color2, 10%) 100%));
 }
 
 /*

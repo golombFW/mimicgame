@@ -9,7 +9,6 @@ var LoadingBar = Utils.Components.LoadingBar1;
 /* Views */
 var Menu = require('./views/Menu.react.js');
 var UserSettings = require('./views/UserSettings.react.js');
-var CameraView = require('./views/CameraShot.react.js');
 var NewGameMenu = require('./views/game/NewGameMenu.react.js');
 var RandomOpponent = require('./views/game/FindRandomOpponent.react.js');
 var Game = require('./views/game/Game.react.js');
@@ -30,7 +29,6 @@ var AppWrapper = React.createClass({
         this.contents[AppState.NEW_GAME_MENU] = <NewGameMenu key={AppState.NEW_GAME_MENU}/>;
         this.contents[AppState.FIND_RANDOM_OPPONENT] = <RandomOpponent key={AppState.FIND_RANDOM_OPPONENT}/>;
         this.contents[AppState.GAME] = <Game key={AppState.GAME}/>;
-        this.contents[AppState.CAMERA_VIEW] = <CameraView key={AppState.CAMERA_VIEW}/>;
     },
     render: function () {
         var content = this.contents[this.state.currentAppState];

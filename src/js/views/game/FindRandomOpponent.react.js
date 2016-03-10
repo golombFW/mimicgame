@@ -3,6 +3,7 @@ var Parse = require('parse').Parse;
 var MenuButton = require('../../components/MenuButton.react.js');
 var Utils = require('../../utils/Utils.js');
 var LoadingBar = Utils.Components.LoadingBar1;
+var DefaultAppViewContainer = require('../../components/DefaultAppViewContainer.react.js');
 
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 var AppStateActions = require('../../actions/AppStateActions.js');
@@ -46,19 +47,21 @@ var FindRandomOpponent = React.createClass({
                     <span>Znaleziono przeciwnika!</span>
                     <div className="opponent-info">
                         Pojedynek <b>{match.get("player1").get("nick")}</b> vs <b>{match.get("player2").get("nick")}</b><br/>
-                        <MenuButton onClick={this.startGame}>Zagraj</MenuButton>
+                        <MenuButton classes="" onClick={this.startGame}>Zagraj</MenuButton>
                     </div>
                 </div>
             );
         }
 
         return (
-            <div id="app-find-random-opponent" className="app-view-default">
-                {content}
-                <div>
-                    <MenuButton onClick={this.backToMenu} icon="fa fa-arrow-left">Powrót</MenuButton>
+            <DefaultAppViewContainer>
+                <div id="app-find-random-opponent" className="app-view-default">
+                    {content}
+                    <div>
+                        <MenuButton onClick={this.backToMenu} icon="fa fa-arrow-left">Powrót</MenuButton>
+                    </div>
                 </div>
-            </div>
+            </DefaultAppViewContainer>
         );
     },
     updateMatchInformation: function () {

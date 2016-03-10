@@ -34,7 +34,7 @@ var UserStore = Reflux.createStore({
             query.get(userId).then(function (user) {
                 console.log("User update successful: " + JSON.stringify(user));
                 this.setUser(user);
-            }, function (error) {
+            }.bind(this), function (error) {
                 console.error("Cannot update user: " + error.message);
             });
         } else {

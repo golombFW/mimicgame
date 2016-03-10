@@ -22,12 +22,20 @@ var DefaultGameViewContainer = React.createClass({
                 opponentAvatarUrl = this.props.gameInfo.opponent.avatar.url;
             }
         }
+
+        var gameResultInfo;
+        if (!this.props.hideResult) {
+            gameResultInfo = (
+                <div id="game-info" className="row">
+                    Runda X przeciwko <span className="opponent-nick">{opponentNick}</span> <img
+                    className="opponent-avatar" src={opponentAvatarUrl}/>
+                </div>
+            );
+        }
         return (
             <DefaultAppViewContainer>
                 <div className="app-game-default-container">
-                    <div id="game-info" className="row">
-                        Runda X przeciwko <span className="opponent-nick">{opponentNick}</span> <img className="opponent-avatar" src={opponentAvatarUrl}/>
-                    </div>
+                    {gameResultInfo}
                     <div className="row game-content">
                         {this.props.children}
                     </div>

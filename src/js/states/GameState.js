@@ -3,6 +3,7 @@ var GameState = {
     CHOOSE_PHOTO_TOPIC: "CHOOSE_PHOTO_TOPIC",
     PHOTO: "PHOTO",
     SUMMARY: "SUMMARY",
+    WAITING: "WAITING",
     LOADING: "LOADING"
 };
 

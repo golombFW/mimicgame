@@ -36,8 +36,6 @@ var Menu = React.createClass({
                             <nav className="menu">
                                 <a className="btn btn-default" role="button"
                                    onClick={this.selectView.bind(this, AppState.NEW_GAME_MENU)}>Nowa Gra</a><br/>
-                                <a className="btn btn-default" role="button"
-                                   onClick={this.selectView.bind(this, AppState.CAMERA_VIEW)}>Camera Test</a><br/>
                                 <a className="btn btn-default" role="button" onClick={this.logout}>wyloguj</a>
                             </nav>
                         </BasicMenuPanel>
