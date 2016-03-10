@@ -3,6 +3,7 @@ express = require('express');
 app = express();
 
 var indexPage = '/appindex.html';
+var webcamswfUrl = '/webcam.swf';
 
 // Global app configuration section
 app.use(express.bodyParser());    // Middleware for reading request body
@@ -21,6 +22,10 @@ app.all('/', function (req, res) {
     else {
         res.redirect(indexPage);
     }
+});
+
+app.get('/webcam.swf', function(req, res) {
+    res.send(webcamswfUrl);
 });
 
 app.listen();

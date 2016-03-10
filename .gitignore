@@ -1,3 +1,4 @@
+/test-data
 .idea/
 node_modules/
 target/public/css/style.css
@@ -5,6 +6,6 @@ target-prod/
 /target/cloud
 /target/.parse.project
 /target/.parse.local
-target/public/js/bundle.js
+target/public/js/*.*
 npm-debug.log
-/target/public/appindex.html
+/target/public/*.*

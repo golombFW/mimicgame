@@ -14,10 +14,13 @@ var streamify = require('gulp-streamify');
 var nodemon = require('gulp-nodemon');
 var pathJoin = require('path');
 var gutil = require('gulp-util');
+var _ = require('underscore');
+var nodeResolve = require('resolve');
 
 var path = {
     HTML_SRC: 'src/appindex.html',
     CSS_SRC: 'src/css/style.less',
+    WEBCAMSWF_SRC: 'node_modules/webcamjs/webcam.swf',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
 
@@ -43,19 +46,31 @@ gulp.task('copy-cloud', function () {
     gulp.src(path.CLOUD_SRC)
         .pipe(
             gulp.dest(
-                pathJoin.join(process.env.NODE_ENV === 'production' ? path.DEST_PROD : path.DEST_DEV, path.DEST_CLOUD)))
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_CLOUD)))
+});
+
+gulp.task('copy-webcamswf', function () {
+    gulp.src(path.WEBCAMSWF_SRC)
+        .pipe(
+            gulp.dest(
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)))
 });
 
 gulp.task('watch', function () {
     gulp.watch(path.HTML_SRC, ['copy-html']);
 
-    var watcher = watchify(browserify({
+    var b = browserify({
         entries: [path.JS_ENTRY_POINT],
         transform: [[reactify], ['envify', {'global': true, '_': 'purge', APP_VERSION: new Date().toJSON()}]],
         debug: true,
         cache: {}, packageCache: {}, fullPaths: true
-    }));
+    });
 
+    getNPMPackageIds().forEach(function (id) {
+        b.external(id);
+    });
+
+    var watcher = watchify(b);
     return watcher.on('update', function () {
             watcher.bundle()
                 .on('error', gutil.log)
@@ -80,15 +95,49 @@ gulp.task('watch-css', function () {
 });
 
 gulp.task('build', function () {
-    browserify({
+    var b = browserify({
         entries: [path.JS_ENTRY_POINT],
-        transform: [[reactify], ['envify', {'global': true, '_': 'purge', NODE_ENV: 'production', APP_VERSION: new Date().toJSON()}], [stripify]]
-    })
-        .bundle()
+        transform: [[reactify], ['envify', {
+            'global': true,
+            '_': 'purge',
+            NODE_ENV: 'production',
+            APP_VERSION: new Date().toJSON()
+        }], [stripify]]
+    });
+
+    b.bundle()
         .pipe(source(path.MINIFIED_OUT))
         .on('error', gutil.log)
         .pipe(streamify(uglify()))
         .pipe(gulp.dest(pathJoin.join(path.DEST_PROD, path.DEST_JS)));
+});
+
+gulp.task('build-vendor', function () {
+    console.log("Building vendor");
+    var production = ('production' === process.env.NODE_ENV);
+
+    var b = browserify({
+        // generate source maps in non-production environment
+        debug: !production,
+        cache: {}, packageCache: {}, fullPaths: true
+    });
+
+    getNPMPackageIds().forEach(function (id) {
+        b.require(nodeResolve.sync(id), {expose: id});
+    });
+
+    var stream = b.bundle()
+        .on('error', gutil.log)
+        .pipe(source('vendor.js'));
+
+    if (production) {
+        stream = stream.pipe(streamify(uglify()));
+    } else {
+        //stream = stream.pipe(streamify(uglify({mangle: false, compress: false})));
+    }
+
+    stream.pipe(gulp.dest(
+        pathJoin.join(production ? path.DEST_PROD : path.DEST_DEV, path.DEST_JS)));
 });
 
 gulp.task('build-less', function () {
@@ -117,15 +166,26 @@ gulp.task('set-prod-node-env', function () {
 
 gulp.task('start', function () {
     nodemon({
-        script: 'devserver.js'
-        , ext: 'js html'
-        , env: {'NODE_ENV': 'development'}
+        script: 'devserver.js',
+        ext: 'js html',
+        env: {'NODE_ENV': 'development'}
     })
         .on('restart', function () {
             console.log('restarted!')
         })
 });
 
-gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-cloud', 'build', 'build-less']);
-gulp.task('build-dev', ['copy-html', 'copy-cloud', 'watch', 'watch-css']);
+var getNPMPackageIds = function () {
+    var packageManifest = {};
+    try {
+        packageManifest = require('./package.json');
+    } catch (e) {
+        console.error("No package.json!");
+    }
+    return _.keys(packageManifest.dependencies) || [];
+
+};
+
+gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-webcamswf', 'copy-cloud', 'build', 'build-less']);
+gulp.task('build-dev', ['copy-html', 'copy-webcamswf', 'copy-cloud', 'build-vendor', 'watch', 'watch-css']);
 gulp.task('default', ['build-dev', 'start']);
