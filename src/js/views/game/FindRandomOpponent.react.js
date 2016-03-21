@@ -73,6 +73,8 @@ var FindRandomOpponent = React.createClass({
                     var matchQuery = new Parse.Query(newMatch);
                     matchQuery.include("player1");
                     matchQuery.include("player2");
+                    matchQuery.include("player1.FacebookUser");
+                    matchQuery.include("player2.FacebookUser");
                     matchQuery.get(match.id, {
                         success: function (queriedMatch) {
                             this.setState({match: queriedMatch});

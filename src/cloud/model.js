@@ -15,6 +15,10 @@ exports.GameType = {
     DEFAULT: {
         name: "DEFAULT",
         turns: [TurnType.PHOTO_QUESTION, TurnType.RANDOM_QUESTION, TurnType.RANDOM_QUESTION, TurnType.PHOTO_QUESTION, TurnType.PHOTO_QUESTION]
+    },
+    SINGLE: {
+        name: "SINGLE",
+        turns: [TurnType.RANDOM_QUESTION, TurnType.RANDOM_QUESTION, TurnType.RANDOM_QUESTION, TurnType.RANDOM_QUESTION]
     }
 };
 

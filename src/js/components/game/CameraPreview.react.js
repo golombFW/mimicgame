@@ -4,15 +4,12 @@ var Dimensions = require('react-dimensions');
 
 var CameraPreview = React.createClass({
     propTypes: {
-        imageFunc: React.PropTypes.func
+        topic: React.PropTypes.string
     },
     getInitialState: function () {
         return ({minLength: 0});
     },
     componentWillUpdate: function () {
-        //if ('undefined' !== typeof this.props.imageFunc) {
-        //    this.props.imageFunc();
-        //}
         Webcam.reset();
     },
     componentDidUpdate: function () {
@@ -30,18 +27,28 @@ var CameraPreview = React.createClass({
     },
     render: function () {
         var min = this.minDimension();
+        var topic;
+        if (this.props.topic) {
+            topic = (
+                <div id="camera-canvas-topic">
+                    <span className="topic-header"><b>Temat: </b></span>
+                    <span className="content">{this.props.topic}</span>
+                </div>
+            );
+        }
         return (
             <div id="camera-preview-container">
                 <div id="camera-canvas" ref="cameraCanvas"></div>
                 <div id="camera-canvas-photo-area"
                      style={{width: min, height: min}}></div>
+                {topic}
             </div>
         );
     },
     initializeWebcam: function (min) {
         Webcam.set({
             image_format: 'jpeg',
-            jpeg_quality: 90,
+            jpeg_quality: 85,
             flip_horiz: true,
             width: this.props.containerWidth,
             height: this.props.containerHeight,
@@ -51,7 +58,7 @@ var CameraPreview = React.createClass({
             crop_height: min
         });
     },
-    minDimension: function() {
+    minDimension: function () {
         var min;
         if (this.props.containerHeight < this.props.containerWidth) {
             min = this.props.containerHeight;

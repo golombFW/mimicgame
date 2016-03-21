@@ -178,8 +178,8 @@ _createNewMatch = function (player, options) {
     match.set(_matchStatusKey, _matchStatusKeyWaiting); // wait for second player
     match.set(_matchTurnKey, _matchTurnKeyPlayer1); // default challenger starts
     match.set("round", 1);
-    //todo set acl
-
+    _setMatchACL(match);
+    
     _log("Creating new game with properties:", player);
     _log(JSON.stringify(match), player);
     // Create match
@@ -252,7 +252,6 @@ _createTurns = function (player, match, gameType) {
                 resultTurns.push(turn);
             }
             promise.resolve(resultTurns);
-            //return resultTurns;
         }, function (error) {
             promise.reject(error);
         });
@@ -279,4 +278,14 @@ _photoTopic = function (emotionList) {
     });
 
     return topics;
+};
+
+//Miscellaneous
+var _setMatchACL = function (match) {
+    var newACL = new Parse.ACL();
+
+    newACL.setPublicReadAccess(true);
+    newACL.setPublicWriteAccess(false);
+
+    match.setACL(newACL);
 };

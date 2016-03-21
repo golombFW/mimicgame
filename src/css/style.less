@@ -170,22 +170,67 @@ body {
   .app-wrapper-default();
 }
 
+#app-game-camera-view {
+  //display: flex;
+  .lh-display(flex);
+  //flex-direction: column;
+  flex-flow: column;
+  width: 100%;
+  height: 100%;
+
+  > * {
+    //flex: 1 100%;
+  }
+}
+
 .camera-view-description {
-  height: @camera-view-description-height;
+  //height: @camera-view-description-height;
+  padding: 0.5em;
+  //flex: initial;
+  .lh-flex(initial);
+  min-height: 2.5em;
+  max-height: 30%;
+  overflow: scroll;
+
+  .task-description {
+    //position: relative;
+    //top: 50%;
+    //left: 50%;
+    //.translate(-50%, -50%);
+  }
 }
 
 .camera-view-area {
-  .lh-calc(height, ~"100% - " @camera-view-description-height);
+  //.lh-calc(height, ~"100% - " @camera-view-description-height);
+
+  //flex: 1;
+  .lh-flex(1);
+  //
+  //display: flex;
+  .lh-display(flex);
+  flex-flow: row wrap;
 }
 
 .camera-view-preview {
-  height: 100%;
+  //height: 100%;
+
+  //
+  //flex: 10;
+  .lh-flex(10);
+  position: relative;
+
+  //fixme workaround to div added by react-dimensions
+  div {
+    position: absolute;
+  }
 }
 
 #camera-preview-container {
   width: 100%;
   height: 100%;
-  position: relative;
+
+  //
+  position: absolute;
 }
 
 #camera-canvas {
@@ -201,12 +246,26 @@ body {
   .translate(-50%, 0);
 }
 
+#camera-canvas-topic {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  .translate(-50%, 0);
+  background-color: @app-background-color;
+  .lh-border-radius(0.5em);
+  padding: 0.15em;
+}
+
 #camera-options {
-  height: 100%;
+  //height: 100%;
   background-color: @app-background-color-dark;
 
   padding-top: 1em;
   padding-bottom: 1em;
+
+  //
+  //flex: 2;
+  .lh-flex(2);
 }
 
 /*
@@ -355,6 +414,34 @@ Components styles
   .lh-background-image(linear-gradient(135deg, @btn-answer-bg-color2 0%, darken(@btn-answer-bg-color2, 10%) 100%));
 }
 
+#camera-preview-photo {
+  .photo-area {
+    .lh-calc(height, ~"100% - 3em");
+    width: auto;
+  }
+  .photo-menu {
+    height: 3em;
+  }
+}
+
+#app-game-choose-photo-topic {
+  .task-description {
+    margin: 0.5em 0;
+  }
+}
+
+.task-description {
+  font-size: 1.4em;
+  text-align: center;
+  width: 95%;
+  .lh-border-radius(0.5em);
+  border: 0.1em solid rgb(218, 218, 218);
+
+  position: relative;
+  .translate(-50%, 0);
+  left: 50%;
+}
+
 /*
 Utils styles
 */
@@ -371,7 +458,15 @@ Utils styles
   font-size: x-large;
   font-weight: 300;
   font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+
+}
+
+.loading-bar1.white {
   color: #fff;
+}
+
+.loading-bar1.dark {
+  color: @app-menu-panel-bg-color;
 }
 
 .app-logo {

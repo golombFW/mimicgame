@@ -33,7 +33,8 @@ corresponding features will appear in this repo.*
 ##Miscellaneous
 * default ssl certificates and keys password is '1234'
 * If you don't want to run server, but only build project you can run
-   ```npm build``` instead of ```npm start```  
+   ```npm run build``` instead of ```npm start```
+* To build project to production environment run ```npm run build-prod```
 
 ##Authors
 Filip Gołębiewski

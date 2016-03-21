@@ -31,7 +31,7 @@ Parse.Cloud.define("getGameplayData", function (request, response) {
     Parse.Cloud.useMasterKey();
 
     if (request.user) {
-        console.log("Getting gameplay data...")
+        console.log("Getting gameplay data...");
         var player = request.user;
         var matchId = request.params.matchId;
 
@@ -49,6 +49,40 @@ Parse.Cloud.define("getGameplayData", function (request, response) {
                 response.error("An error has occured.");
             }
         });
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
+Parse.Cloud.define("uploadPhoto", function (request, response) {
+    Parse.Cloud.useMasterKey();
+    if (request.user) {
+        var player = request.user;
+        var photo = request.params.photo;
+        var topic = request.params.topic;
+        var matchId = request.params.matchId;
+
+        if (!matchId) {
+            response.error("No matchId param in function call");
+        }
+        if (!photo) {
+            response.error("No photo param in function call");
+        }
+        if (!topic) {
+            response.error("No topic param in function call");
+        }
+
+        GamePlayManager.playerUploadPhoto(player, matchId, topic, photo, {
+            success: function (data) {
+                console.log("Photo upload success, Sending gameplay data...");
+                response.success(data);
+            },
+            error: function (error) {
+                console.error("playerUploadPhoto cloud func error: " + error);
+                response.error("An error has occured.");
+            }
+        });
+
     } else {
         response.error("Authentication failed");
     }

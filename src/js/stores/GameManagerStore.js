@@ -38,15 +38,38 @@ var GameManagerStore = Reflux.createStore({
             selectedTopic: topic
         });
     },
+    uploadPhoto: function (photo, topic) {
+        console.log("Sending photo with topic: " + topic.value);
+
+        //converting photo to parse file format
+        var imageBase64 = photo.replace(/^data:image\/(png|jpeg);base64,/, "");
+        var self = this;
+
+        Parse.Cloud.run('uploadPhoto', {
+            photo: imageBase64,
+            matchId: self.state.match.id,
+            topic: topic
+        }).then(function (data) {
+                console.log("Uploading photo successful!");
+                var view = this.resolveViewState(data.status, data.turn);
+                this.setState({
+                    data: data,
+                    currentView: view
+                });
+            }.bind(this),
+            function (error) {
+                console.log("Something wrong: " + error.message);
+            });
+    },
 
     //other functions
     initializeGame: function (match) {
         Parse.Cloud.run('getGameplayData', {matchId: match.id}).then(function (data) {
                 console.log("Getting gameplay data success");
-                var currentView = this.resolveViewState(data.status, data.turn);
+                var view = this.resolveViewState(data.status, data.turn);
                 this.setState({
                     data: data,
-                    currentView: currentView
+                    currentView: view
                 });
             }.bind(this),
             function (error) {
@@ -59,9 +82,13 @@ var GameManagerStore = Reflux.createStore({
             case cloudModel.GameplayDataStatus.TURN:
                 var turnType = turn.type;
                 if (turnType === cloudModel.TurnType.PHOTO_QUESTION.name) {
-                    return GameState.CHOOSE_PHOTO_TOPIC;
+                    if (null != turn.question) {
+                        return GameState.ANSWER_QUESTION;
+                    } else {
+                        return GameState.CHOOSE_PHOTO_TOPIC;
+                    }
                 } else if (turnType === cloudModel.TurnType.RANDOM_QUESTION.name) {
-                    return GameState.ANSWER_QUESTION
+                    return GameState.ANSWER_QUESTION;
                 } else {
                     console.error("Invalid turnType: " + turnType);
                     return;

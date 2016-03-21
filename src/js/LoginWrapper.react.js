@@ -46,17 +46,19 @@ var LoginWrapper = React.createClass({
                     console.log("User fb not logged");
 
                     var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
+                    var div = document.getElementById('social-login-button-facebook');
                     var self = this;
 
                     if (this.state.user) {
                         Parse.User.logOut().then(function (result) {
-                            var div = document.getElementById('social-login-button-facebook');
                             div.innerHTML = s;
+                            FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
                             self.loginUser();
                         }, function (error) {
                             console.error("error: " + error.message);
                         })
                     } else {
+                        div.innerHTML = s;
                         this.loginUser();
                     }
                 } else {

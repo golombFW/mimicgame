@@ -1,3 +1,4 @@
+@import "variables";
 /*
 The MIT License (MIT)
 
@@ -28,7 +29,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 }
 
 .spinner > div {
-  background-color: #fff;
   height: 100%;
   width: 8px;
   margin: 0 3px 0 0;
@@ -36,6 +36,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
   -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
   animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.white .spinner > div {
+  background-color: #fff;
+}
+
+.dark .spinner > div {
+  background-color: @app-menu-panel-bg-color;
 }
 
 .spinner .rect2 {

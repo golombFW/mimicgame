@@ -7,7 +7,7 @@ var LoadingView = React.createClass({
     render: function () {
         return (
             <DefaultGameViewContainer hideResult={true}>
-                <LoadingBar customText="Trwa ładowanie danych gry..."/>
+                <LoadingBar customText="Trwa ładowanie danych gry..." color="dark"/>
             </DefaultGameViewContainer>
         );
     }

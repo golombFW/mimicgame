@@ -31,8 +31,10 @@ var ChoosePhotoTopic = React.createClass({
         return (
             <DefaultGameViewContainer gameInfo={this.props.gameInfo}>
                 <div id="app-game-choose-photo-topic">
-                    <p>Wybierz jedną z opcji. Twoim zadaniem będzie zrobienie sobie zdjęcia, na którym udajesz wybraną
-                        emocję.</p>
+                    <div className="task-description">
+                        Wybierz jedną z opcji. Twoim zadaniem będzie zrobienie sobie zdjęcia, na którym udajesz wybraną
+                        emocję.
+                    </div>
                     <div className="row">
                         {buttons}
                     </div>

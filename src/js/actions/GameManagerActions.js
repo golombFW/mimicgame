@@ -2,7 +2,8 @@ var Reflux = require('reflux');
 
 var GameManagerActions = Reflux.createActions([
     'startGame',
-    'choosePhotoTopic'
+    'choosePhotoTopic',
+    'uploadPhoto'
 ]);
 
 module.exports = GameManagerActions;

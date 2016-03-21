@@ -11,8 +11,10 @@ var GameState = require('../../states/GameState.js');
 var GameManagerStore = require('../../stores/GameManagerStore.js');
 
 var LoadingView = require('../../views/game/LoadingView.react.js');
+var WaitingForOpponent = require('../../views/game/WaitingForOpponent.react.js');
 var CameraView = require('../../views/game/CameraView.react.js');
 var ChoosePhotoTopic = require('../../views/game/ChoosePhotoTopic.react.js');
+var AnswerQuestion = require('../../views/game/AnswerQuestion.react.js');
 
 var Game = React.createClass({
     mixins: [StateMixin.connect(UserStore), StateMixin.connect(GameManagerStore)],
@@ -44,10 +46,14 @@ var Game = React.createClass({
         switch (this.state.currentView) {
             case GameState.LOADING:
                 return <LoadingView key={key}/>;
+            case GameState.WAITING:
+                return <WaitingForOpponent gameInfo={this.gameInfo()} key={key}/>;
             case GameState.PHOTO:
                 return <CameraView gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
             case GameState.CHOOSE_PHOTO_TOPIC:
                 return <ChoosePhotoTopic gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
+            case GameState.ANSWER_QUESTION:
+                return <AnswerQuestion gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>
         }
     },
     gameInfo: function () {
@@ -66,15 +72,23 @@ var Game = React.createClass({
     },
     gameplayData: function () {
         var currentView = this.state.currentView;
+        var turnType = this.state.data.turn.type;
+        var data;
         if (currentView === GameState.CHOOSE_PHOTO_TOPIC || currentView === GameState.PHOTO) {
-            if (this.state.data.turn.type === CloudModel.TurnType.PHOTO_QUESTION.name) {
-                var data = Utils.$.clone(this.state.data);
+            if (turnType === CloudModel.TurnType.PHOTO_QUESTION.name) {
+                data = Utils.$.clone(this.state.data);
                 data.selectedTopic = this.state.selectedTopic;
 
                 return data;
+            } else if (turnType === CloudModel.TurnType.RANDOM_QUESTION) {
+                //todo
             } else {
                 console.warn("No data for current view!");
             }
+        } else if (currentView === GameState.ANSWER_QUESTION) {
+            data = Utils.$.clone(this.state.data);
+
+            return data;
         }
         return null;
     }
