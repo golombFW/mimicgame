@@ -28,6 +28,9 @@ var FindRandomOpponent = React.createClass({
             console.log(error);
         });
     },
+    componentWillUnmount: function () {
+        clearInterval(this.matchUpdateHandle);
+    },
     render: function () {
 
         var loadingText = "Wyszukiwanie przeciwnika";

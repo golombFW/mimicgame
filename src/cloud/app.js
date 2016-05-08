@@ -4,6 +4,7 @@ app = express();
 
 var indexPage = '/appindex.html';
 var webcamswfUrl = '/webcam.swf';
+var faviconUrl = '/favicon.ico';
 
 // Global app configuration section
 app.use(express.bodyParser());    // Middleware for reading request body
@@ -24,8 +25,12 @@ app.all('/', function (req, res) {
     }
 });
 
-app.get('/webcam.swf', function(req, res) {
+app.get('/webcam.swf', function (req, res) {
     res.send(webcamswfUrl);
+});
+
+app.get('/favicon.ico', function (req, res) {
+    res.send(faviconUrl);
 });
 
 app.listen();

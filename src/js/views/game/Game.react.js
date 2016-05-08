@@ -67,7 +67,8 @@ var Game = React.createClass({
             opponent: {
                 nick: opponent.get("nick"),
                 avatar: opponentAvatar
-            }
+            },
+            match: this.state.match
         }
     },
     gameplayData: function () {

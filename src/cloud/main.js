@@ -87,3 +87,32 @@ Parse.Cloud.define("uploadPhoto", function (request, response) {
         response.error("Authentication failed");
     }
 });
+
+Parse.Cloud.define("answerQuestion", function(request, response) {
+    Parse.Cloud.useMasterKey();
+    if (request.user) {
+        var player = request.user;
+        var matchId = request.params.matchId;
+        var answer = request.params.answer;
+
+        if (!matchId) {
+            response.error("No matchId param in function call");
+        }
+        if (!answer) {
+            response.error("No answer param in function call");
+        }
+        GamePlayManager.answerQuestion(player, matchId, answer, {
+            success: function (data) {
+                console.log("Sending answer success, Sending gameplay data...");
+                response.success(data);
+            },
+            error: function (error) {
+                console.error("answerQuestion cloud func error: " + error);
+                response.error("An error has occured.");
+            }
+        });
+
+    } else {
+        response.error("Authentication failed");
+    }
+});

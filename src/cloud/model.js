@@ -7,7 +7,11 @@ var TurnType = {
     PHOTO_QUESTION: {
         name: "Photo_Question",
         photo_p1: "opponent",
-        photo_p2: "opponent"
+        photo_p2: "opponent",
+        phases: {
+            initial: "initial",
+            answer: "answer"
+        }
     }
 };
 

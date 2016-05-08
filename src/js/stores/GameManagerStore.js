@@ -17,7 +17,8 @@ var GameManagerStore = Reflux.createStore({
             currentView: GameState.LOADING,
             match: {},
             data: {},
-            selectedTopic: null
+            selectedTopic: null,
+            uploadingState: false
         }
     },
     //actions
@@ -38,6 +39,26 @@ var GameManagerStore = Reflux.createStore({
             selectedTopic: topic
         });
     },
+    chooseAnswer: function (answer) {
+        console.log("Sending answer to question: " + answer.value);
+
+        //todo change to other state than waiting
+        this.setState({
+            currentView: GameState.WAITING
+        });
+        var self = this;
+        Parse.Cloud.run('answerQuestion', {
+            matchId: self.state.match.id,
+            answer: answer
+        }).then(function (result) {
+            console.log("Sending answer to question successful!");
+
+            //todo validation, change start game to summary
+            self.startGame(self.state.match);
+        }, function (error) {
+            console.error("Answer question error: " + error.message);
+        });
+    },
     uploadPhoto: function (photo, topic) {
         console.log("Sending photo with topic: " + topic.value);
 
@@ -45,17 +66,16 @@ var GameManagerStore = Reflux.createStore({
         var imageBase64 = photo.replace(/^data:image\/(png|jpeg);base64,/, "");
         var self = this;
 
+        this.setState({uploadingState: true});
         Parse.Cloud.run('uploadPhoto', {
             photo: imageBase64,
             matchId: self.state.match.id,
             topic: topic
-        }).then(function (data) {
+        }).then(function (result) {
                 console.log("Uploading photo successful!");
-                var view = this.resolveViewState(data.status, data.turn);
-                this.setState({
-                    data: data,
-                    currentView: view
-                });
+
+                //todo validation, change start game to summary
+                self.startGame(self.state.match);
             }.bind(this),
             function (error) {
                 console.log("Something wrong: " + error.message);

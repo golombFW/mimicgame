@@ -4,6 +4,7 @@
 
 // === Model classes and keys ===
 var model = require('cloud/model.js');
+var utils = require('cloud/utils.js');
 
 var _matchClassName = "Match";
 var _facebookUserAttrName = "FacebookUser";
@@ -22,8 +23,6 @@ var _matchTurnKeyPlayer1 = "player_1";
 var _matchTurnKeyPlayer2 = "player_2";
 
 var Match = Parse.Object.extend(_matchClassName);
-
-var _ = require('underscore');
 
 // === Overridable methods ===
 // TODO all these
@@ -106,6 +105,7 @@ _joinMatchAttempt = function (match, player, options) {
 
                 //create turns
                 _createTurns(player, match, model.GameType.DEFAULT).then(function (turns) {
+                    _log("Setting turns to match: " + JSON.stringify(turns), player);
                     match.set("turnList", turns);
                     match.save(null, {
                         success: function (newMatch) {
@@ -116,7 +116,9 @@ _joinMatchAttempt = function (match, player, options) {
 
                             options.success(newMatch, isTurn);
                         },
-                        error: options.error
+                        error: function (error) {
+                            options.error(error.message);
+                        }
                     });
                 }, function (error) {
                     _log("Create turns failed " + error.message, player);
@@ -179,7 +181,7 @@ _createNewMatch = function (player, options) {
     match.set(_matchTurnKey, _matchTurnKeyPlayer1); // default challenger starts
     match.set("round", 1);
     _setMatchACL(match);
-    
+
     _log("Creating new game with properties:", player);
     _log(JSON.stringify(match), player);
     // Create match
@@ -228,14 +230,14 @@ _createTurns = function (player, match, gameType) {
                     question1 = _randomQuestion();
                 } else if ("opponent" === turns[i].photo_p1) {
                     question1 = _opponentQuestion();
-                    additional1 = _photoTopic(emotionList);
+                    additional1 = {photoTopics: _photoTopic(emotionList)};
                 }
 
                 if ("random_const" === turns[i].photo_p2) {
                     question2 = question1;
                 } else if ("opponent" === turns[i].photo_p2) {
                     question2 = _opponentQuestion();
-                    additional2 = _photoTopic(emotionList);
+                    additional2 = {photoTopics: _photoTopic(emotionList)};
                 }
 
                 turn.set("turnNumber", (i + 1));
@@ -253,6 +255,7 @@ _createTurns = function (player, match, gameType) {
             }
             promise.resolve(resultTurns);
         }, function (error) {
+            _log(error.message, player);
             promise.reject(error);
         });
 
@@ -270,14 +273,7 @@ _opponentQuestion = function () {
 
 _photoTopic = function (emotionList) {
     console.log("Shuffling photoTopics");
-    var randomEmotions = _.first(_.shuffle(emotionList), 3);
-    var topics = [];
-
-    _.each(randomEmotions, function (el, idx) {
-        topics.push({id: el.id, value: el.get("name")});
-    });
-
-    return topics;
+    return utils.randomEmotions(emotionList, 3);
 };
 
 //Miscellaneous

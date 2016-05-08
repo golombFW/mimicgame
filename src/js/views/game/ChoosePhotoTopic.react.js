@@ -19,7 +19,7 @@ var ChoosePhotoTopic = React.createClass({
     render: function () {
         var buttons;
         if (!Utils.$.isNullOrEmpty(this.props.data)) {
-            buttons = this.props.data.turn.additionalData.map(function (emotion) {
+            buttons = this.props.data.turn.additionalData.photoTopics.map(function (emotion) {
                 return (
                     <div className="col-xs-6 col-sm-4" key={emotion.id}>
                         <AnswerButton fullWidth={true}

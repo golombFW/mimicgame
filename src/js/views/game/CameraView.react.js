@@ -4,6 +4,7 @@ var Webcam = require('webcamjs');
 var DefaultGameViewContainer = require('../../components/game/DefaultGameViewContainer.react.js');
 var CameraPreview = require('../../components/game/CameraPreview.react.js');
 var CameraLastPhoto = require('../../components/game/CameraLastPhoto.react.js');
+var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 
 var CameraView = React.createClass({
@@ -34,11 +35,13 @@ var CameraView = React.createClass({
         }
 
         var cameraModule;
-        if (this.state.lastPhoto) {
+        if (this.state.lastPhoto && !this.state.uploadingState) {
             cameraModule = <CameraLastPhoto photo={this.state.lastPhoto} cancelPhoto={this.cancelPhoto}
                                             uploadPhoto={this.uploadPhoto}/>
-        } else if (this.state.isCameraDisplayed) {
+        } else if (this.state.isCameraDisplayed && !this.state.uploadingState) {
             cameraModule = <CameraPreview topic={emotionTopic} ref="cameraPreview"/>;
+        } else if (this.state.uploadingState) {
+            cameraModule = <LoadingBar customText="Trwa wysyłanie zdjęcia" color="dark"></LoadingBar>;
         } else {
             cameraModule = <span>Wczytywanie</span>;
         }

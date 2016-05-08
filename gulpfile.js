@@ -21,6 +21,7 @@ var path = {
     HTML_SRC: 'src/appindex.html',
     CSS_SRC: 'src/css/style.less',
     WEBCAMSWF_SRC: 'node_modules/webcamjs/webcam.swf',
+    FAVICON_SRC: 'src/favicon.ico',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
 
@@ -51,6 +52,14 @@ gulp.task('copy-cloud', function () {
 
 gulp.task('copy-webcamswf', function () {
     gulp.src(path.WEBCAMSWF_SRC)
+        .pipe(
+            gulp.dest(
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)))
+});
+
+gulp.task('copy-otherfiles', function () {
+    //favicon
+    gulp.src(path.FAVICON_SRC)
         .pipe(
             gulp.dest(
                 pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)))
@@ -186,6 +195,6 @@ var getNPMPackageIds = function () {
 
 };
 
-gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-webcamswf', 'copy-cloud', 'build', 'build-less']);
-gulp.task('build-dev', ['copy-html', 'copy-webcamswf', 'copy-cloud', 'build-vendor', 'watch', 'watch-css']);
+gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build', 'build-less']);
+gulp.task('build-dev', ['copy-html', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build-vendor', 'watch', 'watch-css']);
 gulp.task('default', ['build-dev', 'start']);

@@ -18,18 +18,18 @@ var ActualGamesPanel = React.createClass({
         );
         if (games && 0 !== games.length) {
             games.sort(this.compareGames);
-            content = games.map(function (s) {
-                var opponent = GameUtils.getOpponent(user, s);
+            content = games.map(function (game) {
+                var opponent = GameUtils.getOpponent(user, game);
                 var opponentAvatar = opponent.get("FacebookUser").get("avatar");
                 var opponentAvatarUrl = opponentAvatar ? opponentAvatar.url : "";
                 return (
                     //todo aktualny wynik
-                    <div key={s.id}
+                    <div key={game.id}
                          className="match-info">
                         <span className="opponent-info">Przeciwko {opponent.get("nick")}
                             <div className="opponent-avatar-container"><img className="opponent-avatar"
                                                                             src={opponentAvatarUrl}/></div> (aktualny wynik) </span>
-                        <button className="btn btn-default btn-xs" onClick={this.startGame.bind(this, s)}>Graj</button>
+                        <button className="btn btn-default btn-xs" onClick={this.startGame.bind(this, game)}>Graj</button>
                     </div>
                 );
             }.bind(this));

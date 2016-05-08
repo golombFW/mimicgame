@@ -46,7 +46,7 @@ var PrivacySettings = React.createClass({
         var photoPrivacyValueLink = this.linkState("photoPrivacySetting");
 
         if (!settings) {
-            return <LoadingBar/>
+            return <LoadingBar color="dark"/>
         }
         return (
             <div className="panel panel-default">

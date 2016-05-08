@@ -1,8 +1,10 @@
 var model = require('cloud/model.js');
 var utils = require('cloud/utils.js');
+var _ = require('underscore');
 
 var _matchClassName = "Match";
 var _photoQuestionClassName = "PhotoQuestion";
+var _photoQuestionAnswerClassName = "PhotoQuestionAnswer";
 var _emotionClassName = "Emotion";
 var _matchPlayer1Key = "player1";
 var _matchPlayer2Key = "player2";
@@ -14,6 +16,7 @@ var _matchStatusKeyCancelled = "cancelled";
 
 var _matchClass = Parse.Object.extend(_matchClassName);
 var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
+var _photoQuestionAnswerClass = Parse.Object.extend(_photoQuestionAnswerClassName);
 var _emotionClass = Parse.Object.extend(_emotionClassName);
 
 exports.getGameplayData = function (player, matchId, options) {
@@ -42,13 +45,14 @@ exports.playerUploadPhoto = function (player, matchId, topic, photo, options) {
             return Parse.Promise.error("That match is not linked with player!");
         }
 
-        var turnResult = _getPlayerTurn(player, match);
-        if (turnResult.type === model.GameplayDataStatus.TURN && turnResult.turn.get("type") === model.TurnType.PHOTO_QUESTION.name) {
-            var opponentQuestionKey = "question_" + _getOpponentString(player, match);
+        var turnDetails = _getPlayerTurn(player, match);
+        if (turnDetails.type === model.GameplayDataStatus.TURN && turnDetails.turn.get("type") === model.TurnType.PHOTO_QUESTION.name) {
+            var opponentKey = _getOpponentString(player, match);
+            var questionForOpponentKey = "question_" + opponentKey;
 
             //valid state, player doesn't upload photo for oppponent yet
-            if (null === turnResult.turn.get(opponentQuestionKey)) {
-                return _addPhotoQuestion(player, opponentQuestionKey, turnResult.turn, topic, photo);
+            if (!turnDetails.turn.get(questionForOpponentKey)) {
+                return _addPhotoQuestion(player, opponentKey, turnDetails.turn, topic, photo);
             } else {
                 return Parse.Promise.error("Invalid request, player uploaded photo before!");
             }
@@ -59,16 +63,61 @@ exports.playerUploadPhoto = function (player, matchId, topic, photo, options) {
         options.error("GameManager.playerUploadPhoto matchQuery error: " + error.message);
     }).then(function (savedTurn) {
         console.log("Photo saved");
-        var result;
-        var playerQuestionKey = "question_" + playerStr;
+        console.log("saved turn: " + JSON.stringify(savedTurn));
 
-        if (null !== savedTurn.get(playerQuestionKey)) {
-            result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, savedTurn);
-        } else {
-            result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING);
+        var result = {
+            turnId: savedTurn.id
+        };
+        options.success(result);
+    }).then(null, function (error) {
+        options.error(error);
+    });
+};
+
+exports.answerQuestion = function (player, matchId, answerEmotion, options) {
+    var playerStr;
+    var matchQuery = new Parse.Query(_matchClass);
+    matchQuery.include("turnList");
+    matchQuery.get(matchId).then(function (match) {
+        console.log("match fetched: " + match.id);
+
+        playerStr = _getPlayerString(player, match);
+        if (null == playerStr) {
+            console.error("player: " + player.id + " is not linked with match: " + matchId);
+            return Parse.Promise.error("That match is not linked with player!");
         }
 
-        options.success(result);
+        var turnDetails = _getPlayerTurn(player, match);
+        if (turnDetails.type === model.GameplayDataStatus.TURN && (!turnDetails.phase || _isPhotoQuestionAnswerPhase(turnDetails.phase))) {
+            var turn = turnDetails.turn;
+            var playerAnswerKey = "answer_" + playerStr;
+
+            if (!turn.get(playerAnswerKey)) {
+                var playerQuestionKey = "question_" + playerStr;
+                var question = turn.get(playerQuestionKey);
+                if (!question) {
+                    return Parse.Promise.error("Incorrect state, there is no question for Player!");
+                }
+
+                var emotion = new _emotionClass();
+                emotion.id = answerEmotion.id;
+
+                var answer = _prepareAnswer(player, question, emotion);
+                turn.set(playerAnswerKey, answer);
+
+                return turn.save();
+            } else {
+                return Parse.Promise.error("Incorrect state, player send answer to current turn!");
+            }
+        } else {
+            return Parse.Promise.error("Incorrect state, player is not allowed to send answer to current turn!");
+        }
+    }).then(function (savedTurn) {
+        console.log("Answer to question saved!");
+        var saveAnswerResult = {
+            turnId: savedTurn.id
+        };
+        options.success(saveAnswerResult);
     }).then(null, function (error) {
         options.error(error);
     });
@@ -94,7 +143,7 @@ _prepareGameplayDataForPlayer = function (player, match, options) {
 
     //send summary
     if (matchStatus === _matchStatusKeyFinished) {
-        //todo
+        //todo summary
         console.log("Match finished, sending summary");
         result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
         options.success(result);
@@ -104,7 +153,7 @@ _prepareGameplayDataForPlayer = function (player, match, options) {
     var turnResult = _getPlayerTurn(player, match);
     if (turnResult.type === model.GameplayDataStatus.TURN) {
         console.log("Prepare gameplay data with turn");
-        result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn);
+        result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
     } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
         //todo waiting for opponent
         console.log("Prepare gameplay waiting data");
@@ -122,7 +171,7 @@ _prepareGameplayDataForPlayer = function (player, match, options) {
     }
 };
 
-_gameplayDataFromTurn = function (status, playerStr, turn) {
+_gameplayDataFromTurn = function (status, playerStr, turn, phase) {
     var data = utils.cloneObject(model.GameplayData);
     data.status = status;
 
@@ -135,8 +184,13 @@ _gameplayDataFromTurn = function (status, playerStr, turn) {
             break;
         case model.GameplayDataStatus.TURN:
             data.turn.ordinal = turn.get("turnNumber");
-            data.turn.question = turn.get("question_" + playerStr);
             data.turn.type = turn.get("type");
+            if (data.turn.type === model.TurnType.PHOTO_QUESTION.name && phase === model.TurnType.PHOTO_QUESTION.phases.initial) {
+                console.log("Preparing turn gameplay data without question");
+                data.turn.question = null;
+            } else {
+                data.turn.question = turn.get("question_" + playerStr);
+            }
             data.turn.additionalData = turn.get("additionalData_" + playerStr);
             break;
         default:
@@ -168,12 +222,22 @@ _getPlayerTurn = function (player, match) {
                 var playerQuestionKey = "question_" + _getPlayerString(player, match);
                 var opponentQuestionKey = "question_" + _getOpponentString(player, match);
 
-                //check exceptions
-                //todo change this complicated logic to something more simple ex. split photo_question to turn of
-                //todo sending photo and turn of sending answer to photo uploaded before
-                //1. Player sent photo for opponent before and opponent doesn't sent photo for player
-                if (turnType === model.TurnType.PHOTO_QUESTION.name && null === turnList[i].get(playerQuestionKey) && null !== turnList[i].get(opponentQuestionKey)) {
-                    result = {type: model.GameplayDataStatus.WAITING, turn: turnList[i]};
+                if (_isPhotoQuestionTurnType(turnType)) {
+                    if (_playerPreparedOpponentQuestion(turnList[i], opponentQuestionKey) && !_opponentPreparedPlayerQuestion(turnList[i], playerQuestionKey)) {
+                        result = {type: model.GameplayDataStatus.WAITING, turn: turnList[i]};
+                    } else if (_opponentPreparedPlayerQuestion(turnList[i], playerQuestionKey) && !_playerPreparedOpponentQuestion(turnList[i], opponentQuestionKey)) {
+                        result = {
+                            type: model.GameplayDataStatus.TURN,
+                            turn: turnList[i],
+                            phase: model.TurnType.PHOTO_QUESTION.phases.initial
+                        };
+                    } else {
+                        result = {
+                            type: model.GameplayDataStatus.TURN,
+                            turn: turnList[i],
+                            phase: model.TurnType.PHOTO_QUESTION.phases.answer
+                        };
+                    }
                 } else {
                     result = {type: model.GameplayDataStatus.TURN, turn: turnList[i]};
                 }
@@ -191,10 +255,11 @@ _getPlayerTurn = function (player, match) {
     return result;
 };
 
-_addPhotoQuestion = function (player, opponentQuestionKey, turn, topic, photo) {
+_addPhotoQuestion = function (player, opponentKey, turn, topic, photo) {
     console.log("Adding new photo... player: " + player.id + " turn: " + turn.id + " topic: " + topic.id + " photo length: " + photo.length);
-    var promise = new Parse.Promise();
+    var resultPromise = new Parse.Promise();
     var photoQuestion = new _photoQuestionClass();
+    var questionForOpponentKey = "question_" + opponentKey;
 
     //set photo
     var fileName = player.getUsername() + "_" + topic.id;
@@ -219,18 +284,20 @@ _addPhotoQuestion = function (player, opponentQuestionKey, turn, topic, photo) {
         photoQuestion.set("accessLevel", accessLevel);
 
         //add question to turn
-        turn.set(opponentQuestionKey, photoQuestion);
+        turn.set(questionForOpponentKey, photoQuestion);
 
-        return turn.save();
+        return _updatePhotoTurnAdditionalData(turn, opponentKey, topicObj);
     }, function (error) {
-        promise.reject("Player settings fetch error: " + error.message);
+        resultPromise.reject("Player settings fetch error: " + error.message);
+    }).then(function (updatedTurn) {
+        return updatedTurn.save();
     }).then(function (savedTurn) {
-        promise.resolve(savedTurn);
+        resultPromise.resolve(savedTurn);
     }, function (error) {
-        promise.reject("Save turn with photo error: " + error.message);
+        resultPromise.reject("Save turn with photo error: " + error.message);
     });
 
-    return promise;
+    return resultPromise;
 };
 
 //Miscellaneous
@@ -248,7 +315,7 @@ _getOpponentString = function (player, match) {
     return p1.id === player.id ? _matchPlayer2Key : p2.id === player.id ? _matchPlayer1Key : null;
 };
 
-var _setPhotoQuestionACL = function (photoQuestion, user) {
+_setPhotoQuestionACL = function (photoQuestion, user) {
     var newACL = new Parse.ACL();
 
     newACL.setPublicReadAccess(false);
@@ -257,4 +324,71 @@ var _setPhotoQuestionACL = function (photoQuestion, user) {
     newACL.setWriteAccess(user.id, false);
 
     photoQuestion.setACL(newACL);
+};
+
+_setPhotoQuestionAnswerACL = function (photoQuestionAnswer, user) {
+    var newACL = new Parse.ACL();
+
+    newACL.setPublicReadAccess(false);
+    newACL.setPublicWriteAccess(false);
+    newACL.setReadAccess(user.id, true);
+
+    photoQuestionAnswer.setACL(newACL);
+};
+
+_updatePhotoTurnAdditionalData = function (turn, playerKey, correctAnswerFlat) {
+    var promise = new Parse.Promise();
+    var additionalDataForPlayerKey = "additionalData_" + playerKey;
+    var data = turn.get(additionalDataForPlayerKey);
+    var emotionQuery = new Parse.Query(_emotionClassName);
+    emotionQuery.find().then(function (emotionList) {
+        if (1 > emotionList.length) {
+            promise.reject("Emotions list is empty!");
+            return;
+        }
+        var answers = utils.randomEmotions(emotionList);
+        var correctAnswer = _.find(answers, function (el) {
+            return el.id === correctAnswerFlat.id
+        });
+        answers = _.first(answers, 4);
+        if (0 > answers.indexOf(correctAnswer)) {
+            answers[0] = correctAnswer;
+            answers = _.shuffle(answers);
+        }
+
+        data.answers = answers;
+        turn.set(additionalDataForPlayerKey, data);
+        promise.resolve(turn);
+    }, function (error) {
+        console.error("error while fetching emotion list.");
+        promise.reject(error);
+    });
+
+    return promise;
+};
+
+_prepareAnswer = function (player, photoQuestion, emotion) {
+    var answer = new _photoQuestionAnswerClass();
+    answer.set("player", player);
+    answer.set("question", photoQuestion);
+    answer.set("answer", emotion);
+    _setPhotoQuestionAnswerACL(answer, player);
+
+    return answer;
+};
+
+_isPhotoQuestionTurnType = function (turnType) {
+    return turnType === model.TurnType.PHOTO_QUESTION.name;
+};
+
+_isPhotoQuestionAnswerPhase = function (phase) {
+    return phase === model.TurnType.PHOTO_QUESTION.phases.answer
+};
+
+_playerPreparedOpponentQuestion = function (turn, opponentQuestionKey) {
+    return null != turn.get(opponentQuestionKey)
+};
+
+_opponentPreparedPlayerQuestion = function (turn, playerQuestionKey) {
+    return null != turn.get(playerQuestionKey);
 };

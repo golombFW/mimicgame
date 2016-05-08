@@ -1,5 +1,7 @@
+var _ = require('underscore');
+
 var cloneObject = function (obj) {
-    if (obj === null || typeof obj !== 'object') {
+    if (null === obj || 'object' !== typeof obj) {
         return obj;
     }
 
@@ -11,4 +13,19 @@ var cloneObject = function (obj) {
     return temp;
 };
 
+var randomEmotions = function (emotionList, count) {
+    if (null == count) {
+        count = emotionList.length;
+    }
+    var randomEmotions = _.first(_.shuffle(emotionList), count);
+    var topics = [];
+
+    _.each(randomEmotions, function (el, idx) {
+        topics.push({id: el.id, value: el.get("name")});
+    });
+
+    return topics;
+};
+
 exports.cloneObject = cloneObject;
+exports.randomEmotions = randomEmotions;

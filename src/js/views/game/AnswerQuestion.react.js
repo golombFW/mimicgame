@@ -23,27 +23,33 @@ var AnswerQuestion = React.createClass({
                 photoQuestionUrl = photoQuestionUrl.replace("http://", "https://");
             }
         }
+        var answerButtons;
+        var additionalData = this.props.data.turn.additionalData ? this.props.data.turn.additionalData : {};
+        var answers = additionalData.answers;
+        if (this.props.data && answers) {
+            answerButtons = answers.map(function (answer) {
+                return (
+                    <div className="col-xs-6 col-sm-3" key={answer.id}>
+                        <AnswerButton fullWidth={true}
+                                      onClick={this.chooseAnswer.bind(this, answer)}>{answer.value}</AnswerButton>
+                    </div>
+                )
+            }.bind(this));
+        }
+
         return (
             <DefaultGameViewContainer gameInfo={this.props.gameInfo}>
                 <div id="photo-question">
                     <img src={photoQuestionUrl}/>
                 </div>
                 <div id="photo-answers" className="row">
-                    <div className="col-xs-6 col-sm-3">
-                        <AnswerButton fullWidth={true}>test</AnswerButton>
-                    </div>
-                    <div className="col-xs-6 col-sm-3">
-                        <AnswerButton fullWidth={true}>test</AnswerButton>
-                    </div>
-                    <div className="col-xs-6 col-sm-3">
-                        <AnswerButton fullWidth={true}>test</AnswerButton>
-                    </div>
-                    <div className="col-xs-6 col-sm-3">
-                        <AnswerButton fullWidth={true}>test</AnswerButton>
-                    </div>
+                    {answerButtons}
                 </div>
             </DefaultGameViewContainer>
         );
+    },
+    chooseAnswer: function (answer) {
+        GameManagerActions.chooseAnswer(answer);
     }
 });
 
