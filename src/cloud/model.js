@@ -43,4 +43,6 @@ exports.GameplayData = {
     opponentLastAnswer: {}
 };
 
+exports.emotions = ["strach", "radość", "wstręt", "złość", "smutek", "zdziwienie"];
+
 exports.TurnType = TurnType;

@@ -11,6 +11,7 @@ var Menu = require('./views/Menu.react.js');
 var UserSettings = require('./views/UserSettings.react.js');
 var NewGameMenu = require('./views/game/NewGameMenu.react.js');
 var RandomOpponent = require('./views/game/FindRandomOpponent.react.js');
+var SinglePlayerGame = require('./views/game/SinglePlayerGame.react.js');
 var Game = require('./views/game/Game.react.js');
 
 var VelocityTransitionGroup = require('velocity-react').VelocityTransitionGroup;
@@ -28,6 +29,7 @@ var AppWrapper = React.createClass({
         this.contents[AppState.USER_SETTINGS] = <UserSettings key={AppState.USER_SETTINGS}/>;
         this.contents[AppState.NEW_GAME_MENU] = <NewGameMenu key={AppState.NEW_GAME_MENU}/>;
         this.contents[AppState.FIND_RANDOM_OPPONENT] = <RandomOpponent key={AppState.FIND_RANDOM_OPPONENT}/>;
+        this.contents[AppState.SINGLE_PLAYER_GAME] = <SinglePlayerGame key={AppState.SINGLE_PLAYER_GAME}/>;
         this.contents[AppState.GAME] = <Game key={AppState.GAME}/>;
     },
     render: function () {

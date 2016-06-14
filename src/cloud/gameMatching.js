@@ -2,11 +2,16 @@
  * https://github.com/Mattieuga/ParseGameManager
  * */
 
+var _ = require('underscore');
+
 // === Model classes and keys ===
 var model = require('cloud/model.js');
 var utils = require('cloud/utils.js');
 
 var _matchClassName = "Match";
+var _emotionClassName = "Emotion";
+var _gameTypeClassName = "GameType";
+
 var _facebookUserAttrName = "FacebookUser";
 var _matchLockKey = "gameLock";
 var _matchLockKeyInitial = 1;
@@ -21,25 +26,10 @@ var _matchStatusKeyCancelled = "cancelled";
 var _matchTurnKey = "turn";
 var _matchTurnKeyPlayer1 = "player_1";
 var _matchTurnKeyPlayer2 = "player_2";
+var _matchTypeKey = "type";
+var _matchType = {SINGLE: "SINGLE", RANDOM: "RANDOM"};
 
 var Match = Parse.Object.extend(_matchClassName);
-
-// === Overridable methods ===
-// TODO all these
-exports.initialize = function () {
-};
-exports.beforeMatchCreated = function () {
-};
-exports.afterMatchCreated = function () {
-};
-exports.beforeMatchJoined = function () {
-};
-exports.afterMatchJoined = function () {
-};
-exports.beforeTurnChange = function () {
-};
-exports.afterTurnChange = function () {
-};
 
 // === API methods ===
 
@@ -88,6 +78,33 @@ exports.joinAnonymousGame = function (player, options) {
     });
 };
 
+exports.joinSingleplayerGame = function (player, options) {
+    _log("Joining singleplayer game", player);
+    _log("Create new singleplayer game", player);
+    _createNewMatch(player, _matchType.SINGLE).then(function (match) {
+        _log("Singleplayer game created successfully", player);
+        _createTurns(player, match, model.GameType.SINGLE).then(function (turns) {
+            _log("Setting turns to match: " + JSON.stringify(turns), player);
+            match.set("turnList", turns);
+            match.save(null, {
+                success: function (newMatch) {
+                    // Return the game
+                    var isTurn = newMatch.get(_matchTurnKey) === _matchTurnKeyPlayer2;
+                    _log("Game joined, and it isTurn is : " + isTurn, player);
+                    _log(JSON.stringify(newMatch), player);
+                    options.success(newMatch, isTurn);
+                },
+                error: function (error) {
+                    options.error(error.message);
+                }
+            });
+        }, function (error) {
+            _log("Create turns failed " + error.message, player);
+        });
+    }, function (error) {
+        options.error(error.message);
+    });
+};
 
 // === Core methods ===
 
@@ -159,25 +176,32 @@ _getOrCreateMatch = function (player, options) {
                         } else {
                             // If something happened to the match give up and create a new one
                             _log("Creating new game since previous player game selection not found", player);
-                            _createNewMatch(player, options);
+                            _createNew2PlayerMatch(player, options);
                         }
                     },
                     error: options.error
                 });
             } else {
                 //create new match
-                _createNewMatch(player, options);
+                _createNew2PlayerMatch(player, options);
             }
         }
     });
 };
 
-_createNewMatch = function (player, options) {
+_createNewMatch = function (player, matchType) {
     // Set new match attributes
     var match = new (Parse.Object.extend(_matchClassName))();
     match.set(_matchLockKey, _matchLockKeyInitial);
     match.set(_matchPlayer1Key, player); // challenger is player 1
-    match.set(_matchStatusKey, _matchStatusKeyWaiting); // wait for second player
+    if (matchType === _matchType.RANDOM) {
+        match.set(_matchStatusKey, _matchStatusKeyWaiting); // wait for second player
+        match.set(_matchTypeKey, _matchType.RANDOM);
+    } else if (matchType === _matchType.SINGLE) {
+        match.set(_matchStatusKey, _matchStatusKeyInProgress);
+        match.set(_matchTypeKey, _matchType.SINGLE);
+    }
+
     match.set(_matchTurnKey, _matchTurnKeyPlayer1); // default challenger starts
     match.set("round", 1);
     _setMatchACL(match);
@@ -185,15 +209,19 @@ _createNewMatch = function (player, options) {
     _log("Creating new game with properties:", player);
     _log(JSON.stringify(match), player);
     // Create match
-    match.save(null, {
-        success: function (newMatch) {
+    return match.save();
+};
+
+_createNew2PlayerMatch = function (player, options) {
+    _createNewMatch(player, _matchType.RANDOM).then(
+        function (newMatch) {
             // Return the game
             _log("Game created successfully, now waiting for players", player);
             _log(JSON.stringify(newMatch), player);
             options.success(newMatch, true);
-        },
-        error: options.error
-    });
+        }, function (error) {
+            error: options.error
+        });
 };
 
 _log = function (message, player) {
@@ -202,22 +230,32 @@ _log = function (message, player) {
 
 //
 
-_createTurns = function (player, match, gameType) {
+_createTurns = function (player, match, gameTypeObj) {
     _log("Creating turns for match", player);
     var _turnClass = Parse.Object.extend("Turn");
-    var turns = gameType.turns;
     var resultTurns = [];
 
     var promise = new Parse.Promise();
-    var emotionQuery = new Parse.Query("Emotion");
+    var emotionQuery = new Parse.Query(_emotionClassName);
 
-    emotionQuery.find().then(
-        function (emotionList) {
+    var promises = [];
+    promises.push(emotionQuery.find());
+    promises.push(_loadGameTypes());
+
+    var p1 = emotionQuery.find();
+    var p2 = _loadGameTypes();
+
+    Parse.Promise.when(p1, p2).then(
+        function (emotionList, turnTypesList) {
             if (1 > emotionList.length) {
                 promise.reject("Emotions list is empty!");
                 return;
             }
+            if (1 > _.size(turnTypesList)) {
+                promise.reject("Game Types list is empty!");
+            }
 
+            var turns = turnTypesList[gameTypeObj.name].turns;
             for (var i = 0; i < turns.length; i += 1) {
                 var turn = new _turnClass();
                 turn.set("type", turns[i].name);
@@ -230,14 +268,14 @@ _createTurns = function (player, match, gameType) {
                     question1 = _randomQuestion();
                 } else if ("opponent" === turns[i].photo_p1) {
                     question1 = _opponentQuestion();
-                    additional1 = {photoTopics: _photoTopic(emotionList)};
+                    additional1 = {photoTopics: _randomizePhotoTopicList(emotionList)};
                 }
 
                 if ("random_const" === turns[i].photo_p2) {
                     question2 = question1;
                 } else if ("opponent" === turns[i].photo_p2) {
                     question2 = _opponentQuestion();
-                    additional2 = {photoTopics: _photoTopic(emotionList)};
+                    additional2 = {photoTopics: _randomizePhotoTopicList(emotionList)};
                 }
 
                 turn.set("turnNumber", (i + 1));
@@ -262,6 +300,42 @@ _createTurns = function (player, match, gameType) {
     return promise;
 };
 
+_loadGameTypes = function () {
+    console.log("Loading game types form database...");
+    var promise = new Parse.Promise();
+    var gameTypeQuery = new Parse.Query(_gameTypeClassName);
+
+    var turnTypes = [];
+    for (var turnTypeIdx in model.TurnType) {
+        var turnType = model.TurnType[turnTypeIdx];
+        turnTypes[turnType.name] = turnType;
+    }
+
+    gameTypeQuery.find().then(function (gameTypes) {
+        var resultGameTypes = {};
+        for (var gameTypeIdx in gameTypes) {
+            var gameType = gameTypes[gameTypeIdx];
+            var resultGameType = {};
+            resultGameType.name = gameType.get("name");
+
+            var turnTypeTexts = gameType.get("turns");
+            var turns = [];
+            for (var turnTypeIdx in turnTypeTexts) {
+                var turnType = turnTypeTexts[turnTypeIdx];
+                turns.push(turnTypes[turnType])
+            }
+            resultGameType.turns = turns;
+
+            resultGameTypes[resultGameType.name] = resultGameType;
+        }
+        promise.resolve(resultGameTypes);
+    }, function (error) {
+        console.error(error.message);
+        promise.reject(error);
+    });
+    return promise;
+};
+
 _randomQuestion = function () {
     return null;
     //todo
@@ -271,7 +345,7 @@ _opponentQuestion = function () {
     return null;
 };
 
-_photoTopic = function (emotionList) {
+_randomizePhotoTopicList = function (emotionList) {
     console.log("Shuffling photoTopics");
     return utils.randomEmotions(emotionList, 3);
 };
