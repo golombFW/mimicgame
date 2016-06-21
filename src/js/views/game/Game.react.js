@@ -61,13 +61,19 @@ var Game = React.createClass({
             opponentAvatar;
         if (!Utils.$.isNullOrEmpty(this.state.match) && this.state.user) {
             opponent = GameUtils.getOpponent(this.state.user, this.state.match);
-            opponentAvatar = opponent.get("FacebookUser").get("avatar");
+            if (opponent) {
+                opponentAvatar = opponent.get("FacebookUser").get("avatar");
+            }
         }
-        return {
-            opponent: {
+        var resultOpponent = null;
+        if (opponent) {
+            resultOpponent = {
                 nick: opponent.get("nick"),
                 avatar: opponentAvatar
-            },
+            };
+        }
+        return {
+            opponent: resultOpponent,
             match: this.state.match
         }
     },

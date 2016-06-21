@@ -22,6 +22,7 @@ var path = {
     CSS_SRC: 'src/css/style.less',
     WEBCAMSWF_SRC: 'node_modules/webcamjs/webcam.swf',
     FAVICON_SRC: 'src/favicon.ico',
+    DEFAULT_EMOTIONS_SRC: 'src/resources/default_emotions/**/*',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
 
@@ -31,6 +32,7 @@ var path = {
     DEST_CSS: 'public/css',
     DEST_HTML: 'public',
     DEST_JS: 'public/js',
+    DEST_RESOURCES: 'public/resources',
     DEST_CLOUD: 'cloud',
 
     DEST_DEV: 'target',
@@ -59,10 +61,18 @@ gulp.task('copy-webcamswf', function () {
 
 gulp.task('copy-otherfiles', function () {
     //favicon
+    console.log("copying favicon");
     gulp.src(path.FAVICON_SRC)
         .pipe(
             gulp.dest(
-                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)))
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)));
+
+    //default images
+    console.log("copying default question images");
+    gulp.src(path.DEFAULT_EMOTIONS_SRC)
+        .pipe(
+            gulp.dest(
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_RESOURCES)));
 });
 
 gulp.task('watch', function () {
@@ -81,12 +91,12 @@ gulp.task('watch', function () {
 
     var watcher = watchify(b);
     return watcher.on('update', function () {
-            watcher.bundle()
-                .on('error', gutil.log)
-                .pipe(source(path.OUT))
-                .pipe(gulp.dest(pathJoin.join(path.DEST_DEV, path.DEST_JS)));
-            console.log('JS updated');
-        })
+        watcher.bundle()
+            .on('error', gutil.log)
+            .pipe(source(path.OUT))
+            .pipe(gulp.dest(pathJoin.join(path.DEST_DEV, path.DEST_JS)));
+        console.log('JS updated');
+    })
         .bundle()
         .on('error', gutil.log)
         .pipe(source(path.OUT))

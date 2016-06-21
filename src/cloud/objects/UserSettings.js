@@ -1,9 +1,11 @@
+var model = require('cloud/model.js');
+
 var DEFAULT_SETTINGS = {
-    ADDED_PHOTOS_PRIVACY: "ALL_USERS"
+    ADDED_PHOTOS_PRIVACY: model.photoPrivacy.ALL_USERS
 };
 
 var POSSIBLE_VALUES = {
-    ADDED_PHOTOS_PRIVACY: ["ALL_USERS", "FRIENDS", "NONE"]
+    ADDED_PHOTOS_PRIVACY: [model.photoPrivacy.ALL_USERS, model.photoPrivacy.FRIENDS, model.photoPrivacy.NONE]
 };
 
 Parse.Cloud.beforeSave("UserSettings", function (request, response) {

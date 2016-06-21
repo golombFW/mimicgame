@@ -4,6 +4,15 @@ var DefaultGameViewContainer = require('../../components/game/DefaultGameViewCon
 var AnswerButton = require('../../components/game/AnswerButton.react.js');
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 
+var defaultQuestions = {
+    "strach": 'fear_strach.jpg',
+    "radość": 'joy_radosc.jpg',
+    "wstręt": 'disgust_wstret.jpg',
+    "złość": 'anger_zlosc.jpg',
+    "smutek": 'sadness_smutek.jpg',
+    "zdziwienie": 'surprise_zdziwienie.jpg'
+};
+
 var AnswerQuestion = React.createClass({
     propTypes: {
         gameInfo: React.PropTypes.object,
@@ -17,10 +26,15 @@ var AnswerQuestion = React.createClass({
     },
     render: function () {
         var photoQuestionUrl;
-        if (this.props.data && this.props.data.turn.question && this.props.data.turn.question.get("photo")) {
-            photoQuestionUrl = this.props.data.turn.question.get("photo")._url;
-            if (photoQuestionUrl && photoQuestionUrl.indexOf("http://") > -1) {
-                photoQuestionUrl = photoQuestionUrl.replace("http://", "https://");
+        if (this.props.data && this.props.data.turn.question) {
+            var defaultParam = this.props.data.turn.question.get("default");
+            if (this.props.data.turn.question.get("photo")) {
+                photoQuestionUrl = this.props.data.turn.question.get("photo")._url;
+                if (photoQuestionUrl && photoQuestionUrl.indexOf("http://") > -1) {
+                    photoQuestionUrl = photoQuestionUrl.replace("http://", "https://");
+                }
+            } else if (defaultParam) {
+                photoQuestionUrl = '/resources/' + defaultQuestions[defaultParam];
             }
         }
         var answerButtons;

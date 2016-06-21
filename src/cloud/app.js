@@ -33,4 +33,6 @@ app.get('/favicon.ico', function (req, res) {
     res.send(faviconUrl);
 });
 
+app.use('/resources', express.static(path.join(__dirname, 'target/public/resources')));
+
 app.listen();

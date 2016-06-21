@@ -6,11 +6,13 @@ var _ = require('underscore');
 
 // === Model classes and keys ===
 var model = require('cloud/model.js');
+var common = require('cloud/common.js');
 var utils = require('cloud/utils.js');
 
 var _matchClassName = "Match";
 var _emotionClassName = "Emotion";
 var _gameTypeClassName = "GameType";
+var _photoQuestionClassName = "PhotoQuestion";
 
 var _facebookUserAttrName = "FacebookUser";
 var _matchLockKey = "gameLock";
@@ -238,24 +240,30 @@ _createTurns = function (player, match, gameTypeObj) {
     var promise = new Parse.Promise();
     var emotionQuery = new Parse.Query(_emotionClassName);
 
-    var promises = [];
-    promises.push(emotionQuery.find());
-    promises.push(_loadGameTypes());
+    var emotionsPromise = emotionQuery.find();
+    var gameTypesPromise = _loadGameTypes();
 
-    var p1 = emotionQuery.find();
-    var p2 = _loadGameTypes();
+    var playerQuestionPromise = _playerRandomQuestionsList(player, match.get(_matchPlayer1Key), match.get(_matchPlayer2Key));
+    var defaultQuestionPromise = _defaultQuestionsList(player);
 
-    Parse.Promise.when(p1, p2).then(
-        function (emotionList, turnTypesList) {
-            if (1 > emotionList.length) {
+    Parse.Promise.when(emotionsPromise, gameTypesPromise, playerQuestionPromise, defaultQuestionPromise).then(
+        function (emotionsList, turnTypesList, playerRandomQuestionsList, defaultQuestionsList) {
+            if (1 > emotionsList.length) {
                 promise.reject("Emotions list is empty!");
                 return;
             }
             if (1 > _.size(turnTypesList)) {
                 promise.reject("Game Types list is empty!");
             }
+            if (1 > _.size(defaultQuestionsList) && 1 > _.size(playerRandomQuestionsList)) {
+                promise.reject("Questions lists are empty!");
+            }
 
             var turns = turnTypesList[gameTypeObj.name].turns;
+            playerRandomQuestionsList = _.shuffle(playerRandomQuestionsList);
+            defaultQuestionsList = _.shuffle(defaultQuestionsList);
+            var questions = playerRandomQuestionsList.concat(defaultQuestionsList);
+
             for (var i = 0; i < turns.length; i += 1) {
                 var turn = new _turnClass();
                 turn.set("type", turns[i].name);
@@ -265,17 +273,19 @@ _createTurns = function (player, match, gameTypeObj) {
                 var additional1 = null, additional2 = null;
 
                 if ("random_const" === turns[i].photo_p1) {
-                    question1 = _randomQuestion();
+                    question1 = _getNextQuestionFromList(questions);
+                    additional1 = {answers: common.randomAnswers(emotionsList, question1.get("player_answer"))};
                 } else if ("opponent" === turns[i].photo_p1) {
                     question1 = _opponentQuestion();
-                    additional1 = {photoTopics: _randomizePhotoTopicList(emotionList)};
+                    additional1 = {photoTopics: _randomizePhotoTopicList(emotionsList)};
                 }
 
                 if ("random_const" === turns[i].photo_p2) {
                     question2 = question1;
+                    additional2 = additional1;
                 } else if ("opponent" === turns[i].photo_p2) {
                     question2 = _opponentQuestion();
-                    additional2 = {photoTopics: _randomizePhotoTopicList(emotionList)};
+                    additional2 = {photoTopics: _randomizePhotoTopicList(emotionsList)};
                 }
 
                 turn.set("turnNumber", (i + 1));
@@ -325,7 +335,6 @@ _loadGameTypes = function () {
                 turns.push(turnTypes[turnType])
             }
             resultGameType.turns = turns;
-
             resultGameTypes[resultGameType.name] = resultGameType;
         }
         promise.resolve(resultGameTypes);
@@ -336,9 +345,70 @@ _loadGameTypes = function () {
     return promise;
 };
 
-_randomQuestion = function () {
-    return null;
-    //todo
+_playerRandomQuestionsList = function (user, player1, player2) {
+    _log("Getting random question list", user);
+    var promise = new Parse.Promise();
+    var allUsersQuestionsQuery = new Parse.Query(_photoQuestionClassName);
+    allUsersQuestionsQuery.equalTo("accessLevel", model.photoPrivacy.ALL_USERS);
+
+    var facebookUser1 = player1.get(_facebookUserAttrName);
+    var fbUser1Promise = facebookUser1.fetch();
+
+    var facebookUser2, fbUser2Promise;
+    if (player2) {
+        facebookUser2 = player2.get(_facebookUserAttrName);
+        fbUser2Promise = facebookUser2.fetch();
+    } else {
+        fbUser2Promise = Parse.Promise.as(null);
+    }
+
+    Parse.Promise.when(fbUser1Promise, fbUser2Promise).then(function (fetchedFbUser1, fetchedFbUser2) {
+        var friendsQuestionsQuery = new Parse.Query(_photoQuestionClassName);
+        friendsQuestionsQuery.equalTo("accessLevel", model.photoPrivacy.FRIENDS);
+
+        var friendsListP1 = fetchedFbUser1.get("friendsList");
+        var friendsListP2, commonFriendsList = friendsListP1;
+        if (fetchedFbUser2) {
+            friendsListP2 = fetchedFbUser2.get("friendsList");
+            commonFriendsList = _.intersection(friendsListP1, friendsListP2);
+        }
+        friendsQuestionsQuery.containedIn("author", commonFriendsList);
+
+        var questionQuery = Parse.Query.or(friendsQuestionsQuery, allUsersQuestionsQuery);
+        return questionQuery.find();
+    }, function (error) {
+        console.error("Can't fetch facebook user from user: " + JSON.stringify(player1));
+        promise.reject(error);
+    }).then(function (matchingQuestions) {
+        _log("Found " + matchingQuestions.length + " matching questions", user);
+        promise.resolve(matchingQuestions);
+    }, function (error) {
+        console.error("Problem with getting matching questions in \"_playerRandomQuestionsList\"");
+        promise.reject(error);
+    });
+    return promise;
+};
+
+_defaultQuestionsList = function (player) {
+    _log("Getting default photo questions list", player);
+    var promise = new Parse.Promise();
+
+    var questionsQuery = new Parse.Query(_photoQuestionClassName);
+    questionsQuery.exists("default");
+    questionsQuery.find().then(function (questionsList) {
+        promise.resolve(questionsList);
+    }, function (error) {
+        console.error("Problem with getting default photo questions: " + error.message);
+        promise.reject(error.message);
+    });
+    return promise;
+};
+
+var nextQuestionIdx = 0;
+_getNextQuestionFromList = function (questions) {
+    var question = questions[nextQuestionIdx];
+    nextQuestionIdx = (nextQuestionIdx + 1) % questions.length;
+    return question;
 };
 
 _opponentQuestion = function () {

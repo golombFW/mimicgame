@@ -1,4 +1,5 @@
 var model = require('cloud/model.js');
+var common = require('cloud/common.js');
 var utils = require('cloud/utils.js');
 var _ = require('underscore');
 
@@ -346,17 +347,7 @@ _updatePhotoTurnAdditionalData = function (turn, playerKey, correctAnswerFlat) {
             promise.reject("Emotions list is empty!");
             return;
         }
-        var answers = utils.randomEmotions(emotionList);
-        var correctAnswer = _.find(answers, function (el) {
-            return el.id === correctAnswerFlat.id
-        });
-        answers = _.first(answers, 4);
-        if (0 > answers.indexOf(correctAnswer)) {
-            answers[0] = correctAnswer;
-            answers = _.shuffle(answers);
-        }
-
-        data.answers = answers;
+        data.answers = common.randomAnswers(emotionList, correctAnswerFlat);
         turn.set(additionalDataForPlayerKey, data);
         promise.resolve(turn);
     }, function (error) {

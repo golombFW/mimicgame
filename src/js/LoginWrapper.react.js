@@ -37,7 +37,7 @@ var LoginWrapper = React.createClass({
                 status: false,  // check Facebook Login status
                 cookie: true,  // enable cookies to allow Parse to access the session
                 xfbml: false,  // initialize Facebook social plugins on the page
-                version: 'v2.5' // point to the latest Facebook Graph API version
+                version: 'v2.6' // point to the latest Facebook Graph API version
             });
 
             FB.getLoginStatus(function (response) {

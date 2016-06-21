@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -12,25 +12,27 @@
   },
   "dependencies": {
     "moment": "^2.13.0",
+    "object-hash": "^1.1.2",
     "parse": "1.8.5",
     "react": "15.1.0",
     "react-addons-linked-state-mixin": "15.1.0",
-    "react-bootstrap": "0.29.4",
+    "react-bootstrap": "0.29.5",
     "react-dimensions": "1.2.0",
     "react-dom": "15.1.0",
+    "react-safe-render": "^2.0.0",
     "reflux": "0.4.1",
     "reflux-state-mixin": "0.7.0",
     "underscore": "1.8.3",
     "velocity-react": "1.1.5",
-    "webcamjs": "1.0.7"
+    "webcamjs": "1.0.9"
   },
   "devDependencies": {
-    "body-parser": "^1.15.1",
+    "body-parser": "^1.15.2",
     "browserify": "^13.0.1",
     "envify": "^3.4.0",
-    "express": "^4.13.4",
+    "express": "^4.14.0",
     "gulp": "^3.9.1",
-    "gulp-html-replace": "^1.6.0",
+    "gulp-html-replace": "^1.6.1",
     "gulp-less": "^3.1.0",
     "gulp-nodemon": "^2.1.0",
     "gulp-plumber": "^1.1.0",

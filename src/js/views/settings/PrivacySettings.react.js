@@ -2,13 +2,15 @@ var React = require('react');
 var Parse = require('parse').Parse;
 var StateMixin = require('reflux-state-mixin');
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
-
+var cloudModel = require('../../../cloud/model.js');
 var UserStore = require('../../stores/UserStore.js');
 
 var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
 
 var PhotoPrivacyValues = [
-    {key: "ALL_USERS", value: "Wszyscy"}, {key: "FRIENDS", value: "Znajomi"}, {key: "NONE", value: "Nikt"}
+    {key: cloudModel.photoPrivacy.ALL_USERS, value: "Wszyscy"},
+    {key: cloudModel.photoPrivacy.FRIENDS, value: "Znajomi"},
+    {key: cloudModel.photoPrivacy.NONE, value: "Nikt"}
 ];
 
 var UserSettings = Parse.Object.extend("UserSettings");

@@ -2,9 +2,14 @@ var Reflux = require('reflux');
 var StateMixin = require('reflux-state-mixin');
 var Parse = require('parse').Parse;
 var Utils = require('../Utils/Utils.js');
+var hash = require('object-hash');
+var _ = require('underscore');
 var $ = Utils.$;
+
 var FacebookUserActions = require('../actions/FacebookUserActions.js');
 var UserActions = require('../actions/UserActions.js');
+
+var _facebookUserClassName = "FacebookUser";
 
 var FacebookUserStore = Reflux.createStore({
     mixins: [StateMixin.store],
@@ -31,6 +36,7 @@ var FacebookUserStore = Reflux.createStore({
         this.facebookUserFriends = friends;
         var user = $.clone(this.state.facebookUser);
         user.friends = this.facebookUserFriends;
+        this.updateFriendsList(friends);
         this.setState({facebookUser: user});
     },
     setPicture: function (picture, isUpdateNeeded) {
@@ -105,6 +111,56 @@ var FacebookUserStore = Reflux.createStore({
         }, function (error) {
             console.error("Something goes wrong while fetching user in updateParseUserAvatar: " + error.message);
         });
+    },
+    updateFriendsList: function (fbFriendsList) {
+        var self = this;
+        var friendsIds = _.map(fbFriendsList, function (friend) {
+            return friend.id;
+        });
+
+        var friendsListHash = hash(friendsIds, {unorderedArrays: true});
+
+        Parse.User.current().fetch().then(function (fetchedUser) {
+            console.log("User fetch successful before friends list update");
+            var fbUser = fetchedUser.get("FacebookUser");
+            var serverFriendsListHash = fbUser.get("friendsListHash");
+            if (serverFriendsListHash !== friendsListHash) {
+                self.prepareServerFriendsList(friendsIds).then(function (friendsList) {
+                    fbUser.set("friendsList", friendsList);
+                    fbUser.set("friendsListHash", friendsListHash);
+
+                    fbUser.save().then(function (newFbUser) {
+                        console.log("Friends list for user saved");
+                    }, function (error) {
+                        console.error("Error while saving friends list to user: " + error.message);
+                    });
+                }, function (error) {
+                    console.error(error.message);
+                });
+            } else {
+                console.log("Friends list on server doesn't require update.");
+            }
+        }, function (error) {
+            console.error("Something goes wrong while fetching user in updateFriendsList: " + error.message);
+        });
+    },
+    prepareServerFriendsList: function (friendsIds) {
+        var promise = new Parse.Promise();
+        var fbUserQuery = new Parse.Query(_facebookUserClassName);
+        fbUserQuery.containedIn("facebookId", friendsIds);
+        fbUserQuery.find().then(function (facebookUsers) {
+            var friendsList = [];
+            for (var i in facebookUsers) {
+                var user = facebookUsers[i].get("User");
+                var pointer = user.toPointer();
+                friendsList.push(pointer);
+            }
+            promise.resolve(friendsList);
+        }, function (error) {
+            console.error("Problem with getting facebookUsers from facebook ids: " + error.message);
+            promise.reject(error);
+        });
+        return promise;
     }
 });
 

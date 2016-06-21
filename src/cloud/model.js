@@ -45,4 +45,10 @@ exports.GameplayData = {
 
 exports.emotions = ["strach", "radość", "wstręt", "złość", "smutek", "zdziwienie"];
 
+exports.photoPrivacy = {
+    ALL_USERS: "ALL_USERS",
+    FRIENDS: "FRIENDS",
+    NONE: "NONE"
+};
+
 exports.TurnType = TurnType;

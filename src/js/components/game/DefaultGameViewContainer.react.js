@@ -16,7 +16,7 @@ var DefaultGameViewContainer = React.createClass({
     render: function () {
         var opponentNick,
             opponentAvatarUrl;
-        if (this.props.gameInfo) {
+        if (this.props.gameInfo && this.props.gameInfo.opponent) {
             opponentNick = this.props.gameInfo.opponent.nick;
             if (this.props.gameInfo.opponent.avatar) {
                 opponentAvatarUrl = this.props.gameInfo.opponent.avatar.url;

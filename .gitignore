@@ -9,3 +9,4 @@ target-prod/
 target/public/js/*.*
 npm-debug.log
 /target/public/*.*
+/target/public/resources/*
