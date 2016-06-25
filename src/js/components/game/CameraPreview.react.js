@@ -15,12 +15,12 @@ var CameraPreview = React.createClass({
     componentDidUpdate: function () {
         var min = this.minDimension();
         this.initializeWebcam(min);
-        Webcam.attach('#camera-canvas');
+        this.webcamAttach();
     },
     componentDidMount: function () {
         var min = this.minDimension();
         this.initializeWebcam(min);
-        Webcam.attach('#camera-canvas');
+        this.webcamAttach();
     },
     componentWillUnmount: function () {
         Webcam.reset();
@@ -36,11 +36,17 @@ var CameraPreview = React.createClass({
                 </div>
             );
         }
+
+        var photoArea;
+        if (Webcam.userMedia) {
+            photoArea = (<div id="camera-canvas-photo-area"
+                              style={{width: min, height: min}}></div>);
+        }
+
         return (
             <div id="camera-preview-container">
                 <div id="camera-canvas" ref="cameraCanvas"></div>
-                <div id="camera-canvas-photo-area"
-                     style={{width: min, height: min}}></div>
+                {photoArea}
                 {topic}
             </div>
         );
@@ -67,6 +73,14 @@ var CameraPreview = React.createClass({
         }
         console.log("min length: " + min);
         return min;
+    },
+    webcamAttach: function () {
+        Webcam.attach("#camera-canvas");
+        if (!Webcam.userMedia) {
+            var webcamObj = document.getElementById("webcam_movie_obj");
+            var wmodeParam = webcamObj.querySelector("param[name='wmode']");
+            wmodeParam.value = "direct";
+        }
     }
 });
 

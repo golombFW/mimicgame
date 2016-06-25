@@ -31,7 +31,7 @@ var ActualGamesPanel = React.createClass({
                             </div> (aktualny wynik)
                         </span>);
                 } else {
-                    matchInfo = (<span className="opponent-info">Bez przecwinika (aktualny wynik pkt)</span>);
+                    matchInfo = (<span className="opponent-info">Bez przeciwnika (aktualny wynik pkt)</span>);
                 }
 
                 return (

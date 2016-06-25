@@ -372,7 +372,14 @@ _playerRandomQuestionsList = function (user, player1, player2) {
             friendsListP2 = fetchedFbUser2.get("friendsList");
             commonFriendsList = _.intersection(friendsListP1, friendsListP2);
         }
-        friendsQuestionsQuery.containedIn("author", commonFriendsList);
+        var pointers = _.map(commonFriendsList, function (userId) {
+            return {
+                "__type": "Pointer",
+                "className": "_User",
+                "objectId": userId
+            }
+        });
+        friendsQuestionsQuery.containedIn("author", pointers);
 
         var questionQuery = Parse.Query.or(friendsQuestionsQuery, allUsersQuestionsQuery);
         return questionQuery.find();
@@ -383,7 +390,7 @@ _playerRandomQuestionsList = function (user, player1, player2) {
         _log("Found " + matchingQuestions.length + " matching questions", user);
         promise.resolve(matchingQuestions);
     }, function (error) {
-        console.error("Problem with getting matching questions in \"_playerRandomQuestionsList\"");
+        console.error("Problem with getting matching questions in \"_playerRandomQuestionsList\" " + error.message);
         promise.reject(error);
     });
     return promise;

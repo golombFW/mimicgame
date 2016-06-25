@@ -149,12 +149,10 @@ var FacebookUserStore = Reflux.createStore({
         var fbUserQuery = new Parse.Query(_facebookUserClassName);
         fbUserQuery.containedIn("facebookId", friendsIds);
         fbUserQuery.find().then(function (facebookUsers) {
-            var friendsList = [];
-            for (var i in facebookUsers) {
-                var user = facebookUsers[i].get("User");
-                var pointer = user.toPointer();
-                friendsList.push(pointer);
-            }
+            var friendsList = _.map(facebookUsers, function (fbUser) {
+                var user = fbUser.get("User");
+                return user.id;
+            });
             promise.resolve(friendsList);
         }, function (error) {
             console.error("Problem with getting facebookUsers from facebook ids: " + error.message);
