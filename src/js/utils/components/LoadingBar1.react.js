@@ -3,20 +3,24 @@ var React = require('react');
 var LoadingBar1 = React.createClass({
     propTypes: {
         customText: React.PropTypes.string,
-        center: React.PropTypes.bool,
-        color: React.PropTypes.string
+        center: React.PropTypes.oneOf(["screen", "parent"]),
+        color: React.PropTypes.string,
+        classes: React.PropTypes.string
     },
     getDefaultProps: function () {
         return {
             customText: "Trwa wczytywanie danych",
-            center: false,
-            color: "white"
+            center: null,
+            color: "white",
+            classes: null
         };
     },
     render: function () {
         var classes = "loading-bar1";
-        if (this.props.center) {
-            classes += " screen-center"
+        if ("screen" === this.props.center) {
+            classes += " screen-center";
+        } else if ("parent" === this.props.center) {
+            classes += " parent-center";
         }
 
         switch (this.props.color) {
@@ -28,6 +32,10 @@ var LoadingBar1 = React.createClass({
                 break;
             default:
                 console.error("LoadingBar1: Invalid color parameter");
+        }
+
+        if (this.props.classes) {
+            classes += " " + this.props.classes;
         }
 
         return (

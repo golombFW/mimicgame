@@ -63,8 +63,8 @@ Parse.Cloud.define("getGameplayData", function (request, response) {
                 console.log("Success, Sending gameplay data...");
                 response.success(data);
             },
-            error: function (error) {
-                console.error("getGameplayData cloud func error: " + error);
+            error: function (errorMsg) {
+                console.error("getGameplayData cloud func error: " + errorMsg);
                 response.error("An error has occured.");
             }
         });

@@ -13,7 +13,7 @@ var Logo = Utils.Components.AppLogo;
 var DefaultAppViewContainer = require('../components/DefaultAppViewContainer.react.js');
 var ActualGamesPanel = require('../components/main_menu/ActualGamesPanel.react.js');
 var GameRequestsPanel = require('../components/main_menu/GameRequestsPanel.react.js');
-var PreviousGamesPanel = require('../components/main_menu/PreviousGamesPanel.react.js');
+var CompletedGamesPanel = require('../components/main_menu/CompletedGamesPanel.react.js');
 var BasicMenuPanel = require('../components/main_menu/BasicMenuPanel.react.js');
 
 var Menu = React.createClass({
@@ -23,6 +23,7 @@ var Menu = React.createClass({
     },
     render: function () {
         var actualGames = this.state.appData.gamesInfo.actualGames;
+        var completedGames = this.state.appData.gamesInfo.completedGames;
         return (
             <DefaultAppViewContainer>
                 <div id="app-menu">
@@ -42,7 +43,7 @@ var Menu = React.createClass({
                     </div>
 
                     <div className="menu-horizontal-container row">
-                        <PreviousGamesPanel/>
+                        <CompletedGamesPanel games={completedGames}/>
                     </div>
                 </div>
             </DefaultAppViewContainer>

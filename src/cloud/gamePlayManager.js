@@ -14,6 +14,7 @@ var _matchStatusKeyWaiting = "waiting";
 var _matchStatusKeyInProgress = "in_progress";
 var _matchStatusKeyFinished = "finished";
 var _matchStatusKeyCancelled = "cancelled";
+var _matchTypeKeySingle = "SINGLE";
 
 var _matchClass = Parse.Object.extend(_matchClassName);
 var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
@@ -25,11 +26,17 @@ exports.getGameplayData = function (player, matchId, options) {
     matchQuery.include("turnList");
     matchQuery.include("turnList.question_" + _matchPlayer1Key);
     matchQuery.include("turnList.question_" + _matchPlayer2Key);
+    matchQuery.include("turnList.answer_" + _matchPlayer1Key);
+    matchQuery.include("turnList.answer_" + _matchPlayer2Key);
     matchQuery.get(matchId).then(function (newMatch) {
         console.log("match fetched: " + JSON.stringify(newMatch));
-        _prepareGameplayDataForPlayer(player, newMatch, options);
+        return _prepareGameplayDataForPlayer(player, newMatch);
     }, function (error) {
         options.error("GameManager.getGameplayData matchQuery error: " + error.message);
+    }).then(function (gameplayData) {
+        options.success(gameplayData);
+    }, function (errorMsg) {
+        options.error("GameManager.getGameplayData _prepareGameplayDataForPlayer error: " + errorMsg);
     });
 };
 
@@ -114,32 +121,30 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
             return Parse.Promise.error("Incorrect state, player is not allowed to send answer to current turn!");
         }
     }).then(function (savedTurn) {
-        console.log("Answer to question saved!");
-        var saveAnswerResult = {
-            turnId: savedTurn.id
-        };
-        options.success(saveAnswerResult);
+        _log("Answer to question saved!", player);
+        return _computeAnswerResult(player, savedTurn, playerStr);
+    }).then(function (answerResult) {
+        options.success(answerResult);
     }).then(null, function (error) {
         options.error(error);
     });
 };
 
 //Helper functions
-_prepareGameplayDataForPlayer = function (player, match, options) {
+_prepareGameplayDataForPlayer = function (player, match) {
     console.log("Preparing gameplay data for player...");
+    var promise = new Parse.Promise();
     var result;
 
     //match is waiting or is cancelled
     var matchStatus = match.get(_matchStatusKey);
     if (matchStatus === _matchStatusKeyWaiting || matchStatus === _matchStatusKeyCancelled) {
-        options.error("Incorrect match status: " + matchStatus);
-        return;
+        promise.reject("Incorrect match status: " + matchStatus);
     }
 
     var playerStr = _getPlayerString(player, match);
     if (null == playerStr) {
-        options.error("That match is not linked with player!");
-        return;
+        promise.reject("That match is not linked with player!");
     }
 
     //send summary
@@ -147,29 +152,39 @@ _prepareGameplayDataForPlayer = function (player, match, options) {
         //todo summary
         console.log("Match finished, sending summary");
         result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
-        options.success(result);
-        return;
+        promise.resolve(result);
+    } else {
+        var turnResult = _getPlayerTurn(player, match);
+        if (turnResult.type === model.GameplayDataStatus.TURN) {
+            console.log("Prepare gameplay data with turn");
+            result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
+        } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
+            //todo waiting for opponent
+            console.log("Prepare gameplay waiting data");
+            result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING, playerStr, turnResult.turn);
+        } else {
+            //todo player ends game, send partial summary
+            console.log("No active turns found, sending summary");
+            result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
+        }
+
+
+        var updateDataPromise = _updateMatchStatusIfNeeded(match, turnResult.turnNumber);
+        updateDataPromise.then(function (updatedMatch) {
+            return Parse.Promise.as("Match update successful");
+        }, function (error) {
+            console.error("Problem with updating match obj: " + error.message);
+            return Parse.Promise.as("Update problem");
+        }).then(function (res) {
+            if (result) {
+                promise.resolve(result);
+            } else {
+                promise.reject("no result, something goes wrong");
+            }
+        });
     }
 
-    var turnResult = _getPlayerTurn(player, match);
-    if (turnResult.type === model.GameplayDataStatus.TURN) {
-        console.log("Prepare gameplay data with turn");
-        result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
-    } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
-        //todo waiting for opponent
-        console.log("Prepare gameplay waiting data");
-        result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING, playerStr, turnResult.turn);
-    } else {
-        //todo player ends game, send partial summary
-        console.log("No active turns found, sending summary");
-        result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
-    }
-
-    if (result) {
-        options.success(result);
-    } else {
-        options.error("no result, something goes wrong");
-    }
+    return promise;
 };
 
 _gameplayDataFromTurn = function (status, playerStr, turn, phase) {
@@ -206,19 +221,25 @@ _getPlayerTurn = function (player, match) {
         return a.get("turnNumber") - b.get("turnNumber");
     });
 
-    var lastTurn, result;
+    var lastTurn, result = null;
     var playerAnswerKey = "answer_" + _getPlayerString(player, match);
     var opponentAnswerKey = "answer_" + _getOpponentString(player, match);
+    var opponentTurnNumber = 1;
 
     for (var i = 0; i < turnList.length; i += 1) {
-        var answer = turnList[i].get(playerAnswerKey);
+        var playerAnswer = turnList[i].get(playerAnswerKey);
+        var opponentAnswer = turnList[i].get(opponentAnswerKey);
         var isWaitingTurn = turnList[i].get("isWaitingForPrevious");
+        var opponentGiveAnswerInPreviousTurn = 0 < i && null !== turnList[i - 1].get(opponentAnswerKey);
 
-        if (null === answer) {
+        if (opponentAnswer || _matchTypeKeySingle === match.get("type")) {
+            opponentTurnNumber += 1;
+        }
+
+        if (null === result && null === playerAnswer) {
             lastTurn = turnList[i];
 
-            //player doesn't give answer in turn and opponent give answer in previous turn or player can't have to wait
-            if (!isWaitingTurn || (isWaitingTurn && 0 < i && null !== turnList[i - 1].get(opponentAnswerKey))) {
+            if (!isWaitingTurn || (isWaitingTurn && opponentGiveAnswerInPreviousTurn)) {
                 var turnType = turnList[i].get("type");
                 var playerQuestionKey = "question_" + _getPlayerString(player, match);
                 var opponentQuestionKey = "question_" + _getOpponentString(player, match);
@@ -240,18 +261,33 @@ _getPlayerTurn = function (player, match) {
                         };
                     }
                 } else {
-                    result = {type: model.GameplayDataStatus.TURN, turn: turnList[i]};
+                    result = {
+                        type: model.GameplayDataStatus.TURN,
+                        turn: turnList[i]
+                    };
                 }
             } else {
-                result = {type: model.GameplayDataStatus.WAITING, turn: turnList[i]};
+                result = {
+                    type: model.GameplayDataStatus.WAITING,
+                    turn: turnList[i]
+                };
             }
-            break;
         }
     }
 
     if (!lastTurn) {
-        result = {type: model.GameplayDataStatus.SUMMARY};
+        result = {
+            type: model.GameplayDataStatus.SUMMARY
+        };
     }
+
+    var playerTurnNumber;
+    if (result.turn) {
+        playerTurnNumber = result.turn.get("turnNumber");
+    } else {
+        playerTurnNumber = turnList.length + 1;
+    }
+    result.turnNumber = playerTurnNumber < opponentTurnNumber ? playerTurnNumber : opponentTurnNumber;
 
     return result;
 };
@@ -299,6 +335,132 @@ _addPhotoQuestion = function (player, opponentKey, turn, topic, photo) {
     });
 
     return resultPromise;
+};
+
+_computeAnswerResult = function (player, turn, playerStr) {
+    var promise = new Parse.Promise();
+
+    var playerAnswerKey = "answer_" + playerStr;
+    var playerAnswerObj = turn.get(playerAnswerKey);
+    console.log("player answer" + JSON.stringify(playerAnswerObj));
+    var playerQuestion = playerAnswerObj.get("question");
+    console.log("player question" + JSON.stringify(playerQuestion));
+    var playerAnswer = playerAnswerObj.get("answer");
+    console.log("player answer emotion" + JSON.stringify(playerAnswer));
+
+
+    playerQuestion.fetch().then(function (fetchedQuestion) {
+        var correctAnswer = fetchedQuestion.get("player_answer");
+        return correctAnswer.fetch();
+    }).then(function (correctAnswer) {
+        console.log("correct answer" + JSON.stringify(correctAnswer));
+
+        var playerResult = playerAnswer.id === correctAnswer.id;
+        var lastTurn = false; //fixme
+        //todo pobrac dane o punktacji
+        //podliczyc punkty
+        //przygotowac obiekt wynikowy: - zodbyte punkty -
+
+        var answerResult = {
+            points: 0,
+            correctAnswer: utils.flattenEmotionObj(correctAnswer),
+            playerResult: playerResult,
+            lastTurn: lastTurn
+        };
+        promise.resolve(answerResult);
+    }).then(null, function (error) {
+        console.error("Problem with fetching question while computing answer result!\n" + error.message);
+        promise.reject(error);
+    });
+
+    return promise;
+};
+
+_updateMatchStatusIfNeeded = function (match, turnNumber) {
+    var promise = new Parse.Promise();
+
+    var turns = match.get("turnList");
+    var matchStatusNeedsUpdate = turns.length < turnNumber;
+    var matchTurnNumberNeedsUpdate = match.get("round") < turnNumber;
+
+    if (matchStatusNeedsUpdate || matchTurnNumberNeedsUpdate) {
+        if (matchStatusNeedsUpdate) {
+            match.set(_matchStatusKey, _matchStatusKeyFinished);
+            var matchWinner = _matchWinner(match);
+            match.set("winner", matchWinner);
+        }
+        if (matchTurnNumberNeedsUpdate) {
+            match.set("round", turnNumber);
+            var matchResult = _matchResult(match);
+            match.set("result", matchResult);
+        }
+        match.save().then(function (updatedMatch) {
+            console.log("Match " + updatedMatch.id + " status updated!");
+            promise.resolve(updatedMatch);
+        }, function (error) {
+            console.error("Problem with updating match in _updateMatchStatusIfNeeded");
+            promise.reject(error);
+        })
+    } else {
+        promise.resolve(match);
+    }
+
+    return promise;
+};
+
+_matchWinner = function (match) {
+    var matchResult = _matchResult(match);
+    if (matchResult.player1 > matchResult.player2) {
+        return _matchPlayer1Key;
+    } else if (matchResult.player2 > matchResult.player1) {
+        return _matchPlayer2Key;
+    } else {
+        return "draw";
+    }
+};
+
+_matchResult = function (match) {
+    var turns = match.get("turnList");
+    var player1Result = 0, player2Result = 0;
+    for (var i in turns) {
+        var turn = turns[i];
+
+        var question1 = turn.get("question_" + _matchPlayer1Key);
+        var question2 = turn.get("question_" + _matchPlayer2Key);
+        var correctAnswer1 = question1.get("player_answer");
+        var correctAnswer2 = question2.get("player_answer");
+
+        var playerAnswer1 = turn.get("answer_" + _matchPlayer1Key);
+        var playerAnswer2 = turn.get("answer_" + _matchPlayer2Key);
+
+        if (_matchTypeKeySingle === match.get("type")) {
+            if (null == playerAnswer1) {
+                break;
+            }
+
+            if (correctAnswer1.equals(playerAnswer1.get("answer"))) {
+                player1Result += 1;
+            } else {
+                player2Result += 1;
+            }
+        } else {
+            if (null == playerAnswer1 || null == playerAnswer2) {
+                break;
+            }
+
+            if (correctAnswer1.equals(playerAnswer1.get("answer"))) {
+                player1Result += 1;
+            }
+
+            if (correctAnswer2.equals(playerAnswer2.get("answer"))) {
+                player2Result += 1;
+            }
+        }
+    }
+    return {
+        player1: player1Result,
+        player2: player2Result
+    }
 };
 
 //Miscellaneous
@@ -382,4 +544,8 @@ _playerPreparedOpponentQuestion = function (turn, opponentQuestionKey) {
 
 _opponentPreparedPlayerQuestion = function (turn, playerQuestionKey) {
     return null != turn.get(playerQuestionKey);
+};
+
+_log = function (msg, player) {
+    common._log(msg, player);
 };

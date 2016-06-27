@@ -12,9 +12,12 @@ var GameManagerStore = require('../../stores/GameManagerStore.js');
 
 var LoadingView = require('../../views/game/LoadingView.react.js');
 var WaitingForOpponent = require('../../views/game/WaitingForOpponent.react.js');
+var WaitingToSendData = require('../../views/game/WaitingToSendData.react.js');
 var CameraView = require('../../views/game/CameraView.react.js');
 var ChoosePhotoTopic = require('../../views/game/ChoosePhotoTopic.react.js');
 var AnswerQuestion = require('../../views/game/AnswerQuestion.react.js');
+var TurnSummary = require('../../views/game/TurnSummary.react.js');
+var Summary = require('../../views/game/Summary.react.js');
 
 var Game = React.createClass({
     mixins: [StateMixin.connect(UserStore), StateMixin.connect(GameManagerStore)],
@@ -48,12 +51,18 @@ var Game = React.createClass({
                 return <LoadingView key={key}/>;
             case GameState.WAITING:
                 return <WaitingForOpponent gameInfo={this.gameInfo()} key={key}/>;
+            case GameState.DATA_SEND:
+                return <WaitingToSendData gameInfo={this.gameInfo()} key={key}/>;
             case GameState.PHOTO:
                 return <CameraView gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
             case GameState.CHOOSE_PHOTO_TOPIC:
                 return <ChoosePhotoTopic gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
             case GameState.ANSWER_QUESTION:
-                return <AnswerQuestion gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>
+                return <AnswerQuestion gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
+            case GameState.TURN_SUMMARY:
+                return <TurnSummary gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
+            case GameState.SUMMARY:
+                return <Summary gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
         }
     },
     gameInfo: function () {
@@ -73,6 +82,7 @@ var Game = React.createClass({
             };
         }
         return {
+            player: this.state.user,
             opponent: resultOpponent,
             match: this.state.match
         }
@@ -96,6 +106,14 @@ var Game = React.createClass({
             data = Utils.$.clone(this.state.data);
 
             return data;
+        } else if (currentView === GameState.TURN_SUMMARY) {
+            data = Utils.$.clone(this.state.data);
+            data.turnSummary = this.state.turnSummary;
+
+            return data;
+        } else if (currentView === GameState.SUMMARY) {
+            //todo
+            return null;
         }
         return null;
     }

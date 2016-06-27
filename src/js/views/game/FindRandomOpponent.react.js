@@ -40,17 +40,17 @@ var FindRandomOpponent = React.createClass({
         }
         var content = (
             <div id="find-opponent-loading-tab">
-                <LoadingBar customText={loadingText}/>
+                <LoadingBar customText={loadingText} color="dark"/>
             </div>
         );
 
         if (match && match.get(_matchStatusKey) === _matchStatusKeyInProgress) {
             content = (
                 <div id="find-opponent-match">
-                    <span>Znaleziono przeciwnika!</span>
+                    <h1>Znaleziono przeciwnika!</h1>
                     <div className="opponent-info">
                         Pojedynek <b>{match.get("player1").get("nick")}</b> vs <b>{match.get("player2").get("nick")}</b><br/>
-                        <MenuButton classes="" onClick={this.startGame}>Zagraj</MenuButton>
+                        <MenuButton classes="btn-lg" onClick={this.startGame} icon="fa fa-gamepad">Zagraj</MenuButton>
                     </div>
                 </div>
             );
@@ -58,9 +58,9 @@ var FindRandomOpponent = React.createClass({
 
         return (
             <DefaultAppViewContainer>
-                <div id="app-find-random-opponent" className="app-view-default">
+                <div id="app-find-random-opponent">
                     {content}
-                    <div>
+                    <div className="options">
                         <MenuButton onClick={this.backToMenu} icon="fa fa-arrow-left">Powrót</MenuButton>
                     </div>
                 </div>

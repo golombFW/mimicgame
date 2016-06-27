@@ -4,7 +4,8 @@ var MenuButton = React.createClass({
     propTypes: {
         icon: React.PropTypes.string,
         onClick: React.PropTypes.func,
-        classes: React.PropTypes.string
+        classes: React.PropTypes.string,
+        disabled: React.PropTypes.bool
     },
     render: function () {
         var icon;

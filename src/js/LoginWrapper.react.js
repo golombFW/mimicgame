@@ -94,7 +94,7 @@ var LoginWrapper = React.createClass({
         if (this.state.user) {
             if ($.isNullOrEmpty(this.state.facebookUser)) {
                 return (
-                    <LoadingBar center={true}/>
+                    <LoadingBar center="screen"/>
                 );
             }
             return (

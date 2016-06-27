@@ -140,6 +140,15 @@ body {
 }
 
 #actual-games-panel {
+  .opponent-avatar {
+    height: 1.7em;
+  }
+  .match-info * {
+    display: inline-block;
+  }
+}
+
+#completed-games-panel {
   .opponent-avatar-container {
     display: inline-block;
   }
@@ -163,6 +172,7 @@ body {
   .game-content {
     .app-wrapper-default();
     .lh-calc(height, ~"100% - " @gameinfo-height);
+    overflow: scroll;
   }
 }
 
@@ -173,6 +183,11 @@ body {
     padding: 0.5em;
     text-align: center;
   }
+}
+
+#app-game-waiting-to-send-data {
+  width: 100%;
+  height: 100%;
 }
 
 #app-camera-view {
@@ -280,9 +295,87 @@ body {
   padding-top: 1em;
   padding-bottom: 1em;
 
-  //
-  //flex: 2;
   .lh-flex(2);
+}
+
+#app-find-random-opponent {
+  .app-wrapper-default();
+  text-align: center;
+  padding: 0.5em;
+
+  .opponent-info {
+    font-size: 2rem;
+    padding: 1em;
+  }
+  .options {
+    padding: 1em;
+  }
+}
+
+#turn-summary {
+  text-align: center;
+  padding: 1em;
+
+  .emoticon {
+    height: auto;
+    width: auto;
+    max-height: 40%;
+  }
+}
+
+.emoticon {
+  img {
+    height: 100%;
+    width: auto;
+  }
+  padding: 0.5em;
+}
+
+#match-summary {
+  padding: 0.7rem;
+
+  .result-numbers {
+    font-size: 3rem;
+    font-weight: bold;
+  }
+  .result-numbers-container {
+    max-height: 6rem;
+  }
+}
+
+.result-summary {
+  display: flex;
+
+  .result-numbers-container {
+    text-align: center;
+  }
+
+  .winner-info {
+
+  }
+}
+
+.result-summary-single {
+  display: flex;
+
+  [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .result-numbers-container {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    margin: auto 0;
+
+
+    div {
+
+      padding-left: 0.1em;
+      padding-right: 0.1em;
+    }
+  }
 }
 
 /*
@@ -420,7 +513,7 @@ Components styles
 
 .btn-answerbutton {
   padding: 1.5em 1.5em;
-  font-size: 2em;
+  font-size: 2.2rem;
   background-color: @btn-answer-bg-color1;
   .lh-background-image(linear-gradient(135deg, @btn-answer-bg-color1 0%, @btn-answer-bg-color2 100%));
   border: 0.07em darken(@btn-answer-bg-color2, 10%) solid;
@@ -445,6 +538,10 @@ Components styles
   .task-description {
     margin: 0.5em 0;
   }
+  .answer-button-container {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
 }
 
 .task-description {
@@ -459,6 +556,57 @@ Components styles
   left: 50%;
 }
 
+#answer-question {
+  text-align: center;
+  padding: 0.5em;
+
+  .answer-button-container {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+  .task-description {
+    margin-bottom: 0.5em;
+  }
+}
+
+#photo-question {
+  height: 80%;
+  //max-height: 80%;
+
+  img {
+    position: relative;
+    top: 50%;
+    .translate(0, -50%);
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+.summary-avatar {
+  border: solid #000000 0.1em;
+  .lh-display(flex);
+  align-items: center;
+
+  * {
+    padding: 0.2em;
+    order: 1;
+  }
+  .nick {
+    font-size: 2rem;
+  }
+}
+
+.summary-avatar-inverted {
+  justify-content: flex-end;
+
+  img {
+    order: 2;
+  }
+}
+
 /*
 Utils styles
 */
@@ -467,6 +615,13 @@ Utils styles
   left: 50%;
   top: 50%;
   position: absolute;
+  .translate(-50%, -50%);
+}
+
+.parent-center {
+  left: 50%;
+  top: 50%;
+  position: relative;
   .translate(-50%, -50%);
 }
 
@@ -532,3 +687,8 @@ Utils styles
   }
 }
 
+.vcenter {
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+}

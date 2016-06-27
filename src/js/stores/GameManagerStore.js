@@ -18,7 +18,7 @@ var GameManagerStore = Reflux.createStore({
             match: {},
             data: {},
             selectedTopic: null,
-            uploadingState: false
+            turnSummary: {}
         }
     },
     //actions
@@ -31,6 +31,9 @@ var GameManagerStore = Reflux.createStore({
         AppStateActions.openGameView();
         this.initializeGame(match);
     },
+    nextTurn: function () {
+        this.startGame(this.state.match);
+    },
     choosePhotoTopic: function (topic) {
         console.log("User chose a topic: " + topic.value);
         //todo validation
@@ -41,10 +44,8 @@ var GameManagerStore = Reflux.createStore({
     },
     chooseAnswer: function (answer) {
         console.log("Sending answer to question: " + answer.value);
-
-        //todo change to other state than waiting
         this.setState({
-            currentView: GameState.WAITING
+            currentView: GameState.DATA_SEND
         });
         var self = this;
         Parse.Cloud.run('answerQuestion', {
@@ -52,11 +53,13 @@ var GameManagerStore = Reflux.createStore({
             answer: answer
         }).then(function (result) {
             console.log("Sending answer to question successful!");
-
-            //todo validation, change start game to summary
-            self.startGame(self.state.match);
-        }, function (error) {
+            this.setState({
+                currentView: GameState.TURN_SUMMARY,
+                turnSummary: result
+            });
+        }.bind(this), function (error) {
             console.error("Answer question error: " + error.message);
+            //todo loopback
         });
     },
     uploadPhoto: function (photo, topic) {
@@ -66,7 +69,9 @@ var GameManagerStore = Reflux.createStore({
         var imageBase64 = photo.replace(/^data:image\/(png|jpeg);base64,/, "");
         var self = this;
 
-        this.setState({uploadingState: true});
+        this.setState({
+            currentView: GameState.DATA_SEND
+        });
         Parse.Cloud.run('uploadPhoto', {
             photo: imageBase64,
             matchId: self.state.match.id,

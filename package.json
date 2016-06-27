@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -29,7 +29,7 @@
   "devDependencies": {
     "body-parser": "^1.15.2",
     "browserify": "^13.0.1",
-    "envify": "^3.4.0",
+    "envify": "^3.4.1",
     "express": "^4.14.0",
     "gulp": "^3.9.1",
     "gulp-html-replace": "^1.6.1",
@@ -37,7 +37,7 @@
     "gulp-nodemon": "^2.1.0",
     "gulp-plumber": "^1.1.0",
     "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^1.5.3",
+    "gulp-uglify": "^1.5.4",
     "gulp-util": "^3.0.7",
     "gulp-watch-less2": "^2.0.4",
     "lesshat": "3.0.2",

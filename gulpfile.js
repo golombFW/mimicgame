@@ -23,6 +23,7 @@ var path = {
     WEBCAMSWF_SRC: 'node_modules/webcamjs/webcam.swf',
     FAVICON_SRC: 'src/favicon.ico',
     DEFAULT_EMOTIONS_SRC: 'src/resources/default_emotions/**/*',
+    EMOTICONS_SRC: 'src/resources/emoticons/**/*',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
 
@@ -70,6 +71,13 @@ gulp.task('copy-otherfiles', function () {
     //default images
     console.log("copying default question images");
     gulp.src(path.DEFAULT_EMOTIONS_SRC)
+        .pipe(
+            gulp.dest(
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_RESOURCES)));
+
+    //emoticons
+    console.log("copying emoticons images");
+    gulp.src(path.EMOTICONS_SRC)
         .pipe(
             gulp.dest(
                 pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_RESOURCES)));

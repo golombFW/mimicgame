@@ -16,3 +16,7 @@ exports.randomAnswers = function (emotionList, correctAnswerFlat, answersNumber)
     }
     return answers;
 };
+
+exports._log = function (message, player) {
+    console.log(player.get("username") + "$ " + message);
+};

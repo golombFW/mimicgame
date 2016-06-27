@@ -21,7 +21,7 @@ var ChoosePhotoTopic = React.createClass({
         if (!Utils.$.isNullOrEmpty(this.props.data)) {
             buttons = this.props.data.turn.additionalData.photoTopics.map(function (emotion) {
                 return (
-                    <div className="col-xs-6 col-sm-4" key={emotion.id}>
+                    <div className="col-xs-6 col-sm-4 answer-button-container" key={emotion.id}>
                         <AnswerButton fullWidth={true}
                                       onClick={this.chooseTopic.bind(this, emotion)}>{emotion.value}</AnswerButton>
                     </div>
@@ -33,7 +33,8 @@ var ChoosePhotoTopic = React.createClass({
                 <div id="app-game-choose-photo-topic">
                     <div className="task-description">
                         Wybierz jedną z opcji. Twoim zadaniem będzie zrobienie sobie zdjęcia, na którym udajesz wybraną
-                        emocję.
+                        emocję. Twój przecwinik ma takie samo zadanie! Po zrobieniu zdjęcia nastąpi wymiana zdjęć i
+                        będzie trzeba wybrać emocję jaką przedstawił oponent.
                     </div>
                     <div className="row">
                         {buttons}

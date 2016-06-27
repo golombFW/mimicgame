@@ -5,7 +5,7 @@ var BasicMenuPanel = require('./BasicMenuPanel.react.js');
 
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 
-var ActualGamesPanel = React.createClass({
+var CompletedGamesPanel = React.createClass({
     propTypes: {
         games: React.PropTypes.array
     },
@@ -20,65 +20,42 @@ var ActualGamesPanel = React.createClass({
 
         var content = (
             <span className="">
-                Aktualnie nie toczysz żadnej rozgrywki.
+                Nie zakończono jeszcze żadnej gry!
             </span>
         );
         if (games && 0 !== games.length) {
             games.sort(GameUtils.compareByModifiedDate);
             content = games.map(function (game) {
-                var matchInfo, gameResult;
-                var gameResultObj = game.get("result");
-                if (gameResultObj) {
-                    var p1, p2;
-                    if (game.get("player1").id === user.id) {
-                        p1 = gameResultObj.player1;
-                        p2 = gameResultObj.player2;
-                    } else {
-                        p1 = gameResultObj.player2;
-                        p2 = gameResultObj.player1;
-                    }
-                    gameResult = (
-                        <div className="game-result">
-                            {p1} - {p2}
-                        </div>
-                    );
-                } else {
-                    gameResult = (
-                        <div className="game-result">
-                            0 - 0
-                        </div>
-                    );
-                }
+                var matchInfo;
                 var opponent = GameUtils.getOpponent(user, game);
                 if (opponent) {
                     var opponentAvatar = opponent.get("FacebookUser").get("avatar");
                     var opponentAvatarUrl = opponentAvatar ? opponentAvatar.url : "";
-
-
                     matchInfo = (
-                        <div className="opponent-info">Przeciwko {opponent.get("nick")}
+                        <span className="opponent-info">Przeciwko {opponent.get("nick")}
                             <div className="opponent-avatar-container">
                                 <img className="opponent-avatar" src={opponentAvatarUrl}/>
                             </div>
-                            {gameResult}
-                        </div>);
+                        </span>);
                 } else {
-                    matchInfo = (<div className="opponent-info">Bez przeciwnika {gameResult}</div>);
+                    matchInfo = (<span className="opponent-info">Bez przeciwnika </span>);
                 }
 
                 return (
-                    //todo aktualny wynik
+                    //todo
                     <div key={game.id}
                          className="match-info">
                         {matchInfo}
-                        <button className="btn btn-default btn-xs" onClick={this.startGame.bind(this, game)}>Graj
+                        <button className="btn btn-default btn-xs" onClick={this.startGame.bind(this, game)}>Zobacz
+                            szczegóły
                         </button>
                     </div>
                 );
             }.bind(this));
         }
+
         return (
-            <BasicMenuPanel id="actual-games-panel">
+            <BasicMenuPanel id="completed-games-panel">
                 <div className="">
                     {content}
                 </div>
@@ -90,4 +67,4 @@ var ActualGamesPanel = React.createClass({
     }
 });
 
-module.exports = ActualGamesPanel;
+module.exports = CompletedGamesPanel;

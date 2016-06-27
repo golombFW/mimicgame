@@ -226,8 +226,8 @@ _createNew2PlayerMatch = function (player, options) {
         });
 };
 
-_log = function (message, player) {
-    console.log(player.get("username") + "$ " + message);
+_log = function (msg, player) {
+    common._log(msg, player);
 };
 
 //

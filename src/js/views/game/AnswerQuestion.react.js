@@ -43,7 +43,7 @@ var AnswerQuestion = React.createClass({
         if (this.props.data && answers) {
             answerButtons = answers.map(function (answer) {
                 return (
-                    <div className="col-xs-6 col-sm-3" key={answer.id}>
+                    <div className="col-xs-6 col-sm-12 col-md-6 answer-button-container" key={answer.id}>
                         <AnswerButton fullWidth={true}
                                       onClick={this.chooseAnswer.bind(this, answer)}>{answer.value}</AnswerButton>
                     </div>
@@ -53,11 +53,20 @@ var AnswerQuestion = React.createClass({
 
         return (
             <DefaultGameViewContainer gameInfo={this.props.gameInfo}>
-                <div id="photo-question">
-                    <img src={photoQuestionUrl}/>
-                </div>
-                <div id="photo-answers" className="row">
-                    {answerButtons}
+                <div id="answer-question">
+                    <div className="task-description">
+                        Wybierz odpowiedź, która twoim zdaniem najtrafniej opisuje emocję widoczną na danym zdjęciu.
+                    </div>
+                    <div className="row">
+                        <div id="photo-question" className="col-xs-12 col-sm-8 col-md-6 vcenter">
+                            <img src={photoQuestionUrl}/>
+                        </div>
+                        <div className="col-xs-12 col-sm-4 col-md-6 vcenter">
+                            <div id="photo-answers" className="row">
+                                {answerButtons}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </DefaultGameViewContainer>
         );

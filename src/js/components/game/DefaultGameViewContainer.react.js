@@ -15,20 +15,29 @@ var DefaultGameViewContainer = React.createClass({
 
     render: function () {
         var opponentNick,
-            opponentAvatarUrl;
+            opponentAvatarUrl, opponentInfo;
+        var turnNumber;
         if (this.props.gameInfo && this.props.gameInfo.opponent) {
             opponentNick = this.props.gameInfo.opponent.nick;
             if (this.props.gameInfo.opponent.avatar) {
                 opponentAvatarUrl = this.props.gameInfo.opponent.avatar.url;
             }
+            opponentInfo = (
+                <span>przeciwko <span className="opponent-nick">{opponentNick}</span> <img
+                    className="opponent-avatar" src={opponentAvatarUrl}/>
+                </span>
+            );
+        }
+        if (this.props.gameInfo && this.props.gameInfo.match) {
+            turnNumber = this.props.gameInfo.match.get("round");
         }
 
         var gameResultInfo;
         if (!this.props.hideResult) {
+
             gameResultInfo = (
                 <div id="game-info" className="row">
-                    Runda X przeciwko <span className="opponent-nick">{opponentNick}</span> <img
-                    className="opponent-avatar" src={opponentAvatarUrl}/>
+                    Runda {turnNumber} {opponentInfo}
                 </div>
             );
         }

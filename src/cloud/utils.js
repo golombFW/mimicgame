@@ -21,11 +21,16 @@ var randomEmotions = function (emotionList, count) {
     var topics = [];
 
     _.each(randomEmotions, function (el, idx) {
-        topics.push({id: el.id, value: el.get("name")});
+        topics.push(flattenEmotionObj(el));
     });
 
     return topics;
 };
 
+var flattenEmotionObj = function (emotionObj) {
+    return {id: emotionObj.id, value: emotionObj.get("name")}
+};
+
 exports.cloneObject = cloneObject;
 exports.randomEmotions = randomEmotions;
+exports.flattenEmotionObj = flattenEmotionObj;

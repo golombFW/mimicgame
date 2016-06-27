@@ -3,7 +3,7 @@ var Parse = require('parse').Parse;
 
 var AppDataActions = require('../actions/AppDataActions.js');
 
-var _COMPLETED_GAMES_LIMIT = 5;
+var _COMPLETED_GAMES_LIMIT = 3;
 
 var AppDataStore = Reflux.createStore({
     listenables: [AppDataActions],

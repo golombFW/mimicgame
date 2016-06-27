@@ -35,13 +35,11 @@ var CameraView = React.createClass({
         }
 
         var cameraModule;
-        if (this.state.lastPhoto && !this.state.uploadingState) {
+        if (this.state.lastPhoto) {
             cameraModule = <CameraLastPhoto photo={this.state.lastPhoto} cancelPhoto={this.cancelPhoto}
                                             uploadPhoto={this.uploadPhoto}/>
-        } else if (this.state.isCameraDisplayed && !this.state.uploadingState) {
+        } else if (this.state.isCameraDisplayed) {
             cameraModule = <CameraPreview topic={emotionTopic} ref="cameraPreview"/>;
-        } else if (this.state.uploadingState) {
-            cameraModule = <LoadingBar customText="Trwa wysyłanie zdjęcia" color="dark"></LoadingBar>;
         } else {
             cameraModule = <span>Wczytywanie</span>;
         }
