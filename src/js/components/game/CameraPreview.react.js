@@ -1,5 +1,4 @@
 var React = require('react');
-var Webcam = require('webcamjs');
 var Dimensions = require('react-dimensions');
 
 var CameraPreview = React.createClass({
@@ -10,23 +9,18 @@ var CameraPreview = React.createClass({
         return ({minLength: 0});
     },
     componentWillUpdate: function () {
-        Webcam.reset();
+        // Webcam.reset();
     },
     componentDidUpdate: function () {
-        var min = this.minDimension();
-        this.initializeWebcam(min);
-        this.webcamAttach();
+        this.initializeWebcam();
     },
     componentDidMount: function () {
-        var min = this.minDimension();
-        this.initializeWebcam(min);
-        this.webcamAttach();
+        this.initializeWebcam();
     },
     componentWillUnmount: function () {
-        Webcam.reset();
+        // Webcam.reset();
     },
     render: function () {
-        var min = this.minDimension();
         var topic;
         if (this.props.topic) {
             topic = (
@@ -36,51 +30,37 @@ var CameraPreview = React.createClass({
                 </div>
             );
         }
-
-        var photoArea;
-        if (Webcam.userMedia) {
-            photoArea = (<div id="camera-canvas-photo-area"
-                              style={{width: min, height: min}}></div>);
-        }
-
         return (
             <div id="camera-preview-container">
                 <div id="camera-canvas" ref="cameraCanvas"></div>
-                {photoArea}
                 {topic}
             </div>
         );
     },
-    initializeWebcam: function (min) {
-        Webcam.set({
-            image_format: 'jpeg',
-            jpeg_quality: 85,
-            flip_horiz: true,
-            width: this.props.containerWidth,
-            height: this.props.containerHeight,
-            dest_width: this.props.containerWidth,
-            dest_height: this.props.containerHeight,
-            crop_width: min,
-            crop_height: min
-        });
-    },
-    minDimension: function () {
-        var min;
-        if (this.props.containerHeight < this.props.containerWidth) {
-            min = this.props.containerHeight;
+    initializeWebcam: function () {
+        var containerWidth = this.props.containerWidth;
+        var containerHeight = this.props.containerHeight;
+        var computedHeight = containerWidth / (4 / 3);
+        var computedWidth = containerHeight * (4 / 3);
+        var width, height;
+        if (computedHeight <= containerHeight) {
+            width = containerWidth;
+            height = computedHeight;
         } else {
-            min = this.props.containerWidth;
+            width = computedWidth;
+            height = containerHeight;
         }
-        console.log("min length: " + min);
-        return min;
-    },
-    webcamAttach: function () {
-        Webcam.attach("#camera-canvas");
-        if (!Webcam.userMedia) {
-            var webcamObj = document.getElementById("webcam_movie_obj");
-            var wmodeParam = webcamObj.querySelector("param[name='wmode']");
-            wmodeParam.value = "direct";
-        }
+        var canvas = document.getElementById("camera-canvas");
+        canvas.style.width = width;
+        canvas.style.height = height;
+
+        var camera = new JpegCamera("#camera-canvas", {
+            shutter_ogg_url: "/resources/shutter.ogg",
+            shutter_mp3_url: "/resources/shutter.mp3",
+            swf_url: "/resources/jpeg_camera.swf",
+            mirror: true
+        });
+        this.props.initCameraFunc(camera);
     }
 });
 

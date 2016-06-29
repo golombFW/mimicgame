@@ -21,6 +21,7 @@ var path = {
     HTML_SRC: 'src/appindex.html',
     CSS_SRC: 'src/css/style.less',
     WEBCAMSWF_SRC: 'node_modules/webcamjs/webcam.swf',
+    WEBCAM_RESOURCES: 'src/js/libs/jpeg_camera/**/*',
     FAVICON_SRC: 'src/favicon.ico',
     DEFAULT_EMOTIONS_SRC: 'src/resources/default_emotions/**/*',
     EMOTICONS_SRC: 'src/resources/emoticons/**/*',
@@ -54,10 +55,10 @@ gulp.task('copy-cloud', function () {
 });
 
 gulp.task('copy-webcamswf', function () {
-    gulp.src(path.WEBCAMSWF_SRC)
+    gulp.src(path.WEBCAM_RESOURCES)
         .pipe(
             gulp.dest(
-                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_HTML)))
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_RESOURCES)))
 });
 
 gulp.task('copy-otherfiles', function () {

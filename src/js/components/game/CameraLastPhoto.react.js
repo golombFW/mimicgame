@@ -1,4 +1,5 @@
 var React = require('react');
+var blobUtil = require('blob-util');
 
 var MenuButton = require('../MenuButton.react.js');
 
@@ -17,7 +18,7 @@ var CameraLastPhoto = React.createClass({
     render: function () {
         return (
             <div id="camera-preview-photo">
-                <img src={this.props.photo} className="photo-area"/>
+                <img src={blobUtil.createObjectURL(this.props.photo)} className="photo-area"/>
                 <div className="photo-menu">
                     <MenuButton onClick={this.cancelPhoto}>Popraw zdjęcie</MenuButton>
                     <MenuButton onClick={this.sendPhoto}>Wyślij</MenuButton>

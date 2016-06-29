@@ -266,8 +266,10 @@ body {
 }
 
 #camera-canvas {
-  width: 100% !important;
-  height: 100% !important;
+  //width: 100% !important;
+  //height: 100% !important;
+  margin: auto;
+  position: relative;
 }
 
 #camera-canvas-photo-area {
@@ -286,6 +288,7 @@ body {
   background-color: @app-background-color;
   .lh-border-radius(0.5em);
   padding: 0.15em;
+  z-index: 999;
 }
 
 #camera-options {

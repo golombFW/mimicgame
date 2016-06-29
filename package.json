@@ -11,6 +11,7 @@
     "url": "https://github.com/golombFW/mimicgame/issues"
   },
   "dependencies": {
+    "blob-util": "^1.2.1",
     "moment": "^2.13.0",
     "object-hash": "^1.1.2",
     "parse": "1.8.5",
