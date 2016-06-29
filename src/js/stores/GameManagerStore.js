@@ -1,6 +1,7 @@
 var Parse = require('parse').Parse;
 var Reflux = require('reflux');
 var StateMixin = require('reflux-state-mixin');
+var blobUtil = require('blob-util');
 
 var GameManagerActions = require('../actions/GameManagerActions.js');
 var AppStateActions = require('../actions/AppStateActions.js');
@@ -62,29 +63,33 @@ var GameManagerStore = Reflux.createStore({
             //todo loopback
         });
     },
-    uploadPhoto: function (photo, topic) {
+    uploadPhoto: function (photoBlob, topic) {
         console.log("Sending photo with topic: " + topic.value);
-
-        //converting photo to parse file format
-        var imageBase64 = photo.replace(/^data:image\/(png|jpeg);base64,/, "");
         var self = this;
-
         this.setState({
             currentView: GameState.DATA_SEND
         });
-        Parse.Cloud.run('uploadPhoto', {
-            photo: imageBase64,
-            matchId: self.state.match.id,
-            topic: topic
-        }).then(function (result) {
-                console.log("Uploading photo successful!");
 
-                //todo validation, change start game to summary
-                self.startGame(self.state.match);
-            }.bind(this),
-            function (error) {
-                console.log("Something wrong: " + error.message);
-            });
+        //converting photo to parse file format
+        blobUtil.blobToBase64String(photoBlob).then(function (base64String) {
+            // success
+            Parse.Cloud.run('uploadPhoto', {
+                photo: base64String,
+                matchId: self.state.match.id,
+                topic: topic
+            }).then(function (result) {
+                    console.log("Uploading photo successful!");
+
+                    //todo validation, change start game to summary
+                    self.startGame(self.state.match);
+                }.bind(this),
+                function (error) {
+                    console.log("Something wrong: " + error.message);
+                });
+        }).catch(function (err) {
+            // error
+            console.error(err.message);
+        });
     },
 
     //other functions
