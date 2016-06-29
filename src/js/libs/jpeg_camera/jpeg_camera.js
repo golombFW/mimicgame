@@ -719,8 +719,8 @@
         snapshot._extra_canvas || (snapshot._extra_canvas = this._engine_get_canvas(snapshot));
         if (mirror) {
           canvas = document.createElement("canvas");
-          canvas.width = snapshot._canvas.width;
-          canvas.height = snapshot._canvas.height;
+          canvas.width = snapshot._extra_canvas.width;
+          canvas.height = snapshot._extra_canvas.height;
           context = canvas.getContext("2d");
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.translate(canvas.width, 0);
