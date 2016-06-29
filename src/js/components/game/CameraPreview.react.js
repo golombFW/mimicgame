@@ -2,6 +2,7 @@ var React = require('react');
 var Dimensions = require('react-dimensions');
 
 var CameraPreview = React.createClass({
+    camera: null,
     propTypes: {
         topic: React.PropTypes.string
     },
@@ -9,7 +10,7 @@ var CameraPreview = React.createClass({
         return ({minLength: 0});
     },
     componentWillUpdate: function () {
-        // Webcam.reset();
+        this.stopWebcam();
     },
     componentDidUpdate: function () {
         this.initializeWebcam();
@@ -18,7 +19,7 @@ var CameraPreview = React.createClass({
         this.initializeWebcam();
     },
     componentWillUnmount: function () {
-        // Webcam.reset();
+        this.stopWebcam();
     },
     render: function () {
         var topic;
@@ -54,13 +55,18 @@ var CameraPreview = React.createClass({
         canvas.style.width = width;
         canvas.style.height = height;
 
-        var camera = new JpegCamera("#camera-canvas", {
+        this.camera = new JpegCamera("#camera-canvas", {
             shutter_ogg_url: "/resources/shutter.ogg",
             shutter_mp3_url: "/resources/shutter.mp3",
             swf_url: "/resources/jpeg_camera.swf",
             mirror: true
         });
-        this.props.initCameraFunc(camera);
+        this.props.initCameraFunc(this.camera);
+    },
+    stopWebcam: function () {
+        if (this.camera) {
+            this.camera.stop_stream();
+        }
     }
 });
 
