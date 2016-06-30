@@ -1,5 +1,6 @@
 var React = require('react');
 var Dimensions = require('react-dimensions');
+var JpegCamera = require('../../libs/jpeg_camera/jpeg_camera.js');
 
 var CameraPreview = React.createClass({
     camera: null,

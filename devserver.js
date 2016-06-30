@@ -10,7 +10,6 @@ var privateKey = fs.readFileSync('sslcert/server.key', 'utf8');
 var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 var indexPage = '/appindex.html';
-var webcamswfUrl = '/webcam.swf';
 var faviconUrl = '/favicon.ico';
 
 app.set('port', (process.env.PORT || 3000));
@@ -26,10 +25,6 @@ app.all('/', function (req, res) {
     else {
         res.redirect(indexPage);
     }
-});
-
-app.get('/webcam.swf', function (req, res) {
-    res.send(webcamswfUrl);
 });
 
 app.get('/favicon.ico', function (req, res) {

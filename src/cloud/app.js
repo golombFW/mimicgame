@@ -3,7 +3,6 @@ express = require('express');
 app = express();
 
 var indexPage = '/appindex.html';
-var webcamswfUrl = '/webcam.swf';
 var faviconUrl = '/favicon.ico';
 
 // Global app configuration section
@@ -23,10 +22,6 @@ app.all('/', function (req, res) {
     else {
         res.redirect(indexPage);
     }
-});
-
-app.get('/webcam.swf', function (req, res) {
-    res.send(webcamswfUrl);
 });
 
 app.get('/favicon.ico', function (req, res) {
