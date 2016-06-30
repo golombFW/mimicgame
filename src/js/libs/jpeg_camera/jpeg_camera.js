@@ -1,6 +1,12 @@
 /*! JpegCamera 1.3.2 | 2015-10-19
     (c) 2013 Adam Wrobel
     https://amw.github.io/jpeg_camera */
+var swfobject = require('swfobject-amd');
+if (swfobject) {
+    window.swfobject = swfobject;
+}
+require('blueimp-canvas-to-blob');
+
 (function() {
   var JpegCamera, JpegCameraFlash, JpegCameraHtml5, Snapshot, Stats, can_play, can_use_flash, check_canvas_to_blob, mpeg_audio, should_try_flash, supported_flash_version, vorbis_audio, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
@@ -1095,4 +1101,10 @@
 
   })();
 
+    if (typeof define === 'function' && define.amd) {
+        define( function() { return window.JpegCamera; } );
+    }
+    else if (typeof module === 'object' && module.exports) {
+        module.exports = window.JpegCamera;
+    }
 }).call(this);
