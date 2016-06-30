@@ -11,6 +11,8 @@
     "url": "https://github.com/golombFW/mimicgame/issues"
   },
   "dependencies": {
+    "blob-util": "^1.2.1",
+    "blueimp-canvas-to-blob": "^3.3.0",
     "moment": "^2.13.0",
     "object-hash": "^1.1.2",
     "parse": "1.8.5",
@@ -22,9 +24,9 @@
     "react-safe-render": "^2.0.0",
     "reflux": "0.4.1",
     "reflux-state-mixin": "0.7.0",
+    "swfobject-amd": "^2.3.1",
     "underscore": "1.8.3",
-    "velocity-react": "1.1.5",
-    "webcamjs": "1.0.9"
+    "velocity-react": "1.1.5"
   },
   "devDependencies": {
     "body-parser": "^1.15.2",

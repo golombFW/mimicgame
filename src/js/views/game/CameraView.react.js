@@ -1,5 +1,4 @@
 var React = require('react');
-var Webcam = require('webcamjs');
 
 var DefaultGameViewContainer = require('../../components/game/DefaultGameViewContainer.react.js');
 var CameraPreview = require('../../components/game/CameraPreview.react.js');
@@ -8,6 +7,7 @@ var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 
 var CameraView = React.createClass({
+    camera: null,
     propTypes: {
         gameInfo: React.PropTypes.object,
         data: React.PropTypes.object
@@ -39,7 +39,7 @@ var CameraView = React.createClass({
             cameraModule = <CameraLastPhoto photo={this.state.lastPhoto} cancelPhoto={this.cancelPhoto}
                                             uploadPhoto={this.uploadPhoto}/>
         } else if (this.state.isCameraDisplayed) {
-            cameraModule = <CameraPreview topic={emotionTopic} ref="cameraPreview"/>;
+            cameraModule = <CameraPreview topic={emotionTopic} ref="cameraPreview" initCameraFunc={this.initCamera}/>;
         } else {
             cameraModule = <span>Wczytywanie</span>;
         }
@@ -70,9 +70,14 @@ var CameraView = React.createClass({
     },
     takePicture: function () {
         console.log("takePicture");
-        Webcam.snap(function (data_uri) {
+        var snapshot = this.camera.capture({mirror: true});
+        snapshot.get_blob(function (data_uri) {
             this.setState({lastPhoto: data_uri});
         }.bind(this));
+
+    },
+    initCamera: function (camera) {
+        this.camera = camera;
     },
     attachCameraComponent: function () {
         setTimeout(function () {
