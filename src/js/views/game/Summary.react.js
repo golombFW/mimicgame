@@ -4,6 +4,7 @@ var DefaultGameViewContainer = require('../../components/game/DefaultGameViewCon
 var MenuButton = require('../../components/MenuButton.react.js');
 var Emoticon = require('../../components/Emoticon.react.js');
 var SummaryAvatar = require('../../components/game/SummaryAvatar.react.js');
+var SummaryTurns = require('../../components/game/SummaryTurns.react.js');
 
 var AppStateActions = require('../../actions/AppStateActions.js');
 
@@ -19,11 +20,6 @@ var Summary = React.createClass({
         }
     },
     render: function () {
-        /*
-         todo wynik gracza 1, wynik gracza 2
-         zwyciezca
-         powrot do menu, rewanz
-         */
         var match = this.props.gameInfo.match;
         var isSinglePlayerGame = "SINGLE" === match.get("type");
         var isMatchFinished = "finished" === match.get("gameStatus");
@@ -96,13 +92,13 @@ var Summary = React.createClass({
         if (!isSinglePlayerGame) {
             resultSummary = (
                 <div className="result-summary row">
-                    <div className="col-sm-4">
+                    <div className="col-xs-4 col-sm-4">
                         {playerSummaryAvatar}
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-xs-4 col-sm-4">
                         {resultNumbers}
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-xs-4 col-sm-4">
                         <SummaryAvatar img={opponentAvatar} nick={opponent.nick} invert/>
                     </div>
                 </div>
@@ -110,10 +106,10 @@ var Summary = React.createClass({
         } else {
             resultSummary = (
                 <div className="result-summary-single row">
-                    <div className="col-sm-4">
+                    <div className="col-xs-6 col-sm-4">
                         {playerSummaryAvatar}
                     </div>
-                    <div className="col-sm-8 ">
+                    <div className="col-xs-6 col-sm-4 ">
                         {resultNumbers}
                     </div>
                 </div>
@@ -123,9 +119,7 @@ var Summary = React.createClass({
             <DefaultGameViewContainer hideResult={true}>
                 <div id="match-summary">
                     {resultSummary}
-                    <div className="turns">
-                        WORK IN PROGRESS
-                    </div>
+                    <SummaryTurns match={match} player={player} turnsSummary={this.props.data.summary}/>
                     <div className="options">
                         <MenuButton icon="fa fa-home" onClick={this.backToMenu}>Powrót do menu głównego</MenuButton>
                         <MenuButton icon="fa fa-gamepad" onClick={this.playRematch} disabled>Rewanż</MenuButton>

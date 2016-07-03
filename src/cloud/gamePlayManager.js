@@ -147,42 +147,44 @@ _prepareGameplayDataForPlayer = function (player, match) {
         promise.reject("That match is not linked with player!");
     }
 
-    //send summary
-    if (matchStatus === _matchStatusKeyFinished) {
-        //todo summary
-        console.log("Match finished, sending summary");
-        result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
-        promise.resolve(result);
-    } else {
-        var turnResult = _getPlayerTurn(player, match);
-        if (turnResult.type === model.GameplayDataStatus.TURN) {
-            console.log("Prepare gameplay data with turn");
-            result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
-        } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
-            //todo waiting for opponent
-            console.log("Prepare gameplay waiting data");
-            result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING, playerStr, turnResult.turn);
+    var emotionQuery = new Parse.Query(_emotionClassName);
+    emotionQuery.find().then(function (emotions) {
+        //send summary
+        if (matchStatus === _matchStatusKeyFinished) {
+            console.log("Match finished, sending summary");
+            result = _summaryData(player, match, emotions);
+            promise.resolve(result);
         } else {
-            //todo player ends game, send partial summary
-            console.log("No active turns found, sending summary");
-            result = _gameplayDataFromTurn(model.GameplayDataStatus.SUMMARY, playerStr);
-        }
-
-
-        var updateDataPromise = _updateMatchStatusIfNeeded(match, turnResult.turnNumber);
-        updateDataPromise.then(function (updatedMatch) {
-            return Parse.Promise.as("Match update successful");
-        }, function (error) {
-            console.error("Problem with updating match obj: " + error.message);
-            return Parse.Promise.as("Update problem");
-        }).then(function (res) {
-            if (result) {
-                promise.resolve(result);
+            var turnResult = _getPlayerTurn(player, match);
+            if (turnResult.type === model.GameplayDataStatus.TURN) {
+                console.log("Prepare gameplay data with turn");
+                result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
+            } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
+                //todo waiting for opponent
+                console.log("Prepare gameplay waiting data");
+                result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING, playerStr, turnResult.turn);
             } else {
-                promise.reject("no result, something goes wrong");
+                console.log("No active turns found, sending summary");
+                result = _summaryData(player, match, emotions);
             }
-        });
-    }
+
+            var updateDataPromise = _updateMatchStatusIfNeeded(match, turnResult.turnNumber);
+            updateDataPromise.then(function (updatedMatch) {
+                return Parse.Promise.as("Match update successful");
+            }, function (error) {
+                console.error("Problem with updating match obj: " + error.message);
+                return Parse.Promise.as("Update problem");
+            }).then(function (res) {
+                if (result) {
+                    promise.resolve(result);
+                } else {
+                    promise.reject("no result, something goes wrong");
+                }
+            });
+        }
+    }, function (error) {
+        promise.reject(error.message);
+    });
 
     return promise;
 };
@@ -195,8 +197,6 @@ _gameplayDataFromTurn = function (status, playerStr, turn, phase) {
         case model.GameplayDataStatus.WAITING:
             data.turn.ordinal = turn.get("turnNumber");
             data.turn.type = turn.get("type");
-            break;
-        case model.GameplayDataStatus.SUMMARY:
             break;
         case model.GameplayDataStatus.TURN:
             data.turn.ordinal = turn.get("turnNumber");
@@ -212,6 +212,71 @@ _gameplayDataFromTurn = function (status, playerStr, turn, phase) {
         default:
             console.error("Invalid status!");
     }
+    return data;
+};
+
+_summaryData = function (player, match, emotions) {
+    var data = utils.cloneObject(model.GameplayData);
+    data.status = model.GameplayDataStatus.SUMMARY;
+
+    var turnList = match.get("turnList");
+    turnList.sort(function (a, b) {
+        return a.get("turnNumber") - b.get("turnNumber");
+    });
+
+    var playerKey = _getPlayerString(player, match);
+    var opponentKey = _getOpponentString(player, match);
+
+    var player1AnswerKey = "answer_player1";
+    var player2AnswerKey = "answer_player2";
+    var player1QuestionKey = "question_player1";
+    var player2QuestionKey = "question_player2";
+
+    var emotionsList = _.reduce(emotions, function (memo, el) {
+        memo[el.id] = utils.flattenEmotionObj(el);
+        return memo;
+    }, {});
+
+    var resultSummary = _.map(turnList, function (turn) {
+        var answer1Obj = turn.get(player1AnswerKey);
+        var answer2Obj = turn.get(player2AnswerKey);
+        var answer1, answer2, correctAnswer1, correctAnswer2, question1, question2, questionUrl1, questionUrl2, player1, player2;
+        if (answer1Obj) {
+            answer1 = emotionsList[answer1Obj.get("answer").id];
+            question1 = turn.get(player1QuestionKey);
+            correctAnswer1 = emotionsList[question1.get("player_answer").id];
+            if (question1.get("photo")) {
+                questionUrl1 = question1.get("photo").url();
+            }
+            player1 = {
+                answer: answer1,
+                correctAnswer: correctAnswer1,
+                questionUrl: questionUrl1
+            }
+        }
+        if (answer2Obj) {
+            answer2 = emotionsList[answer2Obj.get("answer").id];
+            question2 = turn.get(player2QuestionKey);
+            correctAnswer2 = emotionsList[question2.get("player_answer").id];
+            if (question2.get("photo")) {
+                questionUrl2 = question2.get("photo").url();
+            }
+            player2 = {
+                answer: answer2,
+                correctAnswer: correctAnswer2,
+                questionUrl: questionUrl2
+            }
+        }
+
+        return {
+            turnNumber: turn.get("turnNumber"),
+            type: turn.get("type"),
+            player1: player1,
+            player2: player2
+        }
+    });
+    data.summary = resultSummary;
+
     return data;
 };
 

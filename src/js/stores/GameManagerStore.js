@@ -94,17 +94,23 @@ var GameManagerStore = Reflux.createStore({
 
     //other functions
     initializeGame: function (match) {
+        var view, gameplayData;
         Parse.Cloud.run('getGameplayData', {matchId: match.id}).then(function (data) {
                 console.log("Getting gameplay data success");
-                var view = this.resolveViewState(data.status, data.turn);
+                view = this.resolveViewState(data.status, data.turn);
+                gameplayData = data;
+                return match.fetch();
+            }.bind(this)
+        ).then(function (updatedMatch) {
                 this.setState({
-                    data: data,
-                    currentView: view
+                    data: gameplayData,
+                    currentView: view,
+                    match: updatedMatch
                 });
-            }.bind(this),
-            function (error) {
-                console.error("Something happened: " + error.message);
-            });
+            }.bind(this)
+        ).then(null, function (error) {
+            console.error("Something happened: " + error.message);
+        });
     },
     resolveViewState: function (status, turn) {
         console.log("Resolve view state, status: " + status + " turn: " + JSON.stringify(turn));

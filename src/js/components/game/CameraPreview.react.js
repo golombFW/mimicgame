@@ -5,7 +5,8 @@ var JpegCamera = require('../../libs/jpeg_camera/jpeg_camera.js');
 var CameraPreview = React.createClass({
     camera: null,
     propTypes: {
-        topic: React.PropTypes.string
+        topic: React.PropTypes.string,
+        initCameraFunc: React.PropTypes.func.isRequired
     },
     getInitialState: function () {
         return ({minLength: 0});

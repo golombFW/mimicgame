@@ -88,7 +88,11 @@ gulp.task('watch', function () {
 
     var b = browserify({
         entries: [path.JS_ENTRY_POINT],
-        transform: [[reactify], ['envify', {'global': true, '_': 'purge', APP_VERSION: new Date().toJSON()}]],
+        transform: [[reactify], ['envify', {
+            'global': true,
+            '_': 'purge',
+            APP_VERSION: getNPMAppVersion() + new Date().toJSON()
+        }]],
         debug: true,
         cache: {}, packageCache: {}, fullPaths: true
     });
@@ -128,7 +132,7 @@ gulp.task('build', function () {
             'global': true,
             '_': 'purge',
             NODE_ENV: 'production',
-            APP_VERSION: new Date().toJSON()
+            APP_VERSION: getNPMAppVersion() + new Date().toJSON()
         }], [stripify]]
     });
 
@@ -211,6 +215,18 @@ var getNPMPackageIds = function () {
     }
     return _.keys(packageManifest.dependencies) || [];
 
+};
+
+var getNPMAppVersion = function () {
+    var packageManifest = {};
+    try {
+        packageManifest = require('./package.json');
+    } catch (e) {
+        console.error("No package.json!");
+    }
+    var ver = packageManifest.version || "";
+
+    return 0 < ver.length ? ver + "_" : null;
 };
 
 gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build', 'build-less']);

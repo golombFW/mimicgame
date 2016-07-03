@@ -112,8 +112,8 @@ var Game = React.createClass({
 
             return data;
         } else if (currentView === GameState.SUMMARY) {
-            //todo
-            return null;
+            data = Utils.$.clone(this.state.data);
+            return data;
         }
         return null;
     }

@@ -1,7 +1,7 @@
 var React = require('react');
 var Parse = require('parse').Parse;
 var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
-var DefaultAppViewContainer = require('../../components/DefaultAppViewContainer.react.js');
+var DefaultGameViewContainer = require('../../components/game/DefaultGameViewContainer.react.js');
 var MenuButton = require('../../components/MenuButton.react.js');
 
 var GameManagerActions = require('../../actions/GameManagerActions.js');
@@ -27,7 +27,7 @@ var SinglePlayerGame = React.createClass({
 
         var content = (
             <div id="find-opponent-loading-tab">
-                <LoadingBar customText="Trwa przygotowywanie rozgrywki..."/>
+                <LoadingBar customText="Trwa przygotowywanie rozgrywki..." color="dark"/>
             </div>
         );
 
@@ -41,11 +41,11 @@ var SinglePlayerGame = React.createClass({
         }
 
         return (
-            <DefaultAppViewContainer>
+            <DefaultGameViewContainer hideResult={true}>
                 <div id="app-singleplayer-match">
                     {content}
                 </div>
-            </DefaultAppViewContainer>
+            </DefaultGameViewContainer>
         );
     },
     startGame: function () {

@@ -5,6 +5,7 @@ var CameraPreview = require('../../components/game/CameraPreview.react.js');
 var CameraLastPhoto = require('../../components/game/CameraLastPhoto.react.js');
 var LoadingBar = require('../../utils/Utils.js').Components.LoadingBar1;
 var GameManagerActions = require('../../actions/GameManagerActions.js');
+var MenuButton = require('../../components/MenuButton.react.js');
 
 var CameraView = React.createClass({
     camera: null,
@@ -34,14 +35,26 @@ var CameraView = React.createClass({
             emotionTopic = this.props.data.selectedTopic.value;
         }
 
-        var cameraModule;
+        var cameraModule, options;
         if (this.state.lastPhoto) {
-            cameraModule = <CameraLastPhoto photo={this.state.lastPhoto} cancelPhoto={this.cancelPhoto}
-                                            uploadPhoto={this.uploadPhoto}/>
+            cameraModule = (<CameraLastPhoto photo={this.state.lastPhoto} cancelPhoto={this.cancelPhoto}
+                                             uploadPhoto={this.uploadPhoto}/>);
+            options = [
+                (
+                    <MenuButton key="undo-photo" onClick={this.cancelPhoto} classes="btn-block" icon="fa fa-arrow-left">Popraw
+                        zdjęcie</MenuButton>),
+                (
+                    <MenuButton key="upload-photo" onClick={this.uploadPhoto} classes="btn-block btn-success"
+                                icon="fa fa-cloud-upload">Wyślij</MenuButton>
+                )
+            ];
         } else if (this.state.isCameraDisplayed) {
-            cameraModule = <CameraPreview topic={emotionTopic} ref="cameraPreview" initCameraFunc={this.initCamera}/>;
+            cameraModule = (<CameraPreview topic={emotionTopic} ref="cameraPreview" initCameraFunc={this.initCamera}/>);
+            options = (
+                <MenuButton onClick={this.takePicture} icon="fa fa-camera" classes="btn-block">Zrób zdjęcie</MenuButton>
+            );
         } else {
-            cameraModule = <span>Wczytywanie</span>;
+            cameraModule = (<span>Wczytywanie</span>);
         }
 
         return (
@@ -57,11 +70,8 @@ var CameraView = React.createClass({
                         <div className="camera-view-preview" ref="cameraPreviewContainer">
                             {cameraModule}
                         </div>
-
                         <div id="camera-options" className="">
-                            <a className="btn btn-default btn-block" type="button" onClick={this.takePicture}><i
-                                className="fa fa-camera"></i> Zrób zdjęcie
-                            </a>
+                            {options}
                         </div>
                     </div>
                 </div>
@@ -74,7 +84,6 @@ var CameraView = React.createClass({
         snapshot.get_blob(function (data_uri) {
             this.setState({lastPhoto: data_uri});
         }.bind(this));
-
     },
     initCamera: function (camera) {
         this.camera = camera;

@@ -4,7 +4,7 @@ var LoadingBar1 = React.createClass({
     propTypes: {
         customText: React.PropTypes.string,
         center: React.PropTypes.oneOf(["screen", "parent"]),
-        color: React.PropTypes.string,
+        color: React.PropTypes.oneOf(["white", "dark"]),
         classes: React.PropTypes.string
     },
     getDefaultProps: function () {
