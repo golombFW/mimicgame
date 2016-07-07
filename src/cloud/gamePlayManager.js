@@ -7,6 +7,7 @@ var _matchClassName = "Match";
 var _photoQuestionClassName = "PhotoQuestion";
 var _photoQuestionAnswerClassName = "PhotoQuestionAnswer";
 var _emotionClassName = "Emotion";
+var _rankRuleClassName = "RankRule";
 var _matchPlayer1Key = "player1";
 var _matchPlayer2Key = "player2";
 var _matchStatusKey = "gameStatus";
@@ -85,8 +86,12 @@ exports.playerUploadPhoto = function (player, matchId, topic, photo, options) {
 exports.answerQuestion = function (player, matchId, answerEmotion, options) {
     var playerStr;
     var matchQuery = new Parse.Query(_matchClass);
+    var match;
     matchQuery.include("turnList");
-    matchQuery.get(matchId).then(function (match) {
+    matchQuery.include("player1");
+    matchQuery.include("player2");
+    matchQuery.get(matchId).then(function (fetchedMatch) {
+        match = fetchedMatch;
         console.log("match fetched: " + match.id);
 
         playerStr = _getPlayerString(player, match);
@@ -122,7 +127,7 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
         }
     }).then(function (savedTurn) {
         _log("Answer to question saved!", player);
-        return _computeAnswerResult(player, savedTurn, playerStr);
+        return _computeAnswerResult(player, savedTurn, playerStr, match);
     }).then(function (answerResult) {
         options.success(answerResult);
     }).then(null, function (error) {
@@ -402,9 +407,11 @@ _addPhotoQuestion = function (player, opponentKey, turn, topic, photo) {
     return resultPromise;
 };
 
-_computeAnswerResult = function (player, turn, playerStr) {
+_computeAnswerResult = function (player, turn, playerStr, match) {
     var promise = new Parse.Promise();
 
+    var opponentStr = _getOpponentString(player, match);
+    var opponent = match.get(opponentStr);
     var playerAnswerKey = "answer_" + playerStr;
     var playerAnswerObj = turn.get(playerAnswerKey);
     console.log("player answer" + JSON.stringify(playerAnswerObj));
@@ -413,26 +420,92 @@ _computeAnswerResult = function (player, turn, playerStr) {
     var playerAnswer = playerAnswerObj.get("answer");
     console.log("player answer emotion" + JSON.stringify(playerAnswer));
 
+    var rankRulesQuery = new Parse.Query(_rankRuleClassName);
+    var rankRulePromise = rankRulesQuery.find();
+    var playerScorePromise = player.get("score").fetch();
+    var opponentScorePromise = opponent ? opponent.get("score").fetch() : Parse.Promise.as();
 
+    var answerResult;
     playerQuestion.fetch().then(function (fetchedQuestion) {
         var correctAnswer = fetchedQuestion.get("player_answer");
         return correctAnswer.fetch();
     }).then(function (correctAnswer) {
         console.log("correct answer" + JSON.stringify(correctAnswer));
-
         var playerResult = playerAnswer.id === correctAnswer.id;
-        var lastTurn = false; //fixme
-        //todo pobrac dane o punktacji
-        //podliczyc punkty
-        //przygotowac obiekt wynikowy: - zodbyte punkty -
+        var lastTurn = turn.get("turnNumber") == _.size(match.get("turnList"));
 
-        var answerResult = {
+        answerResult = {
             points: 0,
             correctAnswer: utils.flattenEmotionObj(correctAnswer),
             playerResult: playerResult,
             lastTurn: lastTurn
         };
-        promise.resolve(answerResult);
+        return Parse.Promise.when(rankRulePromise, playerScorePromise, opponentScorePromise);
+    }).then(function (rankRules, playerScoreObj, opponentScoreObj) {
+        if (1 > rankRules.length) {
+            console.error("\"_computeAnswerResult\": Rank rules table is empty!");
+            promise.resolve(answerResult);
+        } else {
+            var rankRulesMap = utils.mapRankRules(rankRules);
+            var correctAnswerAward = rankRulesMap["correctAnswerAward"];
+            var playerEventsKey = "events_" + playerStr;
+            var points = 0;
+
+            if (correctAnswerAward && answerResult.playerResult) {
+                var correctAnswerPoints = utils.rankPointsBonus(utils.playerPoints(match.get(playerEventsKey)), correctAnswerAward);
+                points += correctAnswerPoints;
+                answerResult.points = correctAnswerPoints;
+                _addCorrectAnswerEvent(match, turn, playerStr, points);
+
+                if (answerResult.lastTurn) {
+                    if (_areAllAnswersCorrect(match, playerStr)) {
+                        var allCorrectAnswersAward = rankRulesMap["allCorrectAnswersAward"];
+                        if (allCorrectAnswersAward) {
+                            var award = utils.rankPointsBonus(utils.playerPoints(match.get(playerEventsKey)), allCorrectAnswersAward);
+                            points += award;
+                            match.add(playerEventsKey, {
+                                name: "allCorrectAnswersAward",
+                                value: award
+                            });
+                        }
+                    }
+                }
+            }
+            var opponentPoints = 0;
+            var isSinglePlayerGame = _matchTypeKeySingle === match.get("type");
+            if (answerResult.lastTurn) {
+                var matchRandomBonus = rankRulesMap["matchRandomBonus"];
+                if (matchRandomBonus) {
+                    var randomAward = _addMatchRandomBonus(match, matchRandomBonus, playerEventsKey, points);
+                    points += randomAward;
+                }
+
+                var opponentStr = _getOpponentString(player, match);
+                if (isSinglePlayerGame || turn.get("answer_" + opponentStr)) {
+                    var matchWinLostBonuses = _computeWinLostEvent(match, playerStr, opponentStr, rankRulesMap);
+                    points += matchWinLostBonuses.playerBonus;
+                    opponentPoints += matchWinLostBonuses.opponentBonus;
+                }
+            }
+
+            playerScoreObj.increment("score", points);
+            var playerScorePromise = 0 !== points ? playerScoreObj.save() : Parse.Promise.as();
+            var matchUpdatePromise = match.save();
+            var opponentScorePromise;
+            if (!isSinglePlayerGame && 0 !== opponentPoints && opponentScoreObj) {
+                opponentScoreObj.increment("score", opponentPoints);
+                opponentScorePromise = opponentScoreObj.save();
+            } else {
+                opponentScorePromise = Parse.Promise.as();
+            }
+
+            Parse.Promise.when(playerScorePromise, opponentScorePromise, matchUpdatePromise).then(function (savedPlayerScore, savedOpponentScore, savedMatch) {
+                promise.resolve(answerResult);
+            }, function (error) {
+                console.error(error.message);
+                promise.resolve(answerResult);
+            })
+        }
     }).then(null, function (error) {
         console.error("Problem with fetching question while computing answer result!\n" + error.message);
         promise.reject(error);
@@ -492,8 +565,8 @@ _matchResult = function (match) {
 
         var question1 = turn.get("question_" + _matchPlayer1Key);
         var question2 = turn.get("question_" + _matchPlayer2Key);
-        var correctAnswer1 = question1.get("player_answer");
-        var correctAnswer2 = question2.get("player_answer");
+        var correctAnswer1 = question1 ? question1.get("player_answer") : null;
+        var correctAnswer2 = question2 ? question2.get("player_answer") : null;
 
         var playerAnswer1 = turn.get("answer_" + _matchPlayer1Key);
         var playerAnswer2 = turn.get("answer_" + _matchPlayer2Key);
@@ -526,6 +599,88 @@ _matchResult = function (match) {
         player1: player1Result,
         player2: player2Result
     }
+};
+
+_eventBasedMatchResult = function (match) {
+    var playersEvents = [match.get("events_" + _matchPlayer1Key), match.get("events_" + _matchPlayer2Key)];
+    var playersResults = [];
+
+    for (var i = 0; i < playersEvents.length; i += 1) {
+        var events = playersEvents[i];
+        var result = 0;
+        for (var x in events) {
+            result += ("correctAnswerAward" === events[x].name) ? 1 : 0;
+        }
+        playersResults[i] = result;
+    }
+    var isSinglePlayerGame = _matchTypeKeySingle === match.get("type");
+    if (isSinglePlayerGame) {
+        playersResults[1] = match.get("turnList").length - playersResults[0];
+    }
+    return {
+        player1: playersResults[0],
+        player2: playersResults[1]
+    };
+};
+
+_computeWinLostEvent = function (match, playerStr, opponentStr, rankRulesMap) {
+    var playerEventsKey = "events_" + playerStr;
+    var opponentEventsKey = "events_" + opponentStr;
+    var result = _eventBasedMatchResult(match);
+    console.log("match result: " + JSON.stringify(result));
+    var playerResult, opponentResult;
+    if (_matchPlayer1Key === playerStr) {
+        playerResult = result.player1;
+        opponentResult = result.player2;
+    } else {
+        playerResult = result.player2;
+        opponentResult = result.player1;
+    }
+
+    var matchWinBonus = rankRulesMap["matchWinBonus"];
+    var matchLostBonus = rankRulesMap["matchLostBonus"];
+    var isSinglePlayerGame = _matchTypeKeySingle === match.get("type");
+
+    var playerScore = (+utils.playerPoints(match.get(playerEventsKey)));
+    var opponentScore = !isSinglePlayerGame ? (+utils.playerPoints(match.get(opponentEventsKey))) : 0;
+
+    var playerBonus = 0, opponentBonus = 0;
+    if (playerResult > opponentResult) {
+        if (matchWinBonus) {
+            playerBonus = utils.rankPointsBonus(playerScore, matchWinBonus);
+            match.add(playerEventsKey, {
+                name: "matchWinBonus",
+                value: playerBonus
+            });
+        }
+        if (matchLostBonus && !isSinglePlayerGame) {
+            opponentBonus = utils.rankPointsBonus(opponentScore, matchLostBonus);
+            match.add(opponentEventsKey, {
+                name: "matchLostBonus",
+                value: opponentBonus
+            });
+        }
+    } else if (playerResult < opponentResult) {
+        if (matchLostBonus) {
+            playerBonus = utils.rankPointsBonus(playerScore, matchLostBonus);
+            match.add(playerEventsKey, {
+                name: "matchLostBonus",
+                value: playerBonus
+            });
+        }
+        if (matchWinBonus && !isSinglePlayerGame) {
+            opponentBonus = utils.rankPointsBonus(opponentScore, matchWinBonus);
+            match.add(opponentEventsKey, {
+                name: "matchWinBonus",
+                value: opponentBonus
+            });
+        }
+    }
+    console.log("playerBonus: " + playerBonus + " opponentBonus: " + opponentBonus);
+    return {
+        playerBonus: playerBonus,
+        opponentBonus: opponentBonus
+    };
 };
 
 //Miscellaneous
@@ -593,6 +748,42 @@ _prepareAnswer = function (player, photoQuestion, emotion) {
     _setPhotoQuestionAnswerACL(answer, player);
 
     return answer;
+};
+
+_addCorrectAnswerEvent = function (match, turn, playerStr, points) {
+    var playerEvents = "events_" + playerStr;
+    match.add(playerEvents, {
+        name: "correctAnswerAward",
+        turnNumber: turn.get("turnNumber"),
+        value: points
+    });
+};
+
+_areAllAnswersCorrect = function (match, playerStr) {
+    var turnsCount = match.get("turnList").length;
+    var events = match.get("events_" + playerStr);
+    var correctAnswersCount = 0;
+    for (var i = 0; i < _.size(events); i += 1) {
+        if ("correctAnswerAward" === events[i].name) {
+            correctAnswersCount += 1;
+        }
+    }
+    return correctAnswersCount >= turnsCount;
+};
+
+_addMatchRandomBonus = function (match, matchRandomBonus, playerEventsKey) {
+    var rand = Math.random();
+    var probability = (+matchRandomBonus.get("value2"));
+    console.log("Computing random bonus, probability of bonus: " + probability + ", computed: " + rand);
+    if (rand <= probability) {
+        var award = matchRandomBonus.get("value");
+        match.add(playerEventsKey, {
+            name: "matchRandomBonus",
+            value: award
+        });
+        return award;
+    }
+    return 0;
 };
 
 _isPhotoQuestionTurnType = function (turnType) {

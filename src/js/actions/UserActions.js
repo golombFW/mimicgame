@@ -2,7 +2,9 @@ var Reflux = require('reflux');
 
 var UserActions = Reflux.createActions([
     'setUser',
-    'updateUser'
+    'updateUser',
+    'setPlayerRank',
+    "updatePlayerRank"
 ]);
 
 module.exports = UserActions;

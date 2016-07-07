@@ -2,6 +2,8 @@ var React = require('react');
 var _ = require('underscore');
 
 var emotions = {
+    "awesome": "AwesomeSmile.png",
+    "trophy": "trophy.png",
     "angry": "emoticons_angry.png",
     "bad": "emoticons_bad.png",
     "disgusted": "emoticons_disgusted.png",

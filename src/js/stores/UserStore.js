@@ -13,7 +13,8 @@ var UserStore = Reflux.createStore({
 
     getInitialState: function () {
         return {
-            user: Parse.User.current()
+            user: Parse.User.current(),
+            playerRank: 0
         }
     },
     setUser: function (user) {
@@ -31,16 +32,35 @@ var UserStore = Reflux.createStore({
             var query = new Parse.Query(Parse.User);
             query.include("FacebookUser");
             query.include("settings");
+            query.include("score");
             query.get(userId).then(function (user) {
                 console.log("User update successful: " + JSON.stringify(user));
                 this.setUser(user);
             }.bind(this), function (error) {
                 console.error("Cannot update user: " + error.message);
             });
+            this.updatePlayerRank();
         } else {
             this.setUser(parseUser);
         }
-
+    },
+    setPlayerRank: function (rank) {
+        this.setState({
+            playerRank: rank
+        });
+    },
+    updatePlayerRank: function () {
+        if (this.state.user && this.state.user.get("score") && this.state.user.get("score").get("score")) {
+            var rankQuery = new Parse.Query("GameScore");
+            rankQuery.greaterThan("score", this.state.user.get("score").get("score"));
+            rankQuery.notEqualTo("player", this.state.user);
+            rankQuery.count().then(function (playerRank) {
+                console.log("Player rank: " + (playerRank + 1));
+                this.setPlayerRank(playerRank + 1);
+            }.bind(this), function (error) {
+                console.error(error.message);
+            });
+        }
     }
 });
 

@@ -5,6 +5,7 @@ var MenuButton = require('../../components/MenuButton.react.js');
 var Emoticon = require('../../components/Emoticon.react.js');
 var SummaryAvatar = require('../../components/game/SummaryAvatar.react.js');
 var SummaryTurns = require('../../components/game/SummaryTurns.react.js');
+var BonusEventsPanel = require('../../components/game/BonusEventsPanel.react.js');
 
 var AppStateActions = require('../../actions/AppStateActions.js');
 
@@ -32,13 +33,12 @@ var Summary = React.createClass({
         if (opponent && opponent.avatar) {
             opponentAvatar = opponent.avatar.url;
         }
-        var playerSummaryAvatar = (<SummaryAvatar img={playerAvatar} nick={player.get("nick")}/>);
 
         var p1, p2;
         var resultSummary, resultNumbers, winnerInfo, resultEmoticon;
+        var isUserPlayer1 = match.get("player1").equals(player);
+        var playerStr;
         if (resultNumbersObj) {
-            var isUserPlayer1 = match.get("player1").equals(player);
-            var playerStr;
             if (isUserPlayer1) {
                 p1 = resultNumbersObj.player1;
                 p2 = resultNumbersObj.player2;
@@ -53,7 +53,7 @@ var Summary = React.createClass({
             } else {
 
                 if (playerStr === match.get("winner")) {
-                    winnerInfo = "Zwycięstwo!"
+                    winnerInfo = "Zwycięstwo!";
                     resultEmoticon = (
                         <Emoticon emotion="veryhappy"/>
                     );
@@ -77,6 +77,17 @@ var Summary = React.createClass({
         if (!isSinglePlayerGame) {
             resultEmoticon = null;
         }
+
+        var playerEvents = match.get("events_" + playerStr);
+        var playerScore = 0;
+        if (playerEvents) {
+            for (var i in playerEvents) {
+                var event = playerEvents[i];
+                playerScore += (+event.value);
+            }
+        }
+
+        var playerSummaryAvatar = (<SummaryAvatar img={playerAvatar} nick={player.get("nick")} score={playerScore}/>);
 
         resultNumbers = (
             <div className="result-numbers-container">
@@ -120,6 +131,7 @@ var Summary = React.createClass({
                 <div id="match-summary">
                     {resultSummary}
                     <SummaryTurns match={match} player={player} turnsSummary={this.props.data.summary}/>
+                    <BonusEventsPanel events={playerEvents}/>
                     <div className="options">
                         <MenuButton icon="fa fa-home" onClick={this.backToMenu}>Powrót do menu głównego</MenuButton>
                         <MenuButton icon="fa fa-gamepad" onClick={this.playRematch} disabled>Rewanż</MenuButton>

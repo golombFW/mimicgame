@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -13,7 +13,7 @@
   "dependencies": {
     "blob-util": "^1.2.1",
     "blueimp-canvas-to-blob": "^3.3.0",
-    "moment": "^2.13.0",
+    "moment": "^2.14.1",
     "object-hash": "^1.1.2",
     "parse": "1.8.5",
     "react": "15.2.0",

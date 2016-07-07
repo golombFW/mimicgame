@@ -6,6 +6,7 @@ var AppState = {
     SINGLE_PLAYER_GAME: "SINGLE_PLAYER_GAME",
     GAME: "GAME",
     CAMERA_VIEW: "CAMERA_VIEW",
+    RANKING: "RANKING",
     TEST: "TEST"
 };
 

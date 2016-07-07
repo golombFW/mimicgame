@@ -31,23 +31,44 @@ Parse.Cloud.beforeSave(Parse.User, function (request, response) {
 Parse.Cloud.afterSave(Parse.User, function (request) {
     Parse.Cloud.useMasterKey();
     var facebookUser = request.object.get("FacebookUser");
+    var facebookUserPromise, gamescorePromise;
+
     if (facebookUser) {
-        facebookUser.fetch().then(function (fbUser) {
-            if (!fbUser.get("User")) {
-                fbUser.set("User", request.object);
-                _setFacebookUserACL(fbUser, request.object);
-                fbUser.save(null, {
-                    success: function (user) {
-                    },
-                    error: function (obj, error) {
-                        console.error("afterSave User: " + error.message);
-                    }
-                });
-            }
-        })
+        facebookUserPromise = facebookUser.fetch();
     } else {
         console.error("Invalid state, user should have FacebookUser object");
     }
+    var gameScore = request.object.get("score");
+    if (gameScore) {
+        gamescorePromise = gameScore.fetch();
+    } else {
+        console.error("Invalid state, user should have GameScore object");
+    }
+
+    Parse.Promise.when(facebookUserPromise, gamescorePromise).then(function (fbUser, playerScore) {
+        if (!fbUser.get("User")) {
+            fbUser.set("User", request.object);
+            _setFacebookUserACL(fbUser, request.object);
+            fbUser.save(null, {
+                success: function (user) {
+                },
+                error: function (obj, error) {
+                    console.error("afterSave User: " + error.message);
+                }
+            });
+        }
+        if (!playerScore.get("player")) {
+            playerScore.set("player", request.object);
+            _setUserGameScoreACL(playerScore);
+            playerScore.save().then(function (savedScore) {
+
+            }, function (error) {
+                console.error("afterSave User: " + error.message);
+            });
+        }
+    }, function (error) {
+        console.error(error.message);
+    });
     var settings = request.object.get("settings");
     _setUserSettingsACL(settings, request.object);
 });
@@ -70,13 +91,27 @@ var _setAdditionalData = function (user, response) {
                     response.error(error);
                     promise.reject(error);
                 }
-            })
+            });
         } else {
             promise.resolve(user);
         }
         return promise;
-    })().then(function (data) {
-        resultPromise.resolve(data);
+    })().then(function (updatedUser) {
+        if (!updatedUser.get("score")) {
+            var GameScore = Parse.Object.extend("GameScore");
+            var gameScore = new GameScore();
+            gameScore.set("score", 0);
+            gameScore.save().then(function (savedGameScore) {
+                updatedUser.set("score", savedGameScore);
+                resultPromise.resolve(updatedUser);
+            }, function (error) {
+                console.error("Error when setting user additional data, error: " + error.message);
+                response.error(error);
+                resultPromise.reject(error);
+            });
+        } else {
+            resultPromise.resolve(updatedUser);
+        }
     }, function (error) {
         response.error(error);
         resultPromise.reject(error);
@@ -111,4 +146,11 @@ var _setUserSettingsACL = function (settings, user) {
     newACL.setWriteAccess(user.id, true);
 
     settings.setACL(newACL);
+};
+
+var _setUserGameScoreACL = function (score) {
+    var newACL = new Parse.ACL();
+    newACL.setPublicReadAccess(true);
+    newACL.setPublicWriteAccess(false);
+    score.setACL(newACL);
 };

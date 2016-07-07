@@ -35,7 +35,7 @@ var UserPanel = React.createClass({
             );
         },
         getUsername: function () {
-            if (this.state.facebookUser.first_name) {
+            if (this.state.facebookUser.first_name && this.state.user.get) {
                 return UserUtils.getUserName(this.state.facebookUser.first_name, this.state.user.get("nick"));
             }
             return null;

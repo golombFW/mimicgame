@@ -51,4 +51,41 @@ exports.photoPrivacy = {
     NONE: "NONE"
 };
 
+exports.DefaultRankRules = [
+    {
+        name: "correctAnswerAward",
+        value: "100",
+        type: "points"
+    },
+    {
+        name: "allCorrectAnswersAward",
+        value: "200",
+        type: "points"
+    },
+    {
+        name: "matchWinBonus",
+        value: "1.5",
+        type: "multiplier"
+    },
+    {
+        name: "matchLostBonus",
+        value: "0.5",
+        value2: "-100",
+        type: "multiplier",
+        type2: "points"
+    },
+    {
+        name: "matchRandomBonus",
+        value: "100",
+        value2: "0.2",
+        type: "points",
+        type2: "other"
+    },
+    {
+        name: "initialPlayerRank",
+        value: "500",
+        type: "points"
+    }
+];
+
 exports.TurnType = TurnType;

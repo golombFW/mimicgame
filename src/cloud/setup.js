@@ -3,6 +3,7 @@ var model = require('cloud/model.js');
 var _emotionClassName = "Emotion";
 var _gameTypeClassName = "GameType";
 var _photoQuestionClassName = "PhotoQuestion";
+var _rankRuleClassName = "RankRule";
 
 var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
 
@@ -28,6 +29,15 @@ Parse.Cloud.job("createDefaultPhotoQuestions", function (request, status) {
     Parse.Cloud.useMasterKey();
     createDefaultPhotoQuestions().then(function () {
         status.success("Creating default Photo Questions completed successfully.");
+    }, function (error) {
+        status.error("Something went wrong");
+    });
+});
+
+Parse.Cloud.job("createDefaultRankRules", function (request, status) {
+    Parse.Cloud.useMasterKey();
+    createDefaultRankRules().then(function () {
+        status.success("Creating default rank rules completed successfully.");
     }, function (error) {
         status.error("Something went wrong");
     });
@@ -130,6 +140,45 @@ var createDefaultPhotoQuestions = function () {
         promise.resolve("Default photo questions saved");
     }, function (error) {
         console.error("Something went wrong while getting emotions list: " + error.message);
+        promise.reject(error.message);
+    });
+    return promise;
+};
+
+var createDefaultRankRules = function () {
+    var promise = new Parse.Promise();
+    var _rankRuleClass = Parse.Object.extend(_rankRuleClassName);
+    var rankRuleQuery = new Parse.Query(_rankRuleClass);
+    rankRuleQuery.count().then(function (count) {
+        if (0 >= count) {
+            var defaultRankRules = model.DefaultRankRules;
+            for (var key in defaultRankRules) {
+                var rankRule = new _rankRuleClass();
+                if (defaultRankRules.hasOwnProperty(key)) {
+                    var rule = defaultRankRules[key];
+                    rankRule.set("name", rule.name);
+                    rankRule.set("type", rule.type);
+                    rankRule.set("value", rule.value);
+                    if (rule.type2) {
+                        rankRule.set("type2", rule.type2);
+                    }
+                    if (rule.value2) {
+                        rankRule.set("value2", rule.value2);
+                    }
+                    rankRule.setACL(setupACLs());
+                    rankRule.save().then(function (obj) {
+                        console.log("RankRule obj " + obj.get("name") + " saved successful");
+                    }, function (error) {
+                        console.error(error.message);
+                    });
+                }
+            }
+        } else {
+            console.error("rank rules table is not empty! Delete all records manually before running \"createDefaultRankRules\"");
+            promise.reject("rank rules table is not empty!");
+        }
+    }, function (error) {
+        console.error(error.message);
         promise.reject(error.message);
     });
     return promise;

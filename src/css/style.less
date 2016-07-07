@@ -354,7 +354,7 @@ body {
     max-height: 6rem;
   }
   .turns {
-    flex: 1;
+    flex: 5;
     overflow: scroll;
     .lh-display(flex);
     flex-direction: column;
@@ -384,6 +384,22 @@ body {
   .options {
     a {
       margin: 0.5rem;
+    }
+  }
+  #bonus-events-panel {
+    flex: 1;
+    overflow: scroll;
+    background-color: @summary-turn-plank-bg-color;
+    .lh-display(flex);
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    border: 0.07em #8f8f8f solid;
+    .lh-border-radius(0.5em);
+    font-size: 1.2em;
+
+    .bonus-event-value {
+      font-weight: 900;
     }
   }
 }
@@ -592,7 +608,36 @@ Components styles
 
 #achievements-panel {
   width: 35%;
-  display: inline-block;
+  height: @topbar-height;
+  display: inline-flex;
+  align-items: center;
+
+  .emoticon {
+    max-height: 100%;
+    height: @topbar-height;
+  }
+  span {
+    color: @topbar-button-color;
+    font-size: 1.2em;
+    font-family: "Aladin", Helvetica, sans-serif;
+  }
+  .player-rank {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .player-points {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .description {
+    font-size: 0.5em;
+    text-align: center;
+  }
+
 }
 
 .menu-horizontal-container {
@@ -639,7 +684,9 @@ Components styles
 
   img {
     width: auto;
-    height: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
     position: relative;
   }
 }
@@ -714,6 +761,75 @@ Components styles
 
   img {
     order: 2;
+  }
+}
+
+#ranking {
+  .lh-display(flex);
+  flex-direction: column;
+  height: 100%;
+  padding: 0.8rem;
+  text-align: center;
+
+  .header {
+    flex: 1;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0.2em;
+  }
+  .top-players {
+    flex: 11;
+    .lh-display(flex);
+    flex-direction: column;
+    font-size: 1.2em;
+
+    .top-player-row:nth-child(odd) {
+      background-color: @summary-turn-result-odd-color;
+    }
+    .top-player-header {
+      flex: 0.5;
+      .lh-display(flex);
+      align-items: center;
+      background-color: @ranking-top-header-color;
+      color: #fff;
+    }
+  }
+  .top-player-row {
+    flex: 1;
+    .lh-display(flex);
+    align-items: center;
+    justify-content: center;
+
+    .rank-avatar {
+      flex-direction: row !important;
+      justify-content: center;
+    }
+    .avatar-container {
+      position: absolute;
+      height: 100%;
+      left: 50%;
+      .translate(-50%, 0);
+      top: 0;
+      img {
+        max-height: 100%;
+        max-width: 100%;
+        position: relative;
+      }
+    }
+  }
+  .user-row {
+    background-color: @ranking-user-row-color !important;
+  }
+  .user-rank {
+    flex: 2;
+  }
+  .options {
+    flex: 1;
+  }
+  [class*='col-'] {
+    .lh-display(flex);
+    flex-direction: column;
   }
 }
 
