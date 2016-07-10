@@ -15,34 +15,35 @@ var BonusEventsPanel = React.createClass({
 
         var eventsElements = [];
         if (events) {
-            eventsElements = _.map(events, function (event, num) {
+            for (var num in events) {
+                var event = events[num];
                 var key = event.name + num;
                 switch (event.name) {
                     case "correctAnswerAward":
                         break;
                     case "matchWinBonus":
-                        return (
+                        eventsElements.push(
                             <div className="bonus-event" key={key}>
                                 Premia za wygraną: <span className="bonus-event-value">{event.value}</span>
                             </div>
                         );
                         break;
                     case "matchLostBonus":
-                        return (
+                        eventsElements.push(
                             <div className="bonus-event" key={key}>
                                 Kara za przegraną: <span className="bonus-event-value">{event.value}</span>
                             </div>
                         );
                         break;
                     case "matchRandomBonus":
-                        return (
+                        eventsElements.push(
                             <div className="bonus-event" key={key}>
                                 Losowa premia za rozgrywkę! <span className="bonus-event-value">{event.value}</span>
                             </div>
                         );
                         break;
                     case "allCorrectAnswersAward":
-                        return (
+                        eventsElements.push(
                             <div className="bonus-event" key={key}>
                                 Brawo! Premia za wszystkie poprawne odpowiedzi: <span
                                 className="bonus-event-value">{event.value}</span>
@@ -50,7 +51,7 @@ var BonusEventsPanel = React.createClass({
                         );
                         break;
                 }
-            });
+            }
         }
         if (0 < eventsElements.length) {
             return (

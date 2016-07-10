@@ -19,7 +19,7 @@ var Ranking = React.createClass({
         }
     },
     componentDidMount: function () {
-        UserActions.updateUser();
+        UserActions.updatePlayerStats();
 
         var top10RankQuery = new Parse.Query("GameScore");
         top10RankQuery.include("player");
@@ -38,8 +38,6 @@ var Ranking = React.createClass({
         }.bind(this), function (error) {
             console.error(error.message);
         });
-
-        UserActions.updatePlayerRank();
     },
     render: function () {
         var top10Elem = (
@@ -122,7 +120,7 @@ var Ranking = React.createClass({
         return (
             <DefaultGameViewContainer hideResult={true}>
                 <div id="ranking">
-                    <div className="header">Top 10 graczy z {this.state.playersNumber}</div>
+                    <div className="header">Top 10 z {this.state.playersNumber} graczy</div>
                     {top10Elem}
                     {userElem}
                     <div className="options">

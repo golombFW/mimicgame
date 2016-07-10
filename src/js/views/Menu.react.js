@@ -23,8 +23,7 @@ var Menu = React.createClass({
     mixins: [Reflux.connect(AppDataStore, 'appData')],
     componentDidMount: function () {
         AppDataActions.fetchGamesInfo();
-        UserActions.updateUser();
-        UserActions.updatePlayerRank();
+        UserActions.updatePlayerStats();
     },
     render: function () {
         var actualGames = this.state.appData.gamesInfo.actualGames;
@@ -32,27 +31,27 @@ var Menu = React.createClass({
         return (
             <DefaultAppViewContainer>
                 <div id="app-menu">
-                    <div className="menu-horizontal-container row">
+                    <div className="row">
                         <GameRequestsPanel/>
                         <ActualGamesPanel games={actualGames}/>
-                    </div>
 
-                    <div className="menu-horizontal-container row">
-                        <BasicMenuPanel>
-                            <nav className="menu">
+                        <div id="app-menu-options" className="col-sm-12 col-xs-12 fixed-height">
+                            <div className="options">
                                 <MenuButton
-                                    onClick={this.selectView.bind(this, AppState.NEW_GAME_MENU)}>Nowa Gra</MenuButton>
-                                <MenuButton onClick={this.selectView.bind(this, AppState.RANKING)} icon="fa fa-trophy">Ranking</MenuButton>
+                                    onClick={this.selectView.bind(this, AppState.NEW_GAME_MENU)} icon="fa fa-gamepad"
+                                    classes="">Nowa Gra</MenuButton>
+                                <MenuButton onClick={this.selectView.bind(this, AppState.RANKING)}
+                                            icon="fa fa-trophy" classes="">Ranking</MenuButton>
                                 <MenuButton onClick={this.logout}>wyloguj</MenuButton>
-                            </nav>
-                        </BasicMenuPanel>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div className="menu-horizontal-container row">
                         <CompletedGamesPanel games={completedGames}/>
                     </div>
+
+
                 </div>
-            </DefaultAppViewContainer>
+            </DefaultAppViewContainer >
 
         );
     },

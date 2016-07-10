@@ -1,17 +1,9 @@
 var React = require('react');
 
+var cloudModel = require('../../../cloud/model.js');
 var DefaultGameViewContainer = require('../../components/game/DefaultGameViewContainer.react.js');
 var AnswerButton = require('../../components/game/AnswerButton.react.js');
 var GameManagerActions = require('../../actions/GameManagerActions.js');
-
-var defaultQuestions = {
-    "strach": 'fear_strach.jpg',
-    "radość": 'joy_radosc.jpg',
-    "wstręt": 'disgust_wstret.jpg',
-    "złość": 'anger_zlosc.jpg',
-    "smutek": 'sadness_smutek.jpg',
-    "zdziwienie": 'surprise_zdziwienie.jpg'
-};
 
 var AnswerQuestion = React.createClass({
     propTypes: {
@@ -34,7 +26,7 @@ var AnswerQuestion = React.createClass({
                     photoQuestionUrl = photoQuestionUrl.replace("http://", "https://");
                 }
             } else if (defaultParam) {
-                photoQuestionUrl = '/resources/' + defaultQuestions[defaultParam];
+                photoQuestionUrl = '/resources/' + cloudModel.defaultQuestionImages[defaultParam];
             }
         }
         var answerButtons;

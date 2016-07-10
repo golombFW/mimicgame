@@ -1,6 +1,6 @@
 {
   "name": "mimicgame",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": "Filip Gołębiewski",
   "license": "AGPL-3.0",
   "repository": {
@@ -16,11 +16,11 @@
     "moment": "^2.14.1",
     "object-hash": "^1.1.2",
     "parse": "1.8.5",
-    "react": "15.2.0",
-    "react-addons-linked-state-mixin": "15.2.0",
+    "react": "15.2.1",
+    "react-addons-linked-state-mixin": "15.2.1",
     "react-bootstrap": "0.29.5",
     "react-dimensions": "1.2.0",
-    "react-dom": "15.2.0",
+    "react-dom": "15.2.1",
     "react-safe-render": "^2.0.0",
     "reflux": "0.4.1",
     "reflux-state-mixin": "0.7.0",

@@ -45,6 +45,15 @@ exports.GameplayData = {
 
 exports.emotions = ["strach", "radość", "wstręt", "złość", "smutek", "zdziwienie"];
 
+exports.defaultQuestionImages = {
+    "strach": 'fear_strach.jpg',
+    "radość": 'joy_radosc.jpg',
+    "wstręt": 'disgust_wstret.jpg',
+    "złość": 'anger_zlosc.jpg',
+    "smutek": 'sadness_smutek.jpg',
+    "zdziwienie": 'surprise_zdziwienie.jpg'
+};
+
 exports.photoPrivacy = {
     ALL_USERS: "ALL_USERS",
     FRIENDS: "FRIENDS",

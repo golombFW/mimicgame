@@ -139,21 +139,117 @@ body {
   }
 }
 
+#app-menu {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+
+  [class*='col-'] {
+    .lh-display(flex);
+    justify-content: center;
+    margin: 1.2rem 0 1rem;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .btn-menubutton {
+      width: 100%;
+      margin: 0.3em;
+      font-family: Pacifico, sans-serif;
+      font-size: 1.2em;
+    }
+  }
+
+  .row {
+    width: 100%;
+    height: 100%;
+    .lh-display(flex);
+    flex-wrap: wrap;
+    justify-content: center;
+
+    > div {
+      max-height: 33.33%;
+    }
+  }
+
+  .fixed-height {
+    max-height: none !important;
+  }
+}
+
+#app-menu-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #actual-games-panel {
   .opponent-avatar {
     height: 1.7em;
   }
-  .match-info * {
-    display: inline-block;
+
+  .turn-number {
+    font-size: 0.9em;
   }
 }
 
-#completed-games-panel {
+.match-info {
+  background-color: @topbar-bg-color;
+  margin-bottom: 0.2rem;
+  padding: 0.4rem 1rem;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  color: @topbar-button-color;
+
+  > * {
+    padding-right: 0.3rem;
+    padding-left: 0.3rem;
+  }
+
+  .opponent-info {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .opponent-avatar {
+    margin: 0 0.3em;
+    height: 1.7em;
+  }
+
   .opponent-avatar-container {
     display: inline-block;
   }
-  .opponent-avatar {
+
+  .game-result {
+    background-color: #fff;
+    border: 0.07em #8f8f8f solid;
+    .lh-border-radius(0.45em);
+    text-align: center;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1em;
+  }
+}
+
+.match-info:hover {
+  background-color: @app-menu-panel-bg-color;
+}
+
+#completed-games-panel {
+  .emoticon {
     height: 1.7em;
+    padding: 0;
+  }
+  .end-time {
+    font-size: 0.9em;
   }
 }
 
@@ -200,6 +296,22 @@ body {
   > * {
     margin: 0.4em;
   }
+  text-align: center;
+
+  .row {
+    .lh-display(flex);
+    justify-content: center;
+
+    .options {
+      .lh-display(flex);
+      flex-direction: column;
+
+      .btn-menubutton {
+        margin: 0.2em;
+      }
+    }
+  }
+
 }
 
 #app-game-camera-view {
@@ -336,7 +448,7 @@ body {
     height: 100%;
     width: auto;
   }
-  padding: 0.5em;
+  padding: 0.5rem;
 }
 
 #match-summary {
@@ -648,20 +760,23 @@ Components styles
 }
 
 .menu-panel-container {
-
+  .title {
+    position: absolute;
+    top: -1em;
+    font-family: Pacifico, sans-serif;
+    font-size: 1.15em;
+  }
 }
 
 .menu-panel {
-  background-color: @app-menu-panel-bg-color;
-  color: @app-menu-panel-font-color;
-  height: 100%;
   .lh-border-radius(1.5%);
   padding: 1ex;
+  overflow: scroll;
+  max-height: 100%;
 }
 
 .menu-panel-content {
   overflow: scroll;
-  height: 100%;
 }
 
 .btn-answerbutton {

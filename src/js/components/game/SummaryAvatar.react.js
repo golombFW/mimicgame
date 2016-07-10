@@ -27,7 +27,7 @@ var SummaryAvatar = React.createClass({
             if (0 > score) {
                 sign = "-";
             }
-            scoreElem = sign + score;
+            scoreElem = sign + score + " EQ";
         }
 
         return (

@@ -229,9 +229,6 @@ _summaryData = function (player, match, emotions) {
         return a.get("turnNumber") - b.get("turnNumber");
     });
 
-    var playerKey = _getPlayerString(player, match);
-    var opponentKey = _getOpponentString(player, match);
-
     var player1AnswerKey = "answer_player1";
     var player2AnswerKey = "answer_player2";
     var player1QuestionKey = "question_player1";
@@ -245,7 +242,8 @@ _summaryData = function (player, match, emotions) {
     var resultSummary = _.map(turnList, function (turn) {
         var answer1Obj = turn.get(player1AnswerKey);
         var answer2Obj = turn.get(player2AnswerKey);
-        var answer1, answer2, correctAnswer1, correctAnswer2, question1, question2, questionUrl1, questionUrl2, player1, player2;
+        var answer1, answer2, correctAnswer1, correctAnswer2, question1, question2, questionUrl1, questionUrl2, player1,
+            player2, default1, default2;
         if (answer1Obj) {
             answer1 = emotionsList[answer1Obj.get("answer").id];
             question1 = turn.get(player1QuestionKey);
@@ -253,10 +251,14 @@ _summaryData = function (player, match, emotions) {
             if (question1.get("photo")) {
                 questionUrl1 = question1.get("photo").url();
             }
+            if (question1.get("default")) {
+                default1 = question1.get("default");
+            }
             player1 = {
                 answer: answer1,
                 correctAnswer: correctAnswer1,
-                questionUrl: questionUrl1
+                questionUrl: questionUrl1,
+                defaultPhoto: default1
             }
         }
         if (answer2Obj) {
@@ -266,10 +268,14 @@ _summaryData = function (player, match, emotions) {
             if (question2.get("photo")) {
                 questionUrl2 = question2.get("photo").url();
             }
+            if (question2.get("default")) {
+                default2 = question2.get("default");
+            }
             player2 = {
                 answer: answer2,
                 correctAnswer: correctAnswer2,
-                questionUrl: questionUrl2
+                questionUrl: questionUrl2,
+                defaultPhoto: default2
             }
         }
 

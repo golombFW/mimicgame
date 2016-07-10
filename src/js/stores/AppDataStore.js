@@ -1,5 +1,6 @@
 var Reflux = require('reflux');
 var Parse = require('parse').Parse;
+var _ = require('underscore');
 
 var AppDataActions = require('../actions/AppDataActions.js');
 
@@ -65,7 +66,7 @@ var AppDataStore = Reflux.createStore({
         }
         console.log("actual games: " + actual.length + " finished: " + completed.length);
         this.appData.gamesInfo.actualGames = actual;
-        this.appData.gamesInfo.completedGames = completed;
+        this.appData.gamesInfo.completedGames = _.first(completed,_COMPLETED_GAMES_LIMIT);
 
         this.trigger(this.appData);
     }

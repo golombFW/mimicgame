@@ -27,6 +27,33 @@ Parse.Cloud.define("joinNewAnonymousGame", function (request, response) {
     }
 });
 
+Parse.Cloud.define("cancelAnonymousGame", function (request, response) {
+    console.log("Incoming cancel game request from " + request.user);
+
+    if (request.user) {
+        Parse.Cloud.useMasterKey();
+
+        var player = request.user;
+        var matchId = request.params.matchId;
+
+        if (!matchId) {
+            response.error("No matchId param in function call");
+        }
+
+        GameManager.cancelAnonymousGame(player, matchId, {
+            success: function (match) {
+                response.success(match);
+            },
+            error: function (error) {
+                console.error(error);
+                response.error("An error has occured.");
+            }
+        });
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
 Parse.Cloud.define("joinNewSingleplayerGame", function (request, response) {
     console.log("Incoming start singleplayer game from " + request.user);
     if (request.user) {

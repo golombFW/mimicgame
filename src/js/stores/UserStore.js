@@ -3,13 +3,16 @@ var StateMixin = require('reflux-state-mixin');
 var Parse = require('parse').Parse;
 var ParsePatches = require('../hacks/ParsePatches.js');
 var $ = require('../utils/Utils.js').$;
-
+var moment = require('moment');
 
 var UserActions = require('../actions/UserActions.js');
+
+var _updateMinSeconds = 5;
 
 var UserStore = Reflux.createStore({
     mixins: [StateMixin.store],
     listenables: [UserActions],
+    lastStatsUpdate: null,
 
     getInitialState: function () {
         return {
@@ -56,10 +59,17 @@ var UserStore = Reflux.createStore({
             rankQuery.notEqualTo("player", this.state.user);
             rankQuery.count().then(function (playerRank) {
                 console.log("Player rank: " + (playerRank + 1));
+                this.lastStatsUpdate = moment();
                 this.setPlayerRank(playerRank + 1);
             }.bind(this), function (error) {
                 console.error(error.message);
             });
+        }
+    },
+    updatePlayerStats: function () {
+        if (!this.lastStatsUpdate || moment().subtract(_updateMinSeconds, 'seconds').isAfter(this.lastStatsUpdate)) {
+            this.updatePlayerRank();
+            this.updateUser();
         }
     }
 });

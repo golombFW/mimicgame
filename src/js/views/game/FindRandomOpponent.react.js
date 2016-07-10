@@ -30,9 +30,11 @@ var FindRandomOpponent = React.createClass({
     },
     componentWillUnmount: function () {
         clearInterval(this.matchUpdateHandle);
+        if (!this.state.match || _matchStatusKeyWaiting === this.state.match.get(_matchStatusKey)) {
+            this.cancelMatch();
+        }
     },
     render: function () {
-
         var loadingText = "Wyszukiwanie przeciwnika";
         var match = this.state.match;
         if (match && match.get(_matchStatusKey) === _matchStatusKeyWaiting) {
@@ -99,8 +101,16 @@ var FindRandomOpponent = React.createClass({
         GameManagerActions.startGame(this.state.match);
     },
     backToMenu: function () {
+        this.cancelMatch();
         AppStateActions.changeState(AppState.NEW_GAME_MENU);
-        //todo cancel match
+    },
+    cancelMatch: function () {
+        var match = this.state.match;
+        Parse.Cloud.run('cancelAnonymousGame', {
+            matchId: match.id
+        }).then(null, function (error) {
+            console.error(error.message);
+        });
     }
 });
 

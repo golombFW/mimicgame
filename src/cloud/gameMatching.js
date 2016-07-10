@@ -80,6 +80,35 @@ exports.joinAnonymousGame = function (player, options) {
     });
 };
 
+exports.cancelAnonymousGame = function (player, matchId, options) {
+    _log("Canceling anonymous game", player);
+    var matchQuery = new Parse.Query(Match);
+    matchQuery.equalTo(_matchStatusKey, _matchStatusKeyWaiting);
+    matchQuery.equalTo(_matchPlayer1Key, player);
+
+    matchQuery.find().then(function (matches) {
+        if (1 > matches.length) {
+            return Parse.Promise.error("No waiting matches for player");
+        } else {
+            var match = matches[0];
+            match.increment(_matchLockKey);
+            return match.save();
+        }
+    }).then(function (updatedMatch) {
+        if (updatedMatch.get(_matchLockKey) <= _matchLockKeyMax) {
+            updatedMatch.set(_matchStatusKey, _matchStatusKeyCancelled);
+            return updatedMatch.save();
+        } else {
+            _log("Game lock failed, can't cancel match: " + updatedMatch.id, player);
+            return Parse.Promise.error("Game lock failed, match has started");
+        }
+    }).then(function (canceledMatch) {
+        options.success(canceledMatch);
+    }).then(null, function (error) {
+        options.error(error.message);
+    });
+};
+
 exports.joinSingleplayerGame = function (player, options) {
     _log("Joining singleplayer game", player);
     _log("Create new singleplayer game", player);

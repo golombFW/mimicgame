@@ -12,12 +12,18 @@ var NewGameMenu = React.createClass({
             <DefaultAppViewContainer>
                 <div id="newgame-menu">
                     <h1>Nowa Gra</h1>
-                    <MenuButton icon="fa fa-random" onClick={this.selectView.bind(this, AppState.FIND_RANDOM_OPPONENT)}>Losowy
-                        Przeciwnik</MenuButton>
-                    <MenuButton icon="fa fa-user-secret" disabled></MenuButton><br/>
-                    <MenuButton icon="fa fa-user" onClick={this.selectView.bind(this, AppState.SINGLE_PLAYER_GAME)}>Gra bez przeciwnika</MenuButton><br/>
-                    <MenuButton disabled>Znajdź Przeciwnika</MenuButton><br/>
-                    <MenuButton disabled>Znajomy z Facebooka</MenuButton>
+                    <div className="row">
+                        <div className="options col-md-4 col-sm-6 col-xs-8">
+                            <MenuButton icon="fa fa-random"
+                                        onClick={this.selectView.bind(this, AppState.FIND_RANDOM_OPPONENT)}>Losowy
+                                Przeciwnik</MenuButton>
+                            <MenuButton icon="fa fa-user"
+                                        onClick={this.selectView.bind(this, AppState.SINGLE_PLAYER_GAME)}>Gra
+                                bez przeciwnika</MenuButton>
+                            <MenuButton disabled>Znajdź Przeciwnika</MenuButton>
+                            <MenuButton disabled>Znajomy z Facebooka</MenuButton>
+                        </div>
+                    </div>
                 </div>
             </DefaultAppViewContainer>
         );
