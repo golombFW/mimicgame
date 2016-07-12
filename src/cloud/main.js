@@ -3,6 +3,7 @@ require('cloud/setup.js');
 require('cloud/objects/User.js');
 require('cloud/objects/UserSettings.js');
 require('cloud/objects/Turn.js');
+require('cloud/objects/PhotoQuestion.js');
 var GameManager = require('cloud/gameMatching.js');
 var GamePlayManager = require('cloud/gamePlayManager.js');
 
@@ -158,6 +159,35 @@ Parse.Cloud.define("answerQuestion", function (request, response) {
             }
         });
 
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
+Parse.Cloud.define("reportPhoto", function (request, response) {
+    Parse.Cloud.useMasterKey();
+    if (request.user) {
+        var player = request.user;
+        var photoQuestionId = request.params.photoQuestionId;
+        var reason = request.params.reason;
+
+        if (!photoQuestionId) {
+            response.error("No photoQuestionId param in function call");
+        }
+        if (!reason) {
+            response.error("No reason param in function call");
+        }
+
+        GamePlayManager.reportPhoto(player, photoQuestionId, reason, {
+            success: function (data) {
+                console.log("Sending report success, Sending response data...");
+                response.success(data);
+            },
+            error: function (error) {
+                console.error("reportPhoto cloud func error: " + error);
+                response.error("An error has occured.");
+            }
+        });
     } else {
         response.error("Authentication failed");
     }

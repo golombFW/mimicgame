@@ -122,7 +122,7 @@ var _setAdditionalData = function (user, response) {
 var _validateUser = function (user, response) {
     var settings = user.get("settings");
 
-    //validation
+    //todo validation
 };
 
 //ACLs

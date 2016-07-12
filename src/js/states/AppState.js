@@ -7,6 +7,7 @@ var AppState = {
     GAME: "GAME",
     CAMERA_VIEW: "CAMERA_VIEW",
     RANKING: "RANKING",
+    REPORT_PHOTO: "REPORT_PHOTO",
     TEST: "TEST"
 };
 

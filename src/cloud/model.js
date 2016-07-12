@@ -97,4 +97,28 @@ exports.DefaultRankRules = [
     }
 ];
 
+exports.reportReason = {
+    VIOLATION: "VIOLATION",
+    INVALID: "INVALID",
+    OTHER: "OTHER"
+};
+
+exports.photoQuestionReportStatus = {
+    INITIAL: "INITIAL",
+    EXAMINED: "EXAMINED",
+    ALLOWED: "ALLOWED",
+    BLOCKED: "BLOCKED"
+};
+
+exports.reportStatus = {
+    INITIAL: "INITIAL",
+    VALID: "VALID",
+    NOT_VALID: "NOT_VALID"
+};
+
+exports.reportResponseReason = {
+    DUPLICATE: "DUPLICATE",
+    INSPECTED: "INSPECTED"
+};
+
 exports.TurnType = TurnType;

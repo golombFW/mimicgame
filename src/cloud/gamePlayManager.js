@@ -8,6 +8,7 @@ var _photoQuestionClassName = "PhotoQuestion";
 var _photoQuestionAnswerClassName = "PhotoQuestionAnswer";
 var _emotionClassName = "Emotion";
 var _rankRuleClassName = "RankRule";
+var _reportClassName = "Report";
 var _matchPlayer1Key = "player1";
 var _matchPlayer2Key = "player2";
 var _matchStatusKey = "gameStatus";
@@ -21,6 +22,8 @@ var _matchClass = Parse.Object.extend(_matchClassName);
 var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
 var _photoQuestionAnswerClass = Parse.Object.extend(_photoQuestionAnswerClassName);
 var _emotionClass = Parse.Object.extend(_emotionClassName);
+var _reportClass = Parse.Object.extend(_reportClassName);
+
 
 exports.getGameplayData = function (player, matchId, options) {
     var matchQuery = new Parse.Query(_matchClass);
@@ -130,6 +133,17 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
         return _computeAnswerResult(player, savedTurn, playerStr, match);
     }).then(function (answerResult) {
         options.success(answerResult);
+    }).then(null, function (error) {
+        options.error(error);
+    });
+};
+
+exports.reportPhoto = function (player, photoQuestionId, reason, options) {
+    var photoQuestionQuery = new Parse.Query(_photoQuestionClass);
+    photoQuestionQuery.get(photoQuestionId).then(function (photoQuestion) {
+        return _handlePhotoReport(player, photoQuestion, reason);
+    }).then(function (reportResponse) {
+        options.success(reportResponse);
     }).then(null, function (error) {
         options.error(error);
     });
@@ -689,6 +703,66 @@ _computeWinLostEvent = function (match, playerStr, opponentStr, rankRulesMap) {
     };
 };
 
+_handlePhotoReport = function (player, photoQuestion, reason) {
+    var promise = new Parse.Promise();
+
+    var reportResponse = {
+        isAccepted: null,
+        reason: null
+    };
+
+    var photoQuestionReportStatus = photoQuestion.get("reportStatus");
+    if (model.photoQuestionReportStatus.ALLOWED === photoQuestionReportStatus || model.photoQuestionReportStatus.BLOCKED === photoQuestionReportStatus) {
+        reportResponse.isAccepted = false;
+        reportResponse.reason = model.reportResponseReason.INSPECTED;
+
+        promise.resolve(reportResponse);
+    } else {
+        var reportQuery = new Parse.Query(_reportClassName);
+        reportQuery.equalTo("photoQuestion", photoQuestion);
+        reportQuery.equalTo("player", player);
+        reportQuery.count().then(function (reportsNumber) {
+            if (0 < reportsNumber) {
+                reportResponse.isAccepted = false;
+                reportResponse.reason = model.reportResponseReason.DUPLICATE;
+
+                promise.resolve(reportResponse);
+            } else {
+                var playerReport = new _reportClass();
+                playerReport.set("player", player);
+                playerReport.set("photoQuestion", photoQuestion);
+                playerReport.set("status", model.reportStatus.INITIAL);
+                playerReport.set("reason", reason);
+                _setReportACL(playerReport);
+
+                var playerReportPromise = playerReport.save();
+                var photoQuestionPromise;
+                if (photoQuestionReportStatus !== model.photoQuestionReportStatus.EXAMINED) {
+                    photoQuestion.set("reportStatus", model.photoQuestionReportStatus.EXAMINED);
+                    photoQuestionPromise = photoQuestion.save();
+                } else {
+                    photoQuestionPromise = Parse.Promise.as();
+                }
+
+                Parse.Promise.when(playerReportPromise, photoQuestionPromise).then(function (savedReport, savedPhotoQuestion) {
+                    _log("Photo question: " + photoQuestion.id + " reported", player);
+                    reportResponse.isAccepted = true;
+
+                    promise.resolve(reportResponse);
+                }, function (error) {
+                    console.error("Problem with saving report");
+
+                    promise.reject(error.message);
+                })
+            }
+        }).then(null, function (error) {
+            promise.reject(error.message);
+        })
+    }
+
+    return promise;
+};
+
 //Miscellaneous
 _getPlayerString = function (player, match) {
     var p1 = match.get(_matchPlayer1Key);
@@ -723,6 +797,15 @@ _setPhotoQuestionAnswerACL = function (photoQuestionAnswer, user) {
     newACL.setReadAccess(user.id, true);
 
     photoQuestionAnswer.setACL(newACL);
+};
+
+_setReportACL = function (playerReport) {
+    var newACL = new Parse.ACL();
+
+    newACL.setPublicReadAccess(false);
+    newACL.setPublicWriteAccess(false);
+
+    playerReport.setACL(newACL);
 };
 
 _updatePhotoTurnAdditionalData = function (turn, playerKey, correctAnswerFlat) {

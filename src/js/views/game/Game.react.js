@@ -18,6 +18,7 @@ var ChoosePhotoTopic = require('../../views/game/ChoosePhotoTopic.react.js');
 var AnswerQuestion = require('../../views/game/AnswerQuestion.react.js');
 var TurnSummary = require('../../views/game/TurnSummary.react.js');
 var Summary = require('../../views/game/Summary.react.js');
+var ReportPhoto = require('../../views/game/ReportPhoto.react.js');
 
 var Game = React.createClass({
     mixins: [StateMixin.connect(UserStore), StateMixin.connect(GameManagerStore)],
@@ -63,6 +64,8 @@ var Game = React.createClass({
                 return <TurnSummary gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
             case GameState.SUMMARY:
                 return <Summary gameInfo={this.gameInfo()} key={key} data={this.gameplayData()}/>;
+            case GameState.REPORT_PHOTO:
+                return <ReportPhoto data={this.gameplayData()} key={key}/>;
         }
     },
     gameInfo: function () {
@@ -113,6 +116,12 @@ var Game = React.createClass({
             return data;
         } else if (currentView === GameState.SUMMARY) {
             data = Utils.$.clone(this.state.data);
+
+            return data;
+        } else if (currentView == GameState.REPORT_PHOTO) {
+            data = Utils.$.clone(this.state.data);
+            data.reportedPhotoQuestion = this.state.reportedQuestion;
+
             return data;
         }
         return null;

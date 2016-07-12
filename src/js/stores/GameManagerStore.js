@@ -19,7 +19,8 @@ var GameManagerStore = Reflux.createStore({
             match: {},
             data: {},
             selectedTopic: null,
-            turnSummary: {}
+            turnSummary: {},
+            reportedQuestion: null
         }
     },
     //actions
@@ -45,9 +46,7 @@ var GameManagerStore = Reflux.createStore({
     },
     chooseAnswer: function (answer) {
         console.log("Sending answer to question: " + answer.value);
-        this.setState({
-            currentView: GameState.DATA_SEND
-        });
+        this.switchToDataSendView();
         var self = this;
         Parse.Cloud.run('answerQuestion', {
             matchId: self.state.match.id,
@@ -66,9 +65,7 @@ var GameManagerStore = Reflux.createStore({
     uploadPhoto: function (photoBlob, topic) {
         console.log("Sending photo with topic: " + topic.value);
         var self = this;
-        this.setState({
-            currentView: GameState.DATA_SEND
-        });
+        this.switchToDataSendView();
 
         //converting photo to parse file format
         blobUtil.blobToBase64String(photoBlob).then(function (base64String) {
@@ -89,6 +86,19 @@ var GameManagerStore = Reflux.createStore({
         }).catch(function (err) {
             // error
             console.error(err.message);
+        });
+    },
+    reportPhoto: function (photoQuestion) {
+        console.log("Reporting question: " + JSON.stringify(photoQuestion));
+        this.setState({
+            currentView: GameState.REPORT_PHOTO,
+            reportedQuestion: photoQuestion
+        });
+    },
+
+    switchToDataSendView: function () {
+        this.setState({
+            currentView: GameState.DATA_SEND
         });
     },
 

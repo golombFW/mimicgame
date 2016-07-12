@@ -5,7 +5,9 @@ var GameManagerActions = Reflux.createActions([
     'nextTurn',
     'choosePhotoTopic',
     'chooseAnswer',
-    'uploadPhoto'
+    'uploadPhoto',
+    'reportPhoto',
+    'switchToDataSendView'
 ]);
 
 module.exports = GameManagerActions;

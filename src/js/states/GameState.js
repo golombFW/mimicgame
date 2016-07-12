@@ -6,7 +6,8 @@ var GameState = {
     SUMMARY: "SUMMARY",
     WAITING: "WAITING",
     LOADING: "LOADING",
-    DATA_SEND: "DATA_SEND"
+    DATA_SEND: "DATA_SEND",
+    REPORT_PHOTO: "REPORT_PHOTO"
 };
 
 module.exports = GameState;

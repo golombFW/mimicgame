@@ -51,7 +51,7 @@ var PrivacySettings = React.createClass({
             return <LoadingBar color="dark"/>
         }
         return (
-            <div className="panel panel-default">
+            <div id="privacy-settings" className="panel panel-default">
                 <div className="panel-heading">
                     <h3 className="panel-title">Prywatność</h3>
                 </div>
