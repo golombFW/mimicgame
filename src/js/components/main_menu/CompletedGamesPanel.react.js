@@ -9,24 +9,6 @@ var Emoticon = require('../../components/Emoticon.react.js');
 
 var GameManagerActions = require('../../actions/GameManagerActions.js');
 
-moment.updateLocale('en', {
-    relativeTime: {
-        future: "in %s",
-        past: "%s temu",
-        s: "sekund",
-        m: "minutę",
-        mm: "%d minut",
-        h: "godzinę",
-        hh: "%d godzin",
-        d: "dzień",
-        dd: "%d dni",
-        M: "miesiąc",
-        MM: "%d miesięcy",
-        y: "rok",
-        yy: "%d lat"
-    }
-});
-
 var CompletedGamesPanel = React.createClass({
     propTypes: {
         games: React.PropTypes.array
@@ -46,7 +28,7 @@ var CompletedGamesPanel = React.createClass({
             </span>
         );
 
-        if (games && 0 !== games.length) {
+        if (games && 0 < games.length) {
             games.sort(GameUtils.compareByModifiedDate);
             content = games.map(function (match) {
                 var matchInfo, endTime, resultElem, winnerIcon;

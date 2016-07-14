@@ -29,7 +29,7 @@ var UserPanel = React.createClass({
                         <div id="user-panel-avatar"><img src={this.avatarUrl}/></div>
                     </div>
                     <div className="col settings-col button">
-                        <a onClick={this.openSettings}><i className="fa fa-bars"></i></a>
+                        <a onClick={this.openSettings}><i className="fa fa-wrench"></i></a>
                     </div>
                 </div>
             );

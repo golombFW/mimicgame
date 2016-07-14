@@ -870,7 +870,7 @@ _addMatchRandomBonus = function (match, matchRandomBonus, playerEventsKey) {
             name: "matchRandomBonus",
             value: award
         });
-        return award;
+        return (+award);
     }
     return 0;
 };

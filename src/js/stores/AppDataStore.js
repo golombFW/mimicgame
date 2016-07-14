@@ -1,22 +1,36 @@
 var Reflux = require('reflux');
 var Parse = require('parse').Parse;
+var StateMixin = require('reflux-state-mixin');
 var _ = require('underscore');
+var $ = require('../utils/Utils.js').$;
 
+var cloudModel = require('../../cloud/model.js');
 var AppDataActions = require('../actions/AppDataActions.js');
 
 var _COMPLETED_GAMES_LIMIT = 3;
 
-var AppDataStore = Reflux.createStore({
-    listenables: [AppDataActions],
-    appData: {
-        gamesInfo: {
-            actualGames: null,
-            completedGames: null
-        }
+var appData = {
+    gamesInfo: {
+        actualGames: null,
+        completedGames: null
     },
+    challengeRequestsInfo: null,
+    friendsGameList: []
+};
+
+var AppDataStore = Reflux.createStore({
+    mixins: [StateMixin.store],
+    listenables: [AppDataActions],
 
     getInitialState: function () {
-        return this.appData;
+        return {
+            gamesInfo: {
+                actualGames: null,
+                completedGames: null
+            },
+            challengeRequests: null,
+            friendsGameList: []
+        };
     },
     fetchGamesInfo: function () {
         console.log("Fetching info about finished and in-progress games");
@@ -54,6 +68,46 @@ var AppDataStore = Reflux.createStore({
             }
         });
     },
+    fetchChallengeRequests: function () {
+        var user = Parse.User.current();
+
+        var playerRequestsQuery = new Parse.Query("ChallengeRequest");
+        playerRequestsQuery.equalTo("player", user);
+
+        var opponentRequestsQuery = new Parse.Query("ChallengeRequest");
+        opponentRequestsQuery.equalTo("opponent", user);
+
+        var challengeRequestsQuery = Parse.Query.or(playerRequestsQuery, opponentRequestsQuery);
+        challengeRequestsQuery.equalTo("status", cloudModel.challengeStatus.INITIAL);
+        challengeRequestsQuery.descending("updatedAt");
+
+        challengeRequestsQuery.find().then(function (challengeRequests) {
+            console.log("Found " + challengeRequests.length + " challenge requests");
+            this.setState({
+                challengeRequests: challengeRequests
+            })
+        }.bind(this), function (error) {
+            console.error("Can't fetch challenge requests\n" + error.message);
+        })
+    },
+    fetchFriendsGameList: function () {
+        Parse.User.current().fetch().then(function (fetchedUser) {
+            var friendsList = fetchedUser.get("FacebookUser").get("friendsList");
+            var friendsQuery = new Parse.Query(Parse.User);
+            friendsQuery.include("FacebookUser");
+            friendsQuery.include("score");
+            friendsQuery.containedIn("objectId", friendsList);
+
+            return friendsQuery.find();
+        }).then(function (friends) {
+            console.log("Found " + friends.length + " friend players");
+            this.setState({friendsGameList: friends});
+        }.bind(this), function (error) {
+            console.error("Something wrong: " + error.message);
+        });
+    },
+
+    //Helpers
     updateGamesInfo: function (newGamesInfo) {
         var actual = [];
         var completed = [];
@@ -65,10 +119,11 @@ var AppDataStore = Reflux.createStore({
             }
         }
         console.log("actual games: " + actual.length + " finished: " + completed.length);
-        this.appData.gamesInfo.actualGames = actual;
-        this.appData.gamesInfo.completedGames = _.first(completed,_COMPLETED_GAMES_LIMIT);
+        var newGamesInfo = $.clone(appData.gamesInfo);
+        newGamesInfo.actualGames = actual;
+        newGamesInfo.completedGames = _.first(completed, _COMPLETED_GAMES_LIMIT);
 
-        this.trigger(this.appData);
+        this.setState({gamesInfo: newGamesInfo});
     }
 });
 

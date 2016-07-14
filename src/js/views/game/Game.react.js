@@ -80,6 +80,7 @@ var Game = React.createClass({
         var resultOpponent = null;
         if (opponent) {
             resultOpponent = {
+                id: opponent.id,
                 nick: opponent.get("nick"),
                 avatar: opponentAvatar
             };

@@ -121,4 +121,10 @@ exports.reportResponseReason = {
     INSPECTED: "INSPECTED"
 };
 
+exports.challengeStatus = {
+    INITIAL: "INITIAL",
+    ACCEPTED: "ACCEPTED",
+    REJECTED: "REJECTED"
+};
+
 exports.TurnType = TurnType;

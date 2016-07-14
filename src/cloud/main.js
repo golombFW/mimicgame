@@ -4,6 +4,7 @@ require('cloud/objects/User.js');
 require('cloud/objects/UserSettings.js');
 require('cloud/objects/Turn.js');
 require('cloud/objects/PhotoQuestion.js');
+require('cloud/objects/ChallengeRequest.js');
 var GameManager = require('cloud/gameMatching.js');
 var GamePlayManager = require('cloud/gamePlayManager.js');
 
@@ -63,6 +64,32 @@ Parse.Cloud.define("joinNewSingleplayerGame", function (request, response) {
         GameManager.joinSingleplayerGame(request.user, {
             success: function (match) {
                 response.success(match);
+            },
+            error: function (error) {
+                console.error(error);
+                response.error("An error has occured.");
+            }
+        })
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
+Parse.Cloud.define("challengePlayer", function (request, response) {
+    console.log("Incoming challenge player from " + request.user);
+    if (request.user) {
+        Parse.Cloud.useMasterKey();
+
+        var player = request.user;
+        var userId = request.params.userId;
+
+        if (!userId) {
+            response.error("No userId param in function call");
+        }
+
+        GameManager.challengePlayer(player, userId, {
+            success: function (challengeRequest) {
+                response.success(challengeRequest);
             },
             error: function (error) {
                 console.error(error);

@@ -1,6 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Parse = require('parse').Parse;
+var moment = require('moment');
 var Keys = require('./KeyConfig.js');
 
 require('velocity-animate');
@@ -11,6 +12,24 @@ require('react-safe-render')(React, {
         console.error("\"" + errReport.displayName + "\" component failed in \"" + errReport.method +
             "\" method.\nError:\n" + errReport.error.message + "\n\nStack:\n" + errReport.error.stack);
         //todo send to parse log
+    }
+});
+
+moment.updateLocale('en', {
+    relativeTime: {
+        future: "in %s",
+        past: "%s temu",
+        s: "sekund",
+        m: "minutę",
+        mm: "%d minut",
+        h: "godzinę",
+        hh: "%d godzin",
+        d: "dzień",
+        dd: "%d dni",
+        M: "miesiąc",
+        MM: "%d miesięcy",
+        y: "rok",
+        yy: "%d lat"
     }
 });
 

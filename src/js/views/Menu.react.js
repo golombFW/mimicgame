@@ -1,6 +1,7 @@
 var React = require('react');
 var Parse = require('parse').Parse;
 var Reflux = require('reflux');
+var StateMixin = require('reflux-state-mixin');
 var Utils = require('../utils/Utils.js');
 
 var AppStateActions = require('../actions/AppStateActions.js');
@@ -20,39 +21,50 @@ var CompletedGamesPanel = require('../components/main_menu/CompletedGamesPanel.r
 var BasicMenuPanel = require('../components/main_menu/BasicMenuPanel.react.js');
 
 var Menu = React.createClass({
-    mixins: [Reflux.connect(AppDataStore, 'appData')],
-    componentDidMount: function () {
+    mixins: [StateMixin.connect(AppDataStore, 'gamesInfo'), StateMixin.connect(AppDataStore, 'challengeRequests')],
+
+    componentWillMount: function () {
         AppDataActions.fetchGamesInfo();
+        AppDataActions.fetchChallengeRequests();
         UserActions.updatePlayerStats();
     },
     render: function () {
-        var actualGames = this.state.appData.gamesInfo.actualGames;
-        var completedGames = this.state.appData.gamesInfo.completedGames;
+        var actualGames = this.state.gamesInfo.actualGames;
+        var completedGames = this.state.gamesInfo.completedGames;
+        var challengeRequests = this.state.challengeRequests;
+
         return (
             <DefaultAppViewContainer>
                 <div id="app-menu">
                     <div className="row">
-                        <GameRequestsPanel/>
+                        <GameRequestsPanel requests={challengeRequests}/>
                         <ActualGamesPanel games={actualGames}/>
-
                         <div id="app-menu-options" className="col-sm-12 col-xs-12 fixed-height">
+                            <div className="main-menu-header">
+                                <div className="app-logo">
+                                    Mimic Game
+                                </div>
+                                <div className="title">
+                                    Menu
+                                </div>
+                            </div>
                             <div className="options">
                                 <MenuButton
                                     onClick={this.selectView.bind(this, AppState.NEW_GAME_MENU)} icon="fa fa-gamepad"
-                                    classes="">Nowa Gra</MenuButton>
+                                    classes="btn-success">Nowa Gra</MenuButton>
                                 <MenuButton onClick={this.selectView.bind(this, AppState.RANKING)}
                                             icon="fa fa-trophy" classes="">Ranking</MenuButton>
-                                <MenuButton onClick={this.logout}>wyloguj</MenuButton>
+                                <MenuButton onClick={this.selectView.bind(this, AppState.USER_SETTINGS)}
+                                            icon="fa fa-wrench" classes="">Ustawienia</MenuButton>
+                                <MenuButton onClick={this.selectView.bind(this, AppState.HOW_TO_PLAY)}
+                                            icon="fa fa-info" classes="">Jak grac?</MenuButton>
+                                {/*<MenuButton onClick={this.logout}>wyloguj</MenuButton>*/}
                             </div>
                         </div>
-
                         <CompletedGamesPanel games={completedGames}/>
                     </div>
-
-
                 </div>
             </DefaultAppViewContainer >
-
         );
     },
     selectView: function (tab) {

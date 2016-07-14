@@ -18,6 +18,21 @@ var SummaryTurns = React.createClass({
             turnsSummary: null
         }
     },
+    componentDidMount: function () {
+        setTimeout(function () {
+            var images = document.querySelectorAll(".summary-turn-plank .photo img");
+            var imagesLength = images.length ? images.length : 0;
+            for (var i = 0; i < imagesLength; i += 1) {
+                debugger;
+                var image = images[i];
+                var parent = image.parentElement;
+                var parentHeight = parent ? parent.offsetHeight : "auto";
+                if (image.offsetHeight > parentHeight) {
+                    image.style.height = 'calc(' + parentHeight + 'px - 0.4em)';
+                }
+            }
+        }, 1500);
+    },
     render: function () {
         var match = this.props.match;
         var player = this.props.player;

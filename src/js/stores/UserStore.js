@@ -7,7 +7,7 @@ var moment = require('moment');
 
 var UserActions = require('../actions/UserActions.js');
 
-var _updateMinSeconds = 5;
+var _updateMinSeconds = 15;
 
 var UserStore = Reflux.createStore({
     mixins: [StateMixin.store],
@@ -42,7 +42,6 @@ var UserStore = Reflux.createStore({
             }.bind(this), function (error) {
                 console.error("Cannot update user: " + error.message);
             });
-            this.updatePlayerRank();
         } else {
             this.setUser(parseUser);
         }
@@ -53,12 +52,12 @@ var UserStore = Reflux.createStore({
         });
     },
     updatePlayerRank: function () {
-        if (this.state.user && this.state.user.get("score") && this.state.user.get("score").get("score")) {
+        if (this.state.user && this.state.user.get("score") && $.isNullOrEmpty(this.state.user.get("score").get("score"))) {
             var rankQuery = new Parse.Query("GameScore");
             rankQuery.greaterThan("score", this.state.user.get("score").get("score"));
             rankQuery.notEqualTo("player", this.state.user);
             rankQuery.count().then(function (playerRank) {
-                console.log("Player rank: " + (playerRank + 1));
+                console.log("Player score: " + this.state.user.get("score").get("score") + " Player rank: " + (playerRank + 1));
                 this.lastStatsUpdate = moment();
                 this.setPlayerRank(playerRank + 1);
             }.bind(this), function (error) {
@@ -67,7 +66,8 @@ var UserStore = Reflux.createStore({
         }
     },
     updatePlayerStats: function () {
-        if (!this.lastStatsUpdate || moment().subtract(_updateMinSeconds, 'seconds').isAfter(this.lastStatsUpdate)) {
+        var isUpdateTimeLimitNotReached = (!this.lastStatsUpdate || moment().subtract(_updateMinSeconds, 'seconds').isAfter(this.lastStatsUpdate));
+        if (isUpdateTimeLimitNotReached) {
             this.updatePlayerRank();
             this.updateUser();
         }

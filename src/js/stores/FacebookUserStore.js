@@ -23,6 +23,18 @@ var FacebookUserStore = Reflux.createStore({
             facebookUser: {}
         }
     },
+    fetchUser: function (isUpdateNeeded) {
+        FB.api(
+            '/me',
+            {fields: 'name, first_name, last_name, email, gender, link, locale, location, age_range, test_group'},
+            function (response) {
+                if (response && !response.error) {
+                    console.log('Successful login for: ' + response.name);
+                    this.setUser(response, isUpdateNeeded);
+                }
+            }.bind(this)
+        );
+    },
     setUser: function (user, isUpdateNeeded) {
         console.log("user set to: " + user.name);
 
@@ -31,34 +43,6 @@ var FacebookUserStore = Reflux.createStore({
             this.updateParseUser(user);
         }
         this.setState({facebookUser: facebookUser});
-    },
-    setFriendsList: function (friends) {
-        this.facebookUserFriends = friends;
-        var user = $.clone(this.state.facebookUser);
-        user.friends = this.facebookUserFriends;
-        this.updateFriendsList(friends);
-        this.setState({facebookUser: user});
-    },
-    setPicture: function (picture, isUpdateNeeded) {
-        this.facebookAvatar = picture;
-        var user = $.clone(this.state.facebookUser);
-        user.avatar = this.facebookAvatar;
-        if (isUpdateNeeded) {
-            this.updateParseUserAvatar(picture);
-        }
-        this.setState({facebookUser: user});
-    },
-    fetchUser: function (isUpdateNeeded) {
-        FB.api(
-            '/me',
-            {fields: 'name, first_name, last_name, email, gender, link, locale, test_group'},
-            function (response) {
-                if (response && !response.error) {
-                    console.log('Successful login for: ' + response.name);
-                    this.setUser(response, isUpdateNeeded);
-                }
-            }.bind(this)
-        );
     },
     fetchFriendsList: function () {
         FB.api(
@@ -81,6 +65,24 @@ var FacebookUserStore = Reflux.createStore({
                 }
             }.bind(this)
         );
+    },
+
+    //Helpers
+    setFriendsList: function (friends) {
+        this.facebookUserFriends = friends;
+        var user = $.clone(this.state.facebookUser);
+        user.friends = this.facebookUserFriends;
+        this.updateFriendsList(friends);
+        this.setState({facebookUser: user});
+    },
+    setPicture: function (picture, isUpdateNeeded) {
+        this.facebookAvatar = picture;
+        var user = $.clone(this.state.facebookUser);
+        user.avatar = this.facebookAvatar;
+        if (isUpdateNeeded) {
+            this.updateParseUserAvatar(picture);
+        }
+        this.setState({facebookUser: user});
     },
     updateParseUser: function (user) {
         //set facebook user first name as user nick

@@ -12,7 +12,7 @@ var UserTopBar = React.createClass({
     render: function () {
         return (
             <div id="user-topbar">
-                <Logo size="normal" href={AppStateActions.goToMenu}/>
+                <Logo size="normal" href={AppStateActions.goToMenu} showHome={true}/>
                 <Separator />
                 <AchievementsPanel />
                 <UserPanel />

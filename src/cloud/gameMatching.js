@@ -13,6 +13,7 @@ var _matchClassName = "Match";
 var _emotionClassName = "Emotion";
 var _gameTypeClassName = "GameType";
 var _photoQuestionClassName = "PhotoQuestion";
+var _challengeRequestClassName = "ChallengeRequest";
 
 var _facebookUserAttrName = "FacebookUser";
 var _matchLockKey = "gameLock";
@@ -29,7 +30,7 @@ var _matchTurnKey = "turn";
 var _matchTurnKeyPlayer1 = "player_1";
 var _matchTurnKeyPlayer2 = "player_2";
 var _matchTypeKey = "type";
-var _matchType = {SINGLE: "SINGLE", RANDOM: "RANDOM"};
+var _matchType = {SINGLE: "SINGLE", RANDOM: "RANDOM", DETERMINED: "DETERMINED"};
 
 var Match = Parse.Object.extend(_matchClassName);
 
@@ -137,6 +138,80 @@ exports.joinSingleplayerGame = function (player, options) {
     });
 };
 
+exports.challengePlayer = function (player, userId, options) {
+    if (player.id === userId) {
+        options.error("You can't challenge yourself!");
+    } else {
+        var playerQuery = new Parse.Query(Parse.User);
+        var opponent;
+        playerQuery.get(userId).then(function (fetchedOpponent) {
+            opponent = fetchedOpponent;
+            var challengeRequestQuery = new Parse.Query(_challengeRequestClassName);
+            challengeRequestQuery.equalTo("player", player);
+            challengeRequestQuery.equalTo("opponent", opponent);
+            challengeRequestQuery.equalTo('status', model.challengeStatus.INITIAL);
+
+            return challengeRequestQuery.find();
+        }, function (error) {
+            options.error("Something goes wrong while getting user to challenge " + error.message);
+        }).then(function (challengeRequests) {
+            if (challengeRequests && 0 < challengeRequests.length) {
+                console.log("New challenge request not created, returning previous challenge request");
+                options.success(challengeRequests[0]);
+            } else {
+                var challengeRequest = new (Parse.Object.extend(_challengeRequestClassName))();
+                challengeRequest.set("player", player);
+                challengeRequest.set("opponent", opponent);
+                challengeRequest.set("status", model.challengeStatus.INITIAL);
+                _setChallengeRequestACL(challengeRequest, userId);
+
+                return challengeRequest.save();
+            }
+        }, function (error) {
+            options.error("Something wrong while searching challenge requests " + error.message);
+        }).then(function (savedChallenge) {
+            console.log("Challenge request " + player.id + " vs " + userId + " created");
+            options.success(savedChallenge);
+        }, function (error) {
+            options.error("Can't save challenge request " + error.message);
+        });
+    }
+};
+
+exports.joinDeterminedGame = function (player1, player2, options) {
+    _log("Joining determined game", player1);
+    _log("Create new determined game", player1);
+    _createNewMatch(player1, _matchType.DETERMINED, player2).then(function (createdMatch) {
+        _log("Determined game created successfully", player1);
+        var match;
+        var matchQuery = new Parse.Query(_matchClassName);
+        matchQuery.include(_matchPlayer1Key);
+        matchQuery.include(_matchPlayer1Key + "." + _facebookUserAttrName);
+        matchQuery.include(_matchPlayer2Key);
+        matchQuery.include(_matchPlayer2Key + "." + _facebookUserAttrName);
+        matchQuery.get(createdMatch.id).then(function (fetchedMatch) {
+            match = fetchedMatch;
+            return _createTurns(player1, match, model.GameType.DEFAULT);
+        }).then(function (turns) {
+            _log("Setting turns to match: " + JSON.stringify(turns), player1);
+            match.set("turnList", turns);
+            match.save(null, {
+                success: function (newMatch) {
+                    _log(JSON.stringify(newMatch), player1);
+                    options.success(newMatch);
+                },
+                error: function (error) {
+                    options.error(error.message);
+                }
+            });
+        }, function (error) {
+            _log("Create turns failed " + error.message, player1);
+        });
+    }, function (error) {
+        options.error(error.message);
+    });
+};
+
 // === Core methods ===
 
 _joinMatchAttempt = function (match, player, options) {
@@ -220,7 +295,7 @@ _getOrCreateMatch = function (player, options) {
     });
 };
 
-_createNewMatch = function (player, matchType) {
+_createNewMatch = function (player, matchType, player2) {
     // Set new match attributes
     var match = new (Parse.Object.extend(_matchClassName))();
     match.set(_matchLockKey, _matchLockKeyInitial);
@@ -231,6 +306,10 @@ _createNewMatch = function (player, matchType) {
     } else if (matchType === _matchType.SINGLE) {
         match.set(_matchStatusKey, _matchStatusKeyInProgress);
         match.set(_matchTypeKey, _matchType.SINGLE);
+    } else if (matchType === _matchType.DETERMINED) {
+        match.set(_matchStatusKey, _matchStatusKeyInProgress);
+        match.set(_matchPlayer2Key, player2);
+        match.set(_matchTypeKey, _matchType.RANDOM);
     }
 
     match.set(_matchTurnKey, _matchTurnKeyPlayer1); // default challenger starts
@@ -464,4 +543,14 @@ var _setMatchACL = function (match) {
     newACL.setPublicWriteAccess(false);
 
     match.setACL(newACL);
+};
+
+_setChallengeRequestACL = function (challengeRequest, opponentId) {
+    var newACL = new Parse.ACL();
+
+    newACL.setPublicReadAccess(true);
+    newACL.setPublicWriteAccess(false);
+    newACL.setWriteAccess(opponentId, true);
+
+    challengeRequest.setACL(newACL);
 };

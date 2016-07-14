@@ -94,6 +94,20 @@ body {
     .translate(0, -50%);
   }
 
+  .home-icon {
+    margin-left: 0.5em;
+    display: inline-block;
+    color: @topbar-button-color;
+    text-shadow: none;
+  }
+
+  .app-logo:hover {
+    .home-icon {
+      color: @topbar-button-color-hover;
+    }
+
+  }
+
   .or-spacer-vertical {
     float: left;
   }
@@ -152,7 +166,7 @@ body {
 #app-menu {
   width: 100%;
   height: 100%;
-  overflow: scroll;
+  overflow-y: auto;
 
   [class*='col-'] {
     .lh-display(flex);
@@ -162,15 +176,15 @@ body {
 
   .options {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
 
     .btn-menubutton {
-      width: 100%;
       margin: 0.3em;
       font-family: Pacifico, sans-serif;
       font-size: 1.2em;
+      flex: 1;
     }
   }
 
@@ -195,6 +209,18 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  flex-direction: column;
+  .main-menu-header {
+    .app-logo {
+      font-size: 2em;
+    }
+    .title {
+      font-family: Pacifico, sans-serif;
+      font-size: 1.15em;
+      text-align: center;
+    }
+  }
 }
 
 #actual-games-panel {
@@ -253,6 +279,33 @@ body {
   background-color: @app-menu-panel-bg-color;
 }
 
+.request-info {
+  background-color: @topbar-bg-color;
+  margin-bottom: 0.2rem;
+  padding: 0.4rem 1rem;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  color: @topbar-button-color;
+
+  > * {
+    margin-right: 0.3rem;
+    margin-left: 0.3rem;
+  }
+
+  .opponent-info {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.request-info:hover {
+  background-color: @app-menu-panel-bg-color;
+}
+
 #completed-games-panel {
   .emoticon {
     height: 1.7em;
@@ -261,6 +314,10 @@ body {
   .end-time {
     font-size: 0.9em;
   }
+}
+
+#game-requests-panel {
+
 }
 
 #app-game {
@@ -278,7 +335,7 @@ body {
   .game-content {
     .app-wrapper-default();
     .lh-calc(height, ~"100% - " @gameinfo-height);
-    overflow: scroll;
+    overflow: auto;
   }
 }
 
@@ -293,6 +350,10 @@ body {
 
 #app-game-waiting-to-send-data {
   width: 100%;
+  height: 100%;
+}
+
+#loading-view {
   height: 100%;
 }
 
@@ -319,6 +380,10 @@ body {
       .btn-menubutton {
         margin: 0.2em;
       }
+
+      .btn-home {
+        margin-top: 1em;
+      }
     }
   }
 
@@ -342,7 +407,7 @@ body {
   .lh-flex(initial);
   min-height: 2.5em;
   max-height: 30%;
-  overflow: scroll;
+  overflow-y: auto;
 
   .task-description {
     //position: relative;
@@ -477,7 +542,7 @@ body {
   }
   .turns {
     flex: 5;
-    overflow: scroll;
+    overflow-y: auto;
     .lh-display(flex);
     flex-direction: column;
     padding-top: 0.3em;
@@ -493,6 +558,7 @@ body {
       [class*='col-'] {
         .lh-display(flex);
         flex-direction: column;
+        height: 100%;
       }
     }
     .turn-result:nth-child(odd) {
@@ -510,7 +576,7 @@ body {
   }
   #bonus-events-panel {
     flex: 1;
-    overflow: scroll;
+    overflow-y: auto;
     background-color: @summary-turn-plank-bg-color;
     .lh-display(flex);
     flex-direction: column;
@@ -523,6 +589,11 @@ body {
     .bonus-event-value {
       font-weight: 900;
     }
+  }
+
+  .challenge-send {
+    text-align: center;
+    font-size: 1.5em;
   }
 }
 
@@ -553,7 +624,6 @@ body {
 }
 
 .summary-turn-plank-container {
-  flex-direction: row !important;
   justify-content: center;
 }
 
@@ -578,8 +648,10 @@ body {
     padding: 0.2em;
 
     img {
-      max-height: 100%;
+      height: auto;
       max-width: 100%;
+      max-height: 100%;
+      display: block;
 
       position: relative;
       .translate(0, -50%);
@@ -620,6 +692,10 @@ body {
     div {
       padding-left: 0.1em;
       padding-right: 0.1em;
+    }
+
+    .emoticon {
+      height: 4rem;
     }
   }
 }
@@ -781,12 +857,11 @@ Components styles
 .menu-panel {
   .lh-border-radius(1.5%);
   padding: 1ex;
-  overflow: scroll;
+  overflow-y: auto;
   max-height: 100%;
 }
 
 .menu-panel-content {
-  overflow: scroll;
 }
 
 .btn-answerbutton {
@@ -981,6 +1056,61 @@ Components styles
   [class*='col-'] {
     .lh-display(flex);
     flex-direction: column;
+  }
+}
+
+#app-facebook-friend-challenge {
+  height: 100%;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+
+  .header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.5em;
+    font-weight: bold;
+
+    > * {
+      display: inline;
+      text-align: center;
+    }
+  }
+
+  .friends-list {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+    flex-direction: column;
+
+    .friend-row {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      max-height: 80px;
+    }
+
+    .friend-row-header {
+      flex: 0.5;
+      .lh-display(flex);
+      align-items: center;
+      background-color: @ranking-top-header-color;
+      color: #fff;
+      max-height: 80px;
+    }
+
+    .friend-row:nth-child(odd) {
+      background-color: @summary-turn-result-odd-color;
+    }
+  }
+
+  .options {
+    margin-top: 0.5em;
+    text-align: center;
+  }
+
+  .request-send-info {
+    text-align: center;
   }
 }
 

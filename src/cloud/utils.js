@@ -65,7 +65,7 @@ var rankPointsBonus = function (playerPoints, rankRule) {
                 break;
             case "multiplier":
                 var multiplier = (+rules[x].value);
-                points = playerPoints * multiplier - playerPoints;
+                points = (+playerPoints) * multiplier - (+playerPoints);
                 award += points;
                 break;
         }
@@ -81,7 +81,7 @@ var playerPoints = function (playerEvents) {
             points += (+event.value);
         }
     }
-    return points;
+    return (+points);
 };
 
 exports.cloneObject = cloneObject;

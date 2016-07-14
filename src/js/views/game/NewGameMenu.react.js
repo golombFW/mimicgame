@@ -20,8 +20,12 @@ var NewGameMenu = React.createClass({
                             <MenuButton icon="fa fa-user"
                                         onClick={this.selectView.bind(this, AppState.SINGLE_PLAYER_GAME)}>Gra
                                 bez przeciwnika</MenuButton>
-                            <MenuButton disabled>Znajdź Przeciwnika</MenuButton>
-                            <MenuButton disabled>Znajomy z Facebooka</MenuButton>
+                            {/*<MenuButton disabled>Znajdź Przeciwnika</MenuButton>*/}
+                            <MenuButton icon="fa fa-facebook-official"
+                                        onClick={this.selectView.bind(this, AppState.FB_FRIEND)}>Znajomy z
+                                Facebooka</MenuButton>
+                            <MenuButton icon="fa fa-home" classes="btn-home btn-primary"
+                                        onClick={this.selectView.bind(this, AppState.MENU)}>Powrót do Menu Głównego</MenuButton>
                         </div>
                     </div>
                 </div>

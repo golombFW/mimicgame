@@ -12,6 +12,7 @@ var UserSettings = require('./views/UserSettings.react.js');
 var NewGameMenu = require('./views/game/NewGameMenu.react.js');
 var RandomOpponent = require('./views/game/FindRandomOpponent.react.js');
 var SinglePlayerGame = require('./views/game/SinglePlayerGame.react.js');
+var FriendChallenge = require('./views/game/FacebookFriendChallenge.react.js');
 var Game = require('./views/game/Game.react.js');
 var Ranking = require('./views/Ranking.react.js');
 
@@ -31,6 +32,7 @@ var AppWrapper = React.createClass({
         this.contents[AppState.NEW_GAME_MENU] = <NewGameMenu key={AppState.NEW_GAME_MENU}/>;
         this.contents[AppState.FIND_RANDOM_OPPONENT] = <RandomOpponent key={AppState.FIND_RANDOM_OPPONENT}/>;
         this.contents[AppState.SINGLE_PLAYER_GAME] = <SinglePlayerGame key={AppState.SINGLE_PLAYER_GAME}/>;
+        this.contents[AppState.FB_FRIEND] = <FriendChallenge key={AppState.FB_FRIEND}/>;
         this.contents[AppState.GAME] = <Game key={AppState.GAME}/>;
         this.contents[AppState.RANKING] = <Ranking key={AppState.RANKING}/>;
     },
