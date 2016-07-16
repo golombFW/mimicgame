@@ -36,6 +36,7 @@ var UserStore = Reflux.createStore({
             query.include("FacebookUser");
             query.include("settings");
             query.include("score");
+            query.include("survey");
             query.get(userId).then(function (user) {
                 console.log("User update successful: " + JSON.stringify(user));
                 this.setUser(user);

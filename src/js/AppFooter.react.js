@@ -9,11 +9,11 @@ var AppFooter = React.createClass({
             displayAbout: false
         }
     },
-    showAbout: function () {
-        this.setState({displayAbout: true});
-    },
-    closeAbout: function () {
-        this.setState({displayAbout: false});
+    componentDidMount: function () {
+        var s = '<div class="fb-like" data-href="https://apps.facebook.com/mimicgame/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>';
+        var div = document.getElementById('app-fb-like');
+        div.innerHTML = s;
+        FB.XFBML.parse(document.getElementById('app-fb-like'));
     },
     render: function () {
         var version = " ver" + process.env.APP_VERSION || "";
@@ -28,13 +28,20 @@ var AppFooter = React.createClass({
                     <a onClick={this.showAbout} href="#">O projekcie</a>
                 </span>
                 <span className="footer-info">Filip Gołębiewski 2016</span>
-                <span>{version}</span>
+                <span className="footer-info">{version}</span>
+                <span className="footer-info" id="app-fb-like"></span>
 
                 <About closeFunc={this.closeAbout} display={this.state.displayAbout}/>
                 <FullScreenButton />
             </div>
         );
-    }
+    },
+    showAbout: function () {
+        this.setState({displayAbout: true});
+    },
+    closeAbout: function () {
+        this.setState({displayAbout: false});
+    },
 });
 
 module.exports = AppFooter;

@@ -5,6 +5,7 @@ require('cloud/objects/UserSettings.js');
 require('cloud/objects/Turn.js');
 require('cloud/objects/PhotoQuestion.js');
 require('cloud/objects/ChallengeRequest.js');
+require('cloud/objects/Survey.js');
 var GameManager = require('cloud/gameMatching.js');
 var GamePlayManager = require('cloud/gamePlayManager.js');
 
@@ -212,6 +213,26 @@ Parse.Cloud.define("reportPhoto", function (request, response) {
             },
             error: function (error) {
                 console.error("reportPhoto cloud func error: " + error);
+                response.error("An error has occured.");
+            }
+        });
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
+Parse.Cloud.define("prepareSurvey", function (request, response) {
+    Parse.Cloud.useMasterKey();
+    if (request.user) {
+        var player = request.user;
+
+        GamePlayManager.prepareSurvey(player, {
+            success: function (data) {
+                console.log("Survey completed, Sending survey data...");
+                response.success(data);
+            },
+            error: function (error) {
+                console.error("prepareSurvey cloud func error: " + error);
                 response.error("An error has occured.");
             }
         });

@@ -171,7 +171,7 @@ body {
   [class*='col-'] {
     .lh-display(flex);
     justify-content: center;
-    margin: 1.2rem 0 1rem;
+    margin: 1.2rem auto 0.5rem;
   }
 
   .options {
@@ -188,16 +188,28 @@ body {
     }
   }
 
-  .row {
+  > .row {
     width: 100%;
     height: 100%;
     .lh-display(flex);
-    flex-wrap: wrap;
+    //flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
 
     > div {
-      max-height: 33.33%;
+      //max-height: 33.33%;
     }
+  }
+
+  .flexible-panel {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    .menu-panel-container {
+      //min-height: 5em;
+    }
+    min-height: 40%;
   }
 
   .fixed-height {
@@ -209,8 +221,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-
   flex-direction: column;
+  margin-bottom: 2rem !important;
+
   .main-menu-header {
     .app-logo {
       font-size: 2em;
@@ -223,6 +236,24 @@ body {
   }
 }
 
+#survey-view {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  > * {
+    margin: 1em 0;
+  }
+
+  .thanks {
+    font-size: 2em;
+    font-weight: bold;
+  }
+}
+
 #actual-games-panel {
   .opponent-avatar {
     height: 1.7em;
@@ -231,6 +262,8 @@ body {
   .turn-number {
     font-size: 0.9em;
   }
+
+  flex: 1;
 }
 
 .match-info {
@@ -277,6 +310,12 @@ body {
 
 .match-info:hover {
   background-color: @app-menu-panel-bg-color;
+  color: @topbar-button-color;
+}
+
+.survey {
+  background-color: @survey-bg-color;
+  color: @survey-font-color;
 }
 
 .request-info {

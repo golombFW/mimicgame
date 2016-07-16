@@ -15,6 +15,7 @@ var SinglePlayerGame = require('./views/game/SinglePlayerGame.react.js');
 var FriendChallenge = require('./views/game/FacebookFriendChallenge.react.js');
 var Game = require('./views/game/Game.react.js');
 var Ranking = require('./views/Ranking.react.js');
+var Survey = require('./views/Survey.react.js');
 
 var VelocityTransitionGroup = require('velocity-react').VelocityTransitionGroup;
 var directions = ["Up", "Down", "Left", "Right"];
@@ -35,6 +36,7 @@ var AppWrapper = React.createClass({
         this.contents[AppState.FB_FRIEND] = <FriendChallenge key={AppState.FB_FRIEND}/>;
         this.contents[AppState.GAME] = <Game key={AppState.GAME}/>;
         this.contents[AppState.RANKING] = <Ranking key={AppState.RANKING}/>;
+        this.contents[AppState.SURVEY] = <Survey key={AppState.SURVEY}/>;
     },
     render: function () {
         var content = this.contents[this.state.currentAppState];

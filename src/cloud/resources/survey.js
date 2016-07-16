@@ -1,17 +1,19 @@
-exports.survey = function (userName, userId, submitUrl) {
+var urls = require('cloud/resources/webhookUrls.js');
+
+module.exports = function (userName, userId, submitUrl) {
     if (!submitUrl) {
-        submitUrl = "https://mimicgamedev.parseapp.com/survey";
+        submitUrl = urls.typeformWebhook;
     }
 
     return {
         "title": "Mimic Game - ankieta 1",
         "tags": ["ankieta1", userId],
         "webhook_submit_url": submitUrl,
-        "design_id": "S2WEqhUbbc",
+        "design_id": "dGVRFC5e4c",
         "fields": [
             {
                 "type": "statement",
-                "question": "Cześć " + userName + ". Mam do Ciebie kilka pytań. Za wypełenienie tej ankiety dostaniesz **1000 punktów**. Zalecane jest, by ją wypełnić już po rozegraniu przynajmniej jednej rozgrywki!"
+                "question": "Cześć " + userName + ". Mam kilka pytań do Ciebie. Za wypełenienie tej ankiety dostaniesz **1000 punktów** w grze Mimic Game. Zalecane jest, by wypełnić ją już po rozegraniu przynajmniej jednej rozgrywki!"
             },
             {
                 "type": "multiple_choice",

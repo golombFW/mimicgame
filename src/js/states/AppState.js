@@ -10,6 +10,7 @@ var AppState = {
     RANKING: "RANKING",
     REPORT_PHOTO: "REPORT_PHOTO",
     HOW_TO_PLAY: "HOW_TO_PLAY",
+    SURVEY: "SURVEY",
     TEST: "TEST"
 };
 

@@ -127,4 +127,9 @@ exports.challengeStatus = {
     REJECTED: "REJECTED"
 };
 
+exports.surveyStatus = {
+    NEW: "NEW",
+    FILLED: "FILLED"
+};
+
 exports.TurnType = TurnType;

@@ -2,6 +2,8 @@ var model = require('cloud/model.js');
 var common = require('cloud/common.js');
 var utils = require('cloud/utils.js');
 var _ = require('underscore');
+var survey = require('cloud/resources/survey.js');
+var typeformApiKey = require('cloud/resources/typeformApiKey.js');
 
 var _matchClassName = "Match";
 var _photoQuestionClassName = "PhotoQuestion";
@@ -9,6 +11,7 @@ var _photoQuestionAnswerClassName = "PhotoQuestionAnswer";
 var _emotionClassName = "Emotion";
 var _rankRuleClassName = "RankRule";
 var _reportClassName = "Report";
+var _surveyClassName = "Survey";
 var _matchPlayer1Key = "player1";
 var _matchPlayer2Key = "player2";
 var _matchStatusKey = "gameStatus";
@@ -23,6 +26,7 @@ var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
 var _photoQuestionAnswerClass = Parse.Object.extend(_photoQuestionAnswerClassName);
 var _emotionClass = Parse.Object.extend(_emotionClassName);
 var _reportClass = Parse.Object.extend(_reportClassName);
+var _surveyClass = Parse.Object.extend(_surveyClassName);
 
 
 exports.getGameplayData = function (player, matchId, options) {
@@ -149,6 +153,44 @@ exports.reportPhoto = function (player, photoQuestionId, reason, options) {
     });
 };
 
+exports.prepareSurvey = function (player, options) {
+    if (player.get("survey")) {
+        console.error("New survey can't be prepared for player " + player.id);
+        options.success(player.get("survey"));
+    } else {
+        var playerSurvey;
+        console.log("Sending survey request:\n" +
+            JSON.stringify(survey(player.get("nick"), player.id)));
+
+        Parse.Cloud.httpRequest({
+            method: 'POST',
+            url: 'https://api.typeform.io/v0.4/forms',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-API-TOKEN': typeformApiKey.key
+            },
+            body: survey(player.get("nick"), player.id)
+        }).then(function (httpResponse) {
+            console.log("survey for player " + player.id + " created in typeform.io. Saving...");
+
+            return _playerSurvey(httpResponse.text, player);
+        }, function (errorHttpResponse) {
+            console.error('Request failed with response code ' + errorHttpResponse.status);
+        }).then(function (savedSurvey) {
+            console.log("Survey for player " + savedSurvey.get("player").id + " created");
+            player.set("survey", savedSurvey);
+            playerSurvey = savedSurvey;
+            return player.save();
+        }, function (error) {
+            options.error(error.message);
+        }).then(function (savedPlayer) {
+            options.success(playerSurvey);
+        }, function (error) {
+            options.error(error.message);
+        });
+    }
+};
+
 //Helper functions
 _prepareGameplayDataForPlayer = function (player, match) {
     console.log("Preparing gameplay data for player...");
@@ -179,7 +221,6 @@ _prepareGameplayDataForPlayer = function (player, match) {
                 console.log("Prepare gameplay data with turn");
                 result = _gameplayDataFromTurn(model.GameplayDataStatus.TURN, playerStr, turnResult.turn, turnResult.phase);
             } else if (turnResult.type === model.GameplayDataStatus.WAITING) {
-                //todo waiting for opponent
                 console.log("Prepare gameplay waiting data");
                 result = _gameplayDataFromTurn(model.GameplayDataStatus.WAITING, playerStr, turnResult.turn);
             } else {
@@ -763,7 +804,43 @@ _handlePhotoReport = function (player, photoQuestion, reason) {
     return promise;
 };
 
+_playerSurvey = function (typeformResponse, player) {
+    var promise = new Parse.Promise();
+    console.log("typeform response: " + typeformResponse);
+    typeformResponse = JSON.parse(typeformResponse);
+    var surveyId = typeformResponse["id"];
+    var surveyName = typeformResponse["tags"][0];
+    var link = _findFormLink(typeformResponse["_links"]);
+    var survey = new _surveyClass();
+    survey.set("status", model.surveyStatus.NEW);
+    survey.set("player", player);
+    survey.set("surveyId", surveyId);
+    survey.set("surveyName", surveyName);
+    survey.set("link", link);
+    _setSurveyACL(survey);
+
+    survey.save().then(function (savedSurvey) {
+        promise.resolve(savedSurvey);
+    }, function (error) {
+        promise.reject(error);
+    });
+
+    return promise;
+};
+
 //Miscellaneous
+_findFormLink = function (links) {
+    if (links && 0 < links.length) {
+        for (var i = 0; i < links.length; i += 1) {
+            var link = links[i];
+            if ("form_render" === link["rel"]) {
+                return link["href"];
+            }
+        }
+    }
+    return null;
+};
+
 _getPlayerString = function (player, match) {
     var p1 = match.get(_matchPlayer1Key);
     var p2 = match.get(_matchPlayer2Key);
@@ -806,6 +883,15 @@ _setReportACL = function (playerReport) {
     newACL.setPublicWriteAccess(false);
 
     playerReport.setACL(newACL);
+};
+
+_setSurveyACL = function (survey) {
+    var newACL = new Parse.ACL();
+
+    newACL.setPublicReadAccess(true);
+    newACL.setPublicWriteAccess(false);
+
+    survey.setACL(newACL);
 };
 
 _updatePhotoTurnAdditionalData = function (turn, playerKey, correctAnswerFlat) {

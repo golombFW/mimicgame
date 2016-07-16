@@ -490,6 +490,7 @@ _playerRandomQuestionsList = function (user, player1, player2) {
         friendsQuestionsQuery.containedIn("author", pointers);
 
         var questionQuery = Parse.Query.or(friendsQuestionsQuery, allUsersQuestionsQuery);
+        questionQuery.notEqualTo("reportStatus", model.photoQuestionReportStatus.BLOCKED);
         return questionQuery.find();
     }, function (error) {
         console.error("Can't fetch facebook user from user: " + JSON.stringify(player1));

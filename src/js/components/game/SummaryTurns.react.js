@@ -23,7 +23,6 @@ var SummaryTurns = React.createClass({
             var images = document.querySelectorAll(".summary-turn-plank .photo img");
             var imagesLength = images.length ? images.length : 0;
             for (var i = 0; i < imagesLength; i += 1) {
-                debugger;
                 var image = images[i];
                 var parent = image.parentElement;
                 var parentHeight = parent ? parent.offsetHeight : "auto";

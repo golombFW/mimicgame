@@ -121,12 +121,14 @@ var FacebookUserStore = Reflux.createStore({
         });
 
         var friendsListHash = hash(friendsIds, {unorderedArrays: true});
+        var friendListLength = friendsIds.length;
 
         Parse.User.current().fetch().then(function (fetchedUser) {
             console.log("User fetch successful before friends list update");
             var fbUser = fetchedUser.get("FacebookUser");
             var serverFriendsListHash = fbUser.get("friendsListHash");
-            if (serverFriendsListHash !== friendsListHash) {
+            var serverFriendListLength = fbUser.get("friendsList") ? fbUser.get("friendsList").length : 0;
+            if (serverFriendsListHash !== friendsListHash || friendListLength !== serverFriendListLength) {
                 self.prepareServerFriendsList(friendsIds).then(function (friendsList) {
                     fbUser.set("friendsList", friendsList);
                     fbUser.set("friendsListHash", friendsListHash);

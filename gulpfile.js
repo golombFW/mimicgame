@@ -26,6 +26,8 @@ var path = {
     EMOTICONS_SRC: 'src/resources/emoticons/**/*',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
+    CLOUD_PROD_RES_SRC: 'src/cloud/resources/prod/**/*',
+    CLOUD_DEV_RES_SRC: 'src/cloud/resources/dev/**/*',
 
     OUT: 'bundle.js',
     MINIFIED_OUT: 'bundle.min.js',
@@ -50,7 +52,21 @@ gulp.task('copy-cloud', function () {
     gulp.src(path.CLOUD_SRC)
         .pipe(
             gulp.dest(
-                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_CLOUD)))
+                pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_CLOUD)));
+
+    if ('production' === process.env.NODE_ENV) {
+        console.log("Copying production resources cloud code");
+        gulp.src(path.CLOUD_PROD_RES_SRC)
+            .pipe(
+                gulp.dest(
+                    pathJoin.join(path.DEST_PROD, (path.DEST_CLOUD + "/resources"))));
+    } else {
+        console.log("Copying development resources cloud code");
+        gulp.src(path.CLOUD_DEV_RES_SRC)
+            .pipe(
+                gulp.dest(
+                    pathJoin.join(path.DEST_DEV, (path.DEST_CLOUD + "/resources"))));
+    }
 });
 
 gulp.task('copy-webcamswf', function () {
@@ -132,7 +148,7 @@ gulp.task('build', function () {
             'global': true,
             '_': 'purge',
             NODE_ENV: 'production',
-            APP_VERSION: getNPMAppVersion() + new Date().toJSON()
+            APP_VERSION: getNPMAppVersion()
         }], [stripify]]
     });
 

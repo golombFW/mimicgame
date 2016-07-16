@@ -80,6 +80,8 @@ var AppDataStore = Reflux.createStore({
         var challengeRequestsQuery = Parse.Query.or(playerRequestsQuery, opponentRequestsQuery);
         challengeRequestsQuery.equalTo("status", cloudModel.challengeStatus.INITIAL);
         challengeRequestsQuery.descending("updatedAt");
+        challengeRequestsQuery.include("player");
+        challengeRequestsQuery.include("opponent");
 
         challengeRequestsQuery.find().then(function (challengeRequests) {
             console.log("Found " + challengeRequests.length + " challenge requests");

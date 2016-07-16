@@ -37,8 +37,10 @@ var Menu = React.createClass({
             <DefaultAppViewContainer>
                 <div id="app-menu">
                     <div className="row">
-                        <GameRequestsPanel requests={challengeRequests}/>
-                        <ActualGamesPanel games={actualGames}/>
+                        <div className="row flexible-panel col-sm-12 col-xs-12">
+                            <GameRequestsPanel requests={challengeRequests}/>
+                            <ActualGamesPanel games={actualGames}/>
+                        </div>
                         <div id="app-menu-options" className="col-sm-12 col-xs-12 fixed-height">
                             <div className="main-menu-header">
                                 <div className="app-logo">
@@ -56,8 +58,8 @@ var Menu = React.createClass({
                                             icon="fa fa-trophy" classes="">Ranking</MenuButton>
                                 <MenuButton onClick={this.selectView.bind(this, AppState.USER_SETTINGS)}
                                             icon="fa fa-wrench" classes="">Ustawienia</MenuButton>
-                                <MenuButton onClick={this.selectView.bind(this, AppState.HOW_TO_PLAY)}
-                                            icon="fa fa-info" classes="">Jak grac?</MenuButton>
+                                {/*<MenuButton onClick={this.selectView.bind(this, AppState.HOW_TO_PLAY)}*/}
+                                            {/*icon="fa fa-info" classes="">Jak grac?</MenuButton>*/}
                                 {/*<MenuButton onClick={this.logout}>wyloguj</MenuButton>*/}
                             </div>
                         </div>
