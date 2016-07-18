@@ -66,7 +66,7 @@ var CompletedGamesPanel = React.createClass({
         }
 
         return (
-            <BasicMenuPanel id="completed-games-panel" title="Zakonczone rozgrywki" classes="fixed-height">
+            <BasicMenuPanel id="completed-games-panel" title="Zakonczone rozgrywki" classes="fixed-height" fullWidth={true}>
                 {content}
             </BasicMenuPanel>
         );

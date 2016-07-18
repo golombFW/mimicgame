@@ -82,7 +82,8 @@ var Game = React.createClass({
             resultOpponent = {
                 id: opponent.id,
                 nick: opponent.get("nick"),
-                avatar: opponentAvatar
+                avatar: opponentAvatar,
+                fbId: opponent.get("FacebookUser").get("facebookId")
             };
         }
         return {

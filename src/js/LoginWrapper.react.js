@@ -30,6 +30,12 @@ var LoginWrapper = React.createClass({
     componentWillMount: function () {
         window['loginUser'] = this.loginUser;
     },
+    componentDidUpdate: function () {
+        var div = document.getElementById('social-login-button-facebook');
+        if (div) {
+            this.attachFBLoginButton();
+        }
+    },
     componentDidMount: function () {
         window.fbAsyncInit = function () {
             Parse.FacebookUtils.init({ // this line replaces FB.init({
@@ -45,27 +51,24 @@ var LoginWrapper = React.createClass({
                 if ('connected' !== response.status) {
                     console.log("User fb not logged");
 
-                    var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
-                    var div = document.getElementById('social-login-button-facebook');
                     var self = this;
 
                     if (this.state.user) {
                         Parse.User.logOut().then(function (result) {
-                            div.innerHTML = s;
-                            FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
+                            self.attachFBLoginButton();
                             self.loginUser();
                         }, function (error) {
                             console.error("error: " + error.message);
                         })
                     } else {
-                        div.innerHTML = s;
+                        self.attachFBLoginButton();
                         this.loginUser();
                     }
                 } else {
                     console.log("User logged to FB");
                     this.loginUser(response)
                 }
-                FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
+                this.attachFBLoginButton();
             }.bind(this));
         }.bind(this);
 
@@ -186,6 +189,17 @@ var LoginWrapper = React.createClass({
                 console.log("Failed to fetch. Using Cached Config.");
             }
         );
+    },
+    attachFBLoginButton: function () {
+        var div = document.getElementById('social-login-button-facebook');
+        if (div) {
+            var s = '<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="false" onlogin="loginUser" scope="public_profile, email, user_friends"></div>';
+            div.innerHTML = s;
+            if (window.FB) {
+                console.log("before attach fb login button");
+                FB.XFBML.parse(document.getElementById('social-login-button-facebook'));
+            }
+        }
     }
 });
 

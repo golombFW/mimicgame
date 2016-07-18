@@ -2,9 +2,14 @@ var React = require('react');
 var Modal = require('react-bootstrap').Modal;
 
 var About = React.createClass({
+    propTypes: {
+        display: React.PropTypes.bool,
+        closeFunc: React.PropTypes.func
+    },
     render: function () {
         return (
-            <Modal show={this.props.display} onHide={this.props.closeFunc} aria-labelledby="ModalHeader">
+            <Modal show={this.props.display} onHide={this.props.closeFunc} aria-labelledby="ModalHeader"
+                   onEntered={this.showFBLike}>
                 <Modal.Header closeButton>
                     <Modal.Title id='ModalHeader'>O aplikacji</Modal.Title>
                 </Modal.Header>
@@ -21,9 +26,16 @@ var About = React.createClass({
                         Rozgrywka składa się z dwóch rodzajów 'tur'. Gracz ma za zadanie zgadywać emocje widoczne na
                         zdjęciach oraz wysyłać zdjęcia przedstawiające wybrane przez siebie emocje.
                     </p>
+                    <div id="app-page-modal-like"></div>
                 </Modal.Body>
             </Modal>
         );
+    },
+    showFBLike: function () {
+        var s = '<div class="fb-page" data-href="https://www.facebook.com/mimicgameproject/" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/mimicgameproject/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/mimicgameproject/">MimicGame project</a></blockquote></div>';
+        var div = document.getElementById("app-page-modal-like");
+        div.innerHTML = s;
+        FB.XFBML.parse(document.getElementById('app-page-modal-like'));
     }
 });
 

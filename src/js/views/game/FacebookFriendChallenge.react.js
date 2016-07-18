@@ -37,11 +37,25 @@ var FacebookFriendChallenge = React.createClass({
                     <span>Żaden z twoich znajomych nie gra w Mimic Game </span>
                     <i className="fa fa-frown-o" aria-hidden="true"></i>
                 </div>
+                <div className="invite-friends">
+                    <span>Zaproś znajomych do gry!</span>
+                    <span>
+                        <MenuButton icon="fa fa-envelope" onClick={this.inviteFriends} classes="btn-primary btn-lg">
+                            Zaproś
+                        </MenuButton>
+                    </span>
+                </div>
                 {options}
             </div>
         );
 
         if (this.state.challengeRequest) {
+            options = (
+                <div className="options">
+                    <MenuButton icon="fa fa-arrow-left" onClick={this.backToFriendChallengeView}>Powrót do
+                        menu</MenuButton>
+                </div>);
+
             content = (
                 <div id="app-facebook-friend-challenge">
                     <div className="request-send-info">
@@ -64,6 +78,7 @@ var FacebookFriendChallenge = React.createClass({
                     var avatarUrl = friendAvatar ? friendAvatar.url : "";
 
                     var score = friend.get("score");
+                    var fbUserId = friend.get("FacebookUser").get("facebookId");
 
                     var updateTime = friend.get("updatedAt") ? moment(friend.get("updatedAt")) : null;
                     var onlineTime = updateTime ? (
@@ -78,7 +93,8 @@ var FacebookFriendChallenge = React.createClass({
                             <div className="score col-xs-3 col-sm-3">{score.get("score")}</div>
                             {onlineTime}
                             <div className="option col-xs-2 col-sm-2">
-                                <MenuButton icon="fa fa-gamepad" onClick={this.challengeFriend.bind(this, friend.id)}
+                                <MenuButton icon="fa fa-gamepad"
+                                            onClick={this.challengeFriend.bind(this, friend.id, fbUserId)}
                                             classes="btn-primary btn-sm">Rzuć wyzwanie</MenuButton>
                             </div>
                         </div>
@@ -100,6 +116,15 @@ var FacebookFriendChallenge = React.createClass({
                             </div>
                             {friendElems}
                         </div>
+                        <div className="invite-friends">
+                            <span>Zaproś znajomych do gry!</span>
+                            <span>
+                                <MenuButton icon="fa fa-envelope" onClick={this.inviteFriends}
+                                            classes="btn-primary btn-lg">
+                                    Zaproś
+                                </MenuButton>
+                            </span>
+                        </div>
                         {options}
                     </div>
                 );
@@ -115,13 +140,34 @@ var FacebookFriendChallenge = React.createClass({
     backToMenu: function () {
         AppStateActions.changeState(AppState.NEW_GAME_MENU);
     },
-    challengeFriend: function (userId) {
-        this.setState({isLoading: true});
-
-        Parse.Cloud.run('challengePlayer', {userId: userId}).then(function (challengeRequest) {
-            this.setState({challengeRequest: challengeRequest});
-        }.bind(this), function (error) {
-            console.log(error);
+    backToFriendChallengeView: function () {
+        this.setState(this.getInitialState());
+    },
+    challengeFriend: function (userId, fbUserId) {
+        //todo zmienic ture na obiekt
+        FB.ui({
+            method: 'apprequests',
+            message: 'Hej! Wyzywam Cię na pojedynek w grze Mimic Game.',
+            to: fbUserId,
+            action_type: 'turn'
+        }, function (response) {
+            console.log(response);
+            if (response.request) {
+                this.setState({isLoading: true});
+                Parse.Cloud.run('challengePlayer', {userId: userId}).then(function (challengeRequest) {
+                    this.setState({challengeRequest: challengeRequest});
+                }.bind(this), function (error) {
+                    console.log(error);
+                });
+            }
+        }.bind(this));
+    },
+    inviteFriends: function () {
+        FB.ui({
+            method: 'apprequests',
+            message: 'Hej! Gram w super grę - Mimic Game. Zagraj ze mną!'
+        }, function (response) {
+            console.log(response);
         });
     }
 });

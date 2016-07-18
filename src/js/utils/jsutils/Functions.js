@@ -1,9 +1,11 @@
+var _ = require('underscore');
+
 var Functions = {
     clone: function (obj) {
-        return Object.assign({}, obj);
+        return _.clone(obj);
     },
     isEmpty: function (obj) {
-        return 0 === Object.keys(obj).length
+        return 0 === _.keys(obj).length
     },
     isNullOrEmpty: function (obj) {
         return null == obj || this.isEmpty(obj)

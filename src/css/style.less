@@ -145,6 +145,9 @@ body {
   @media (min-width: @screen-sm-min) {
     width: 100% - @app-padding-sm;
   }
+  > div {
+    height: 100%;
+  }
 }
 
 #app-user-settings {
@@ -170,21 +173,23 @@ body {
 
   [class*='col-'] {
     .lh-display(flex);
-    justify-content: center;
-    margin: 1.2rem auto 0.5rem;
+    .lh-justify-content(center);
+    //margin: 1.2rem auto 0.5rem; //fixme margin: 1.2rem auto 0.5rem;
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
   }
 
   .options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    .lh-display(flex);
+    .lh-flex-wrap(wrap);
+    .lh-justify-content(center);
+    .lh-align-items(center);
 
     .btn-menubutton {
       margin: 0.3em;
       font-family: Pacifico, sans-serif;
       font-size: 1.2em;
-      flex: 1;
+      .lh-flex(1 1 auto); //.lh-flex(1)
     }
   }
 
@@ -192,22 +197,19 @@ body {
     width: 100%;
     height: 100%;
     .lh-display(flex);
-    //flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: center;
+    .lh-flex-direction(column);
+    .lh-justify-content(center);
 
     > div {
-      //max-height: 33.33%;
     }
   }
 
   .flexible-panel {
-    flex: 1;
+    .lh-flex(1);
     overflow-y: auto;
-    display: flex;
-    flex-wrap: wrap;
+    .lh-display(flex);
+    .lh-flex-wrap(wrap);
     .menu-panel-container {
-      //min-height: 5em;
     }
     min-height: 40%;
   }
@@ -218,10 +220,10 @@ body {
 }
 
 #app-menu-options {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  .lh-display(flex);
+  .lh-justify-content(center);
+  .lh-align-items(center);
+  .lh-flex-direction(column);
   margin-bottom: 2rem !important;
 
   .main-menu-header {
@@ -239,10 +241,10 @@ body {
 #survey-view {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  .lh-display(flex);
+  .lh-flex-direction(column);
+  .lh-justify-content(center);
+  .lh-align-items(center);
 
   > * {
     margin: 1em 0;
@@ -263,7 +265,7 @@ body {
     font-size: 0.9em;
   }
 
-  flex: 1;
+  //.lh-flex(1);
 }
 
 .match-info {
@@ -271,8 +273,8 @@ body {
   margin-bottom: 0.2rem;
   padding: 0.4rem 1rem;
   vertical-align: middle;
-  display: flex;
-  align-items: center;
+  .lh-display(flex);
+  .lh-align-items(center);
   color: @topbar-button-color;
 
   > * {
@@ -281,11 +283,11 @@ body {
   }
 
   .opponent-info {
-    flex: 1;
+    .lh-flex(1 1 auto); //fixme .lh-flex(1);
     text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .lh-display(flex);
+    .lh-align-items(center);
+    .lh-justify-content(center);
   }
 
   .opponent-avatar {
@@ -323,8 +325,8 @@ body {
   margin-bottom: 0.2rem;
   padding: 0.4rem 1rem;
   vertical-align: middle;
-  display: flex;
-  align-items: center;
+  .lh-display(flex);
+  .lh-align-items(center);
   color: @topbar-button-color;
 
   > * {
@@ -333,11 +335,11 @@ body {
   }
 
   .opponent-info {
-    flex: 1;
+    .lh-flex(1 1 auto); //fixme .lh-flex(1);
     text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .lh-display(flex);
+    .lh-align-items(center);
+    .lh-justify-content(center);
   }
 }
 
@@ -362,6 +364,10 @@ body {
 #app-game {
   width: 100%;
   height: 100%;
+
+  > div {
+    height: 100%;
+  }
 }
 
 .app-game-default-container {
@@ -370,6 +376,7 @@ body {
   }
 
   width: 100%;
+  height: 100%;
 
   .game-content {
     .app-wrapper-default();
@@ -384,6 +391,9 @@ body {
   .options {
     padding: 0.5em;
     text-align: center;
+    > * {
+      margin: 0 0.2em;
+    }
   }
 }
 
@@ -410,11 +420,11 @@ body {
 
   .row {
     .lh-display(flex);
-    justify-content: center;
+    .lh-justify-content(center);
 
     .options {
       .lh-display(flex);
-      flex-direction: column;
+      .lh-flex-direction(column);
 
       .btn-menubutton {
         margin: 0.2em;
@@ -435,43 +445,29 @@ body {
   height: 100%;
 
   > * {
-    //flex: 1 100%;
+
   }
 }
 
 .camera-view-description {
-  //height: @camera-view-description-height;
   padding: 0.5em;
-  //flex: initial;
   .lh-flex(initial);
   min-height: 2.5em;
   max-height: 30%;
   overflow-y: auto;
 
   .task-description {
-    //position: relative;
-    //top: 50%;
-    //left: 50%;
-    //.translate(-50%, -50%);
+
   }
 }
 
 .camera-view-area {
-  //.lh-calc(height, ~"100% - " @camera-view-description-height);
-
-  //flex: 1;
   .lh-flex(1);
-  //
-  //display: flex;
   .lh-display(flex);
   flex-flow: row wrap;
 }
 
 .camera-view-preview {
-  //height: 100%;
-
-  //
-  //flex: 10;
   .lh-flex(10);
   position: relative;
 
@@ -490,8 +486,6 @@ body {
 }
 
 #camera-canvas {
-  //width: 100% !important;
-  //height: 100% !important;
   margin: auto;
   position: relative;
 }
@@ -568,7 +562,7 @@ body {
 #match-summary {
   padding: 0.7rem;
   .lh-display(flex);
-  flex-direction: column;
+  .lh-flex-direction(column);
   text-align: center;
   height: 100%;
 
@@ -580,24 +574,24 @@ body {
     max-height: 6rem;
   }
   .turns {
-    flex: 5;
+    .lh-flex(5);
     overflow-y: auto;
     .lh-display(flex);
-    flex-direction: column;
+    .lh-flex-direction(column);
     padding-top: 0.3em;
     padding-bottom: 0.5em;
 
     .turn-result {
-      flex: 1;
+      .lh-flex(1);
       height: 20%;
       .lh-display(flex);
       padding: 0.4em 0;
-      justify-content: center;
+      .lh-justify-content(center);
 
       [class*='col-'] {
         .lh-display(flex);
-        flex-direction: column;
-        height: 100%;
+        .lh-flex-direction(column);
+        //height: 100%; //fixme
       }
     }
     .turn-result:nth-child(odd) {
@@ -605,7 +599,7 @@ body {
     }
     .turns-header {
       .lh-display(flex);
-      justify-content: center;
+      .lh-justify-content(center);
     }
   }
   .options {
@@ -614,13 +608,13 @@ body {
     }
   }
   #bonus-events-panel {
-    flex: 1;
+    .lh-flex(1);
     overflow-y: auto;
     background-color: @summary-turn-plank-bg-color;
     .lh-display(flex);
-    flex-direction: column;
+    .lh-flex-direction(column);
     text-align: center;
-    justify-content: center;
+    .lh-justify-content(center);
     border: 0.07em #8f8f8f solid;
     .lh-border-radius(0.5em);
     font-size: 1.2em;
@@ -640,8 +634,8 @@ body {
   width: auto;
   height: 100%;
   .lh-display(flex);
-  flex-direction: column;
-  justify-content: center;
+  .lh-flex-direction(column);
+  .lh-justify-content(center);
   .lh-border-radius(0.5em);
   .lh-drop-shadow(0.1em 0.1em 0.1em #4D4D4D);
 
@@ -663,7 +657,7 @@ body {
 }
 
 .summary-turn-plank-container {
-  justify-content: center;
+  .lh-justify-content(center);
 }
 
 .summary-turn-plank {
@@ -673,8 +667,8 @@ body {
   .lh-border-radius(0.5em);
   .lh-drop-shadow(0.1em 0.1em 0.1em #4D4D4D);
 
-  align-items: center;
-  justify-content: center;
+  .lh-align-items(center);
+  .lh-justify-content(center);
   min-width: 3em;
   padding: 0.2em;
 
@@ -693,8 +687,9 @@ body {
       display: block;
 
       position: relative;
-      .translate(0, -50%);
-      top: 50%;
+      .translate(-50%, 0);
+      //top: 50%;
+      left: 50%;
     }
 
   }
@@ -714,18 +709,18 @@ body {
 
 .result-summary-single {
   .lh-display(flex);
-  justify-content: center;
+  .lh-justify-content(center);
 
   [class*='col-'] {
     .lh-display(flex);
-    flex-direction: column;
+    .lh-flex-direction(column);
   }
 
   .result-numbers-container {
     text-align: left;
     .lh-display(flex);
-    align-items: center;
-    justify-content: center;
+    .lh-align-items(center);
+    .lh-justify-content(center);
     margin: auto 0;
 
     div {
@@ -766,6 +761,21 @@ Modal modifications
 
 .close:hover, .close:focus {
   color: #f4e08a;
+}
+
+#app-page-modal-like {
+  text-align: center;
+}
+
+.browser-icons {
+  display: flex;
+  height: 6em;
+  > div {
+    flex: 1;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position-x: 50%;
+  }
 }
 
 /*
@@ -846,8 +856,8 @@ Components styles
 #achievements-panel {
   width: 35%;
   height: @topbar-height;
-  display: inline-flex;
-  align-items: center;
+  .lh-display(inline-flex);
+  .lh-align-items(center);
 
   .emoticon {
     max-height: 100%;
@@ -859,15 +869,15 @@ Components styles
     font-family: "Aladin", Helvetica, sans-serif;
   }
   .player-rank {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    .lh-display(flex);
+    .lh-flex-direction(column);
+    .lh-justify-content(center);
     text-align: center;
   }
   .player-points {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    .lh-display(flex);
+    .lh-flex-direction(column);
+    .lh-justify-content(center);
     text-align: center;
   }
   .description {
@@ -897,7 +907,7 @@ Components styles
   .lh-border-radius(1.5%);
   padding: 1ex;
   overflow-y: auto;
-  max-height: 100%;
+  //max-height: 100%; //fixme
 }
 
 .menu-panel-content {
@@ -955,8 +965,8 @@ Components styles
 #answer-question {
   text-align: center;
   padding: 0.5em;
-  display: flex;
-  flex-direction: column;
+  .lh-display(flex);
+  .lh-flex-direction(column);
   height: 100%;
 
   .answer-button-container {
@@ -969,7 +979,7 @@ Components styles
   }
 
   > div.row {
-    flex: 1;
+    .lh-flex(1);
   }
 
   .options {
@@ -1009,7 +1019,7 @@ Components styles
 .summary-avatar {
   border-bottom: dashed #5F5F63 0.4em;
   .lh-display(flex);
-  align-items: center;
+  .lh-align-items(center);
 
   * {
     padding: 0.2em;
@@ -1021,7 +1031,7 @@ Components styles
 }
 
 .summary-avatar-inverted {
-  justify-content: flex-end;
+  .lh-justify-content(flex-end);
 
   img {
     order: 2;
@@ -1030,44 +1040,43 @@ Components styles
 
 #ranking {
   .lh-display(flex);
-  flex-direction: column;
+  .lh-flex-direction(column);
   height: 100%;
   padding: 0.5rem 0.8rem;
   text-align: center;
 
   .header {
-    //flex: 1;
     text-align: center;
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 0.2em;
   }
   .top-players {
-    flex: 11;
+    .lh-flex(11);
     .lh-display(flex);
-    flex-direction: column;
+    .lh-flex-direction(column);
     font-size: 1.2em;
 
     .top-player-row:nth-child(odd) {
       background-color: @summary-turn-result-odd-color;
     }
     .top-player-header {
-      flex: 0.5;
+      .lh-flex(0.5);
       .lh-display(flex);
-      align-items: center;
+      .lh-align-items(center);
       background-color: @ranking-top-header-color;
       color: #fff;
     }
   }
   .top-player-row {
-    flex: 1;
+    .lh-flex(1);
     .lh-display(flex);
-    align-items: center;
-    justify-content: center;
+    .lh-align-items(center);
+    .lh-justify-content(center);
 
     .rank-avatar {
-      flex-direction: row !important;
-      justify-content: center;
+      .lh-flex-direction(row) !important;
+      .lh-justify-content(center);
     }
     .avatar-container {
       position: absolute;
@@ -1086,23 +1095,22 @@ Components styles
     background-color: @ranking-user-row-color !important;
   }
   .user-rank {
-    flex: 2;
+    .lh-flex(2);
   }
   .options {
-    //flex: 1;
     padding-top: 0.5rem;
   }
   [class*='col-'] {
     .lh-display(flex);
-    flex-direction: column;
+    .lh-flex-direction(column);
   }
 }
 
 #app-facebook-friend-challenge {
   height: 100%;
   padding: 0.4rem;
-  display: flex;
-  flex-direction: column;
+  .lh-display(flex);
+  .lh-flex-direction(column);
 
   .header {
     text-align: center;
@@ -1116,23 +1124,34 @@ Components styles
     }
   }
 
+  .invite-friends {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 0.4em;
+
+    > span {
+      margin: 0 0.2em;
+    }
+  }
+
   .friends-list {
-    display: flex;
-    flex: 1;
+    .lh-display(flex);
+    .lh-flex(1);
     overflow-y: auto;
-    flex-direction: column;
+    .lh-flex-direction(column);
 
     .friend-row {
-      display: flex;
-      flex: 1;
-      align-items: center;
+      .lh-display(flex);
+      .lh-flex(1);
+      .lh-align-items(center);
       max-height: 80px;
     }
 
     .friend-row-header {
-      flex: 0.5;
+      .lh-flex(0.5);
       .lh-display(flex);
-      align-items: center;
+      .lh-align-items(center);
       background-color: @ranking-top-header-color;
       color: #fff;
       max-height: 80px;
@@ -1155,8 +1174,8 @@ Components styles
 
 #report-photo-question {
   padding: 0.5em;
-  display: flex;
-  flex-direction: column;
+  .lh-display(flex);
+  .lh-flex-direction(column);
 
   .header {
     font-size: 1.5em;
@@ -1165,8 +1184,9 @@ Components styles
   }
 
   .photo {
-    flex: 1;
+    .lh-flex(1);
     text-align: center;
+    width: 100%; //fixme
     img {
       width: auto;
       height: auto;

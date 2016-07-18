@@ -38,7 +38,7 @@ var FacebookUserStore = Reflux.createStore({
     setUser: function (user, isUpdateNeeded) {
         console.log("user set to: " + user.name);
 
-        var facebookUser = Object.assign($.clone(this.state.facebookUser), user);
+        var facebookUser = _.extend($.clone(this.state.facebookUser), user);
         if (isUpdateNeeded) {
             this.updateParseUser(user);
         }

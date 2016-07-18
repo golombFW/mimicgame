@@ -158,6 +158,8 @@ exports.challengePlayer = function (player, userId, options) {
             if (challengeRequests && 0 < challengeRequests.length) {
                 console.log("New challenge request not created, returning previous challenge request");
                 options.success(challengeRequests[0]);
+
+                return Parse.Promise.as();
             } else {
                 var challengeRequest = new (Parse.Object.extend(_challengeRequestClassName))();
                 challengeRequest.set("player", player);
@@ -170,8 +172,10 @@ exports.challengePlayer = function (player, userId, options) {
         }, function (error) {
             options.error("Something wrong while searching challenge requests " + error.message);
         }).then(function (savedChallenge) {
-            console.log("Challenge request " + player.id + " vs " + userId + " created");
-            options.success(savedChallenge);
+            if (savedChallenge) {
+                console.log("Challenge request " + player.id + " vs " + userId + " created");
+                options.success(savedChallenge);
+            }
         }, function (error) {
             options.error("Can't save challenge request " + error.message);
         });

@@ -19,18 +19,7 @@ var SummaryTurns = React.createClass({
         }
     },
     componentDidMount: function () {
-        setTimeout(function () {
-            var images = document.querySelectorAll(".summary-turn-plank .photo img");
-            var imagesLength = images.length ? images.length : 0;
-            for (var i = 0; i < imagesLength; i += 1) {
-                var image = images[i];
-                var parent = image.parentElement;
-                var parentHeight = parent ? parent.offsetHeight : "auto";
-                if (image.offsetHeight > parentHeight) {
-                    image.style.height = 'calc(' + parentHeight + 'px - 0.4em)';
-                }
-            }
-        }, 1500);
+        this.calcImagesHeight();
     },
     render: function () {
         var match = this.props.match;
@@ -91,6 +80,26 @@ var SummaryTurns = React.createClass({
                 {turnsResults}
             </div>
         );
+    },
+    calcImagesHeight: function () {
+        setTimeout(function () {
+            var images = document.querySelectorAll(".summary-turn-plank .photo img");
+            var imagesLength = images.length ? images.length : 0;
+            for (var i = 0; i < imagesLength; i += 1) {
+                var image = images[i];
+                var parent = image.parentElement;
+                var parentParent = parent ? parent.parentElement : null;
+                if (parentParent && parentParent.offsetHeight < parent.offsetHeight) {
+                    parent = parentParent;
+                }
+                var parentHeight = parent ? parent.offsetHeight : 0;
+
+                if (image.offsetHeight > parentHeight) {
+                    parentHeight = 0 === parentHeight ? "100%" : parentHeight + "px";
+                    image.style.height = 'calc(' + parentHeight + ' - 0.4em)';
+                }
+            }
+        }, 1500);
     }
 });
 
