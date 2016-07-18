@@ -31,24 +31,27 @@ You can stop server with ```Ctrl-C```
 Follow these instructions ([parse.com/docs/cloudcode/guide](https://parse.com/docs/cloudcode/guide#command-line-installation)) to install parse command line tool.
 
 If you have built app in previous section then you should have ```target``` directory in your project path.
+
 1. In project root directory run ```parse new```
 2. Select existing app option
 3. Enter number connected with your app name
 4. Enter *'target'* as name
 5. Rebuild project
+
 ####Deploy
 1. Go to ```target``` or ```target-prod``` directory
 2. Run ```parse deploy```
 
 ###4. First run of app
 After deploy and before app first run you have to create necessary values in database.
+
 1. Go to your app dashboard on [parse.com](https://dashboard.parse.com/apps)
 2. Go to Core -> Jobs
 3. Create and run these jobs in following order
-    1. createEmotionList
-    2. createDefaultGameTypes
-    3. createDefaultPhotoQuestions
-    4. createDefaultRankRules
+   1. createEmotionList
+   2. createDefaultGameTypes
+   3. createDefaultPhotoQuestions
+   4. createDefaultRankRules
 
 ##Miscellaneous
 * default ssl certificates and keys password is '1234'
