@@ -14,7 +14,7 @@ var AppFooter = React.createClass({
         }
     },
     componentDidMount: function () {
-        var s = '<div class="fb-like" data-href="https://apps.facebook.com/mimicgame/" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>';
+        var s = '<div class="fb-like" data-href="https://www.facebook.com/mimicgameproject" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>';
         var div = document.getElementById('app-fb-like');
         div.innerHTML = s;
         if (window.FB) {

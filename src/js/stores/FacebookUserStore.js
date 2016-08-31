@@ -26,7 +26,7 @@ var FacebookUserStore = Reflux.createStore({
     fetchUser: function (isUpdateNeeded) {
         FB.api(
             '/me',
-            {fields: 'name, first_name, last_name, email, gender, link, locale, location, age_range, test_group'},
+            {fields: 'name, first_name, last_name, email, gender, link, locale, test_group'},
             function (response) {
                 if (response && !response.error) {
                     console.log('Successful login for: ' + response.name);
@@ -35,13 +35,14 @@ var FacebookUserStore = Reflux.createStore({
             }.bind(this)
         );
     },
-    setUser: function (user, isUpdateNeeded) {
-        console.log("user set to: " + user.name);
+    setUser: function (fbUser, isUpdateNeeded) {
+        console.log("user set to: " + fbUser.name);
 
-        var facebookUser = _.extend($.clone(this.state.facebookUser), user);
+        var facebookUser = _.extend($.clone(this.state.facebookUser), fbUser);
         if (isUpdateNeeded) {
-            this.updateParseUser(user);
+            this.updateParseUser(fbUser);
         }
+        this.updateAdditionalData(fbUser);
         this.setState({facebookUser: facebookUser});
     },
     fetchFriendsList: function () {
@@ -147,6 +148,19 @@ var FacebookUserStore = Reflux.createStore({
         }, function (error) {
             console.error("Something goes wrong while fetching user in updateFriendsList: " + error.message);
         });
+    },
+    updateAdditionalData: function (fbUser) {
+        Parse.User.current().fetch().then(function (fetchedUser) {
+            var facebookUser = fetchedUser.get("FacebookUser");
+            if (!facebookUser.get("name")) {
+                facebookUser.set("name", fbUser.name);
+                facebookUser.save().then(function (savedFbUser) {
+                    console.log("FB User name set to " + savedFbUser.get("name"));
+                }, function (error) {
+                    console.error(error.message);
+                })
+            }
+        })
     },
     prepareServerFriendsList: function (friendsIds) {
         var promise = new Parse.Promise();
