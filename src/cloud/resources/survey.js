@@ -1,8 +1,6 @@
-var urls = require('cloud/resources/webhookUrls.js');
-
 module.exports = function (userName, userId, submitUrl) {
     if (!submitUrl) {
-        submitUrl = urls.typeformWebhook;
+        submitUrl = 'https://apps.facebook.com/mimicgame/survey';
     }
 
     return {

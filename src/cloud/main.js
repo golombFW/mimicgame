@@ -1,21 +1,19 @@
-require('cloud/app.js');
-require('cloud/setup.js');
-require('cloud/objects/User.js');
-require('cloud/objects/UserSettings.js');
-require('cloud/objects/Turn.js');
-require('cloud/objects/PhotoQuestion.js');
-require('cloud/objects/ChallengeRequest.js');
-require('cloud/objects/Survey.js');
-var GameManager = require('cloud/gameMatching.js');
-var GamePlayManager = require('cloud/gamePlayManager.js');
+require('./setup.js');
+require('./adminTools.js');
+require('./objects/User.js');
+require('./objects/UserSettings.js');
+require('./objects/Turn.js');
+require('./objects/PhotoQuestion.js');
+require('./objects/ChallengeRequest.js');
+require('./objects/Survey.js');
+var GameManager = require('./gameMatching.js');
+var GamePlayManager = require('./gamePlayManager.js');
 
 //Function originally created by Mattieu Gamache-Asselin
 Parse.Cloud.define("joinNewAnonymousGame", function (request, response) {
     console.log("Incoming join request from " + request.user);
 
     if (request.user) {
-        Parse.Cloud.useMasterKey();
-
         GameManager.joinAnonymousGame(request.user, {
             success: function (match, isTurn) {
                 response.success(match);
@@ -34,8 +32,6 @@ Parse.Cloud.define("cancelAnonymousGame", function (request, response) {
     console.log("Incoming cancel game request from " + request.user);
 
     if (request.user) {
-        Parse.Cloud.useMasterKey();
-
         var player = request.user;
         var matchId = request.params.matchId;
 
@@ -60,8 +56,6 @@ Parse.Cloud.define("cancelAnonymousGame", function (request, response) {
 Parse.Cloud.define("joinNewSingleplayerGame", function (request, response) {
     console.log("Incoming start singleplayer game from " + request.user);
     if (request.user) {
-        Parse.Cloud.useMasterKey();
-
         GameManager.joinSingleplayerGame(request.user, {
             success: function (match) {
                 response.success(match);
@@ -79,8 +73,6 @@ Parse.Cloud.define("joinNewSingleplayerGame", function (request, response) {
 Parse.Cloud.define("challengePlayer", function (request, response) {
     console.log("Incoming challenge player from " + request.user);
     if (request.user) {
-        Parse.Cloud.useMasterKey();
-
         var player = request.user;
         var userId = request.params.userId;
 
@@ -103,8 +95,6 @@ Parse.Cloud.define("challengePlayer", function (request, response) {
 });
 
 Parse.Cloud.define("getGameplayData", function (request, response) {
-    Parse.Cloud.useMasterKey();
-
     if (request.user) {
         console.log("Getting gameplay data...");
         var player = request.user;
@@ -130,7 +120,6 @@ Parse.Cloud.define("getGameplayData", function (request, response) {
 });
 
 Parse.Cloud.define("uploadPhoto", function (request, response) {
-    Parse.Cloud.useMasterKey();
     if (request.user) {
         var player = request.user;
         var photo = request.params.photo;
@@ -164,7 +153,6 @@ Parse.Cloud.define("uploadPhoto", function (request, response) {
 });
 
 Parse.Cloud.define("answerQuestion", function (request, response) {
-    Parse.Cloud.useMasterKey();
     if (request.user) {
         var player = request.user;
         var matchId = request.params.matchId;
@@ -193,7 +181,6 @@ Parse.Cloud.define("answerQuestion", function (request, response) {
 });
 
 Parse.Cloud.define("reportPhoto", function (request, response) {
-    Parse.Cloud.useMasterKey();
     if (request.user) {
         var player = request.user;
         var photoQuestionId = request.params.photoQuestionId;
@@ -222,7 +209,6 @@ Parse.Cloud.define("reportPhoto", function (request, response) {
 });
 
 Parse.Cloud.define("prepareSurvey", function (request, response) {
-    Parse.Cloud.useMasterKey();
     if (request.user) {
         var player = request.user;
 

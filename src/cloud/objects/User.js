@@ -1,5 +1,4 @@
 Parse.Cloud.beforeSave(Parse.User, function (request, response) {
-    Parse.Cloud.useMasterKey();
     _validateUser(request.object, response);
     if (!request.object.get("FacebookUser")) {
         var authData = request.object.get("authData");
@@ -7,7 +6,7 @@ Parse.Cloud.beforeSave(Parse.User, function (request, response) {
         var FacebookUser = Parse.Object.extend("FacebookUser");
         var fbUser = new FacebookUser();
         fbUser.set("facebookId", id);
-        fbUser.save().then(function (resultUser) {
+        fbUser.save(null, {useMasterKey: true}).then(function (resultUser) {
             request.object.set("FacebookUser", resultUser);
             return _setAdditionalData(request.object, response);
         }).then(function (data) {
@@ -29,18 +28,17 @@ Parse.Cloud.beforeSave(Parse.User, function (request, response) {
 ;
 
 Parse.Cloud.afterSave(Parse.User, function (request) {
-    Parse.Cloud.useMasterKey();
     var facebookUser = request.object.get("FacebookUser");
     var facebookUserPromise, gamescorePromise;
 
     if (facebookUser) {
-        facebookUserPromise = facebookUser.fetch();
+        facebookUserPromise = facebookUser.fetch({useMasterKey: true});
     } else {
         console.error("Invalid state, user should have FacebookUser object");
     }
     var gameScore = request.object.get("score");
     if (gameScore) {
-        gamescorePromise = gameScore.fetch();
+        gamescorePromise = gameScore.fetch({useMasterKey: true});
     } else {
         console.error("Invalid state, user should have GameScore object");
     }
@@ -54,13 +52,14 @@ Parse.Cloud.afterSave(Parse.User, function (request) {
                 },
                 error: function (obj, error) {
                     console.error("afterSave User: " + error.message);
-                }
+                },
+                useMasterKey: true
             });
         }
         if (!playerScore.get("player")) {
             playerScore.set("player", request.object);
             _setUserGameScoreACL(playerScore);
-            playerScore.save().then(function (savedScore) {
+            playerScore.save(null, {useMasterKey: true}).then(function (savedScore) {
 
             }, function (error) {
                 console.error("afterSave User: " + error.message);
@@ -90,7 +89,8 @@ var _setAdditionalData = function (user, response) {
                     console.error("Error when setting user additional data, error: " + error.message);
                     response.error(error);
                     promise.reject(error);
-                }
+                },
+                useMasterKey: true
             });
         } else {
             promise.resolve(user);
@@ -101,7 +101,7 @@ var _setAdditionalData = function (user, response) {
             var GameScore = Parse.Object.extend("GameScore");
             var gameScore = new GameScore();
             gameScore.set("score", 0);
-            gameScore.save().then(function (savedGameScore) {
+            gameScore.save(null, {useMasterKey: true}).then(function (savedGameScore) {
                 updatedUser.set("score", savedGameScore);
                 resultPromise.resolve(updatedUser);
             }, function (error) {

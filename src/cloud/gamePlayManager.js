@@ -1,9 +1,9 @@
-var model = require('cloud/model.js');
-var common = require('cloud/common.js');
-var utils = require('cloud/utils.js');
+var model = require('./model.js');
+var common = require('./common.js');
+var utils = require('./utils.js');
 var _ = require('underscore');
-var survey = require('cloud/resources/survey.js');
-var typeformApiKey = require('cloud/resources/typeformApiKey.js');
+var survey = require('./resources/survey.js');
+var typeformApiKey = require('./resources/typeformApiKey.js');
 
 var _matchClassName = "Match";
 var _photoQuestionClassName = "PhotoQuestion";
@@ -36,7 +36,7 @@ exports.getGameplayData = function (player, matchId, options) {
     matchQuery.include("turnList.question_" + _matchPlayer2Key);
     matchQuery.include("turnList.answer_" + _matchPlayer1Key);
     matchQuery.include("turnList.answer_" + _matchPlayer2Key);
-    matchQuery.get(matchId).then(function (newMatch) {
+    matchQuery.get(matchId, {useMasterKey: true}).then(function (newMatch) {
         console.log("match fetched: " + JSON.stringify(newMatch));
         return _prepareGameplayDataForPlayer(player, newMatch);
     }, function (error) {
@@ -52,7 +52,7 @@ exports.playerUploadPhoto = function (player, matchId, topic, photo, options) {
     var playerStr;
     var matchQuery = new Parse.Query(_matchClass);
     matchQuery.include("turnList");
-    matchQuery.get(matchId).then(function (match) {
+    matchQuery.get(matchId, {useMasterKey: true}).then(function (match) {
         console.log("match fetched: " + match.id);
 
         playerStr = _getPlayerString(player, match);
@@ -97,7 +97,7 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
     matchQuery.include("turnList");
     matchQuery.include("player1");
     matchQuery.include("player2");
-    matchQuery.get(matchId).then(function (fetchedMatch) {
+    matchQuery.get(matchId, {useMasterKey: true}).then(function (fetchedMatch) {
         match = fetchedMatch;
         console.log("match fetched: " + match.id);
 
@@ -125,7 +125,7 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
                 var answer = _prepareAnswer(player, question, emotion);
                 turn.set(playerAnswerKey, answer);
 
-                return turn.save();
+                return turn.save(null, {useMasterKey: true});
             } else {
                 return Parse.Promise.error("Incorrect state, player send answer to current turn!");
             }
@@ -144,7 +144,7 @@ exports.answerQuestion = function (player, matchId, answerEmotion, options) {
 
 exports.reportPhoto = function (player, photoQuestionId, reason, options) {
     var photoQuestionQuery = new Parse.Query(_photoQuestionClass);
-    photoQuestionQuery.get(photoQuestionId).then(function (photoQuestion) {
+    photoQuestionQuery.get(photoQuestionId, {useMasterKey: true}).then(function (photoQuestion) {
         return _handlePhotoReport(player, photoQuestion, reason);
     }).then(function (reportResponse) {
         options.success(reportResponse);
@@ -180,7 +180,7 @@ exports.prepareSurvey = function (player, options) {
             console.log("Survey for player " + savedSurvey.get("player").id + " created");
             player.set("survey", savedSurvey);
             playerSurvey = savedSurvey;
-            return player.save();
+            return player.save(null, {useMasterKey: true});
         }, function (error) {
             options.error(error.message);
         }).then(function (savedPlayer) {
@@ -209,7 +209,7 @@ _prepareGameplayDataForPlayer = function (player, match) {
     }
 
     var emotionQuery = new Parse.Query(_emotionClassName);
-    emotionQuery.find().then(function (emotions) {
+    emotionQuery.find({useMasterKey: true}).then(function (emotions) {
         //send summary
         if (matchStatus === _matchStatusKeyFinished) {
             console.log("Match finished, sending summary");
@@ -367,7 +367,7 @@ _getPlayerTurn = function (player, match) {
             opponentTurnNumber += 1;
         }
 
-        if (null === result && null === playerAnswer) {
+        if (null === result && null == playerAnswer) {
             lastTurn = turnList[i];
 
             if (!isWaitingTurn || (isWaitingTurn && opponentGiveAnswerInPreviousTurn)) {
@@ -446,7 +446,7 @@ _addPhotoQuestion = function (player, opponentKey, turn, topic, photo) {
     photoQuestion.set("author", player);
 
     var playerSettings = player.get("settings");
-    playerSettings.fetch().then(function (settings) {
+    playerSettings.fetch({useMasterKey: true}).then(function (settings) {
         //set access level
         var accessLevel = settings.get("photoPrivacy");
         photoQuestion.set("accessLevel", accessLevel);
@@ -458,7 +458,7 @@ _addPhotoQuestion = function (player, opponentKey, turn, topic, photo) {
     }, function (error) {
         resultPromise.reject("Player settings fetch error: " + error.message);
     }).then(function (updatedTurn) {
-        return updatedTurn.save();
+        return updatedTurn.save(null, {useMasterKey: true});
     }).then(function (savedTurn) {
         resultPromise.resolve(savedTurn);
     }, function (error) {
@@ -482,14 +482,14 @@ _computeAnswerResult = function (player, turn, playerStr, match) {
     console.log("player answer emotion" + JSON.stringify(playerAnswer));
 
     var rankRulesQuery = new Parse.Query(_rankRuleClassName);
-    var rankRulePromise = rankRulesQuery.find();
-    var playerScorePromise = player.get("score").fetch();
-    var opponentScorePromise = opponent ? opponent.get("score").fetch() : Parse.Promise.as();
+    var rankRulePromise = rankRulesQuery.find({useMasterKey: true});
+    var playerScorePromise = player.get("score").fetch({useMasterKey: true});
+    var opponentScorePromise = opponent ? opponent.get("score").fetch({useMasterKey: true}) : Parse.Promise.as();
 
     var answerResult;
-    playerQuestion.fetch().then(function (fetchedQuestion) {
+    playerQuestion.fetch({useMasterKey: true}).then(function (fetchedQuestion) {
         var correctAnswer = fetchedQuestion.get("player_answer");
-        return correctAnswer.fetch();
+        return correctAnswer.fetch({useMasterKey: true});
     }).then(function (correctAnswer) {
         console.log("correct answer" + JSON.stringify(correctAnswer));
         var playerResult = playerAnswer.id === correctAnswer.id;
@@ -550,12 +550,12 @@ _computeAnswerResult = function (player, turn, playerStr, match) {
             }
 
             playerScoreObj.increment("score", points);
-            var playerScorePromise = 0 !== points ? playerScoreObj.save() : Parse.Promise.as();
-            var matchUpdatePromise = match.save();
+            var playerScorePromise = 0 !== points ? playerScoreObj.save(null, {useMasterKey: true}) : Parse.Promise.as();
+            var matchUpdatePromise = match.save(null, {useMasterKey: true});
             var opponentScorePromise;
             if (!isSinglePlayerGame && 0 !== opponentPoints && opponentScoreObj) {
                 opponentScoreObj.increment("score", opponentPoints);
-                opponentScorePromise = opponentScoreObj.save();
+                opponentScorePromise = opponentScoreObj.save(null, {useMasterKey: true});
             } else {
                 opponentScorePromise = Parse.Promise.as();
             }
@@ -593,7 +593,7 @@ _updateMatchStatusIfNeeded = function (match, turnNumber) {
             var matchResult = _matchResult(match);
             match.set("result", matchResult);
         }
-        match.save().then(function (updatedMatch) {
+        match.save(null, {useMasterKey: true}).then(function (updatedMatch) {
             console.log("Match " + updatedMatch.id + " status updated!");
             promise.resolve(updatedMatch);
         }, function (error) {
@@ -762,7 +762,7 @@ _handlePhotoReport = function (player, photoQuestion, reason) {
         var reportQuery = new Parse.Query(_reportClassName);
         reportQuery.equalTo("photoQuestion", photoQuestion);
         reportQuery.equalTo("player", player);
-        reportQuery.count().then(function (reportsNumber) {
+        reportQuery.count({useMasterKey: true}).then(function (reportsNumber) {
             if (0 < reportsNumber) {
                 reportResponse.isAccepted = false;
                 reportResponse.reason = model.reportResponseReason.DUPLICATE;
@@ -776,11 +776,11 @@ _handlePhotoReport = function (player, photoQuestion, reason) {
                 playerReport.set("reason", reason);
                 _setReportACL(playerReport);
 
-                var playerReportPromise = playerReport.save();
+                var playerReportPromise = playerReport.save(null, {useMasterKey: true});
                 var photoQuestionPromise;
                 if (photoQuestionReportStatus !== model.photoQuestionReportStatus.EXAMINED) {
                     photoQuestion.set("reportStatus", model.photoQuestionReportStatus.EXAMINED);
-                    photoQuestionPromise = photoQuestion.save();
+                    photoQuestionPromise = photoQuestion.save(null, {useMasterKey: true});
                 } else {
                     photoQuestionPromise = Parse.Promise.as();
                 }
@@ -819,7 +819,7 @@ _playerSurvey = function (typeformResponse, player) {
     survey.set("link", link);
     _setSurveyACL(survey);
 
-    survey.save().then(function (savedSurvey) {
+    survey.save(null, {useMasterKey: true}).then(function (savedSurvey) {
         promise.resolve(savedSurvey);
     }, function (error) {
         promise.reject(error);
@@ -899,7 +899,7 @@ _updatePhotoTurnAdditionalData = function (turn, playerKey, correctAnswerFlat) {
     var additionalDataForPlayerKey = "additionalData_" + playerKey;
     var data = turn.get(additionalDataForPlayerKey);
     var emotionQuery = new Parse.Query(_emotionClassName);
-    emotionQuery.find().then(function (emotionList) {
+    emotionQuery.find({useMasterKey: true}).then(function (emotionList) {
         if (1 > emotionList.length) {
             promise.reject("Emotions list is empty!");
             return;

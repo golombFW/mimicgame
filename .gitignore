@@ -11,3 +11,5 @@ npm-debug.log
 /target/public/*.*
 /target/public/resources/*
 /src/cloud/resources/typeformApiKey.js
+/logs/
+/config.env

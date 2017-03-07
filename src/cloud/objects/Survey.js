@@ -1,18 +1,16 @@
-var model = require('cloud/model.js');
+var model = require('../model.js');
 
 Parse.Cloud.beforeSave("Survey", function (request, response) {
-    Parse.Cloud.useMasterKey();
-
     var survey = request.object;
 
     if (survey.dirty("status") && survey.get("status") === model.surveyStatus.FILLED) {
         var playerQuery = new Parse.Query(Parse.User);
         playerQuery.include("score");
 
-        playerQuery.get(survey.get("player").id).then(function (player) {
+        playerQuery.get(survey.get("player").id, {useMasterKey: true}).then(function (player) {
             var gameScore = player.get("score");
             gameScore.increment("score", 1000);
-            return gameScore.save();
+            return gameScore.save(null, {useMasterKey: true});
         }).then(function (savedScore) {
             response.success();
         }).then(null, function (error) {

@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var utils = require('cloud/utils.js');
+var utils = require('./utils.js');
 
 exports.randomAnswers = function (emotionList, correctAnswerFlat, answersNumber) {
     if (null == answersNumber) {

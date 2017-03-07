@@ -1,4 +1,4 @@
-var model = require('cloud/model.js');
+var model = require('./model.js');
 
 var _emotionClassName = "Emotion";
 var _gameTypeClassName = "GameType";
@@ -8,7 +8,6 @@ var _rankRuleClassName = "RankRule";
 var _photoQuestionClass = Parse.Object.extend(_photoQuestionClassName);
 
 Parse.Cloud.job("createEmotionList", function (request, status) {
-    Parse.Cloud.useMasterKey();
     createEmotionsList().then(function () {
         status.success("Creating emotions list completed successfully.");
     }, function (error) {
@@ -17,7 +16,6 @@ Parse.Cloud.job("createEmotionList", function (request, status) {
 });
 
 Parse.Cloud.job("createDefaultGameTypes", function (request, status) {
-    Parse.Cloud.useMasterKey();
     createDefaultGameTypes().then(function () {
         status.success("Creating default GameTypes completed successfully.");
     }, function (error) {
@@ -26,7 +24,6 @@ Parse.Cloud.job("createDefaultGameTypes", function (request, status) {
 });
 
 Parse.Cloud.job("createDefaultPhotoQuestions", function (request, status) {
-    Parse.Cloud.useMasterKey();
     createDefaultPhotoQuestions().then(function () {
         status.success("Creating default Photo Questions completed successfully.");
     }, function (error) {
@@ -35,7 +32,6 @@ Parse.Cloud.job("createDefaultPhotoQuestions", function (request, status) {
 });
 
 Parse.Cloud.job("createDefaultRankRules", function (request, status) {
-    Parse.Cloud.useMasterKey();
     createDefaultRankRules().then(function () {
         status.success("Creating default rank rules completed successfully.");
     }, function (error) {
@@ -49,13 +45,13 @@ var createEmotionsList = function () {
     var emotions = model.emotions;
     var _emotionClass = Parse.Object.extend(_emotionClassName);
     var emotionQuery = new Parse.Query(_emotionClass);
-    emotionQuery.count().then(function (count) {
+    emotionQuery.count({useMasterKey: true}).then(function (count) {
         if (0 >= count) {
             for (var i = 0; i < emotions.length; i += 1) {
                 var emotion = new _emotionClass();
                 emotion.set("name", emotions[i]);
                 emotion.setACL(setupACLs());
-                emotion.save();
+                emotion.save(null, {useMasterKey: true});
             }
             promise.resolve("emotions saved");
         } else {
@@ -74,7 +70,7 @@ var createDefaultGameTypes = function () {
 
     var _gameTypeClass = Parse.Object.extend(_gameTypeClassName);
     var gameTypeQuery = new Parse.Query(_gameTypeClass);
-    gameTypeQuery.count().then(function (count) {
+    gameTypeQuery.count({useMasterKey: true}).then(function (count) {
         if (0 >= count) {
             for (var key in model.GameType) {
                 var gameType = new _gameTypeClass();
@@ -88,7 +84,7 @@ var createDefaultGameTypes = function () {
                     }
                     gameType.set("turns", turns);
                     gameType.setACL(setupACLs());
-                    gameType.save().then(function (obj) {
+                    gameType.save(null, {useMasterKey: true}).then(function (obj) {
                         console.log("GameType obj " + obj.get("name") + " saved successful");
                     }, function (error) {
                         console.error(error.message);
@@ -111,7 +107,7 @@ var createDefaultPhotoQuestions = function () {
     var promise = new Parse.Promise();
 
     var emotionQuery = new Parse.Query(_emotionClassName);
-    emotionQuery.find().then(function (emotionsList) {
+    emotionQuery.find({useMasterKey: true}).then(function (emotionsList) {
         for (var i in emotionsList) {
             var photoQuestion = new _photoQuestionClass();
 
@@ -123,7 +119,7 @@ var createDefaultPhotoQuestions = function () {
             photoQuestion.setACL(setupACLs());
 
             //set player
-            photoQuestion.set("author", Parse.User.current());
+            photoQuestion.set("author", request.user);
 
             //set accessLevel
             photoQuestion.set("accessLevel", model.photoPrivacy.NONE);
@@ -131,7 +127,7 @@ var createDefaultPhotoQuestions = function () {
             //set default parameter
             photoQuestion.set("default", emotionsList[i].get("name"));
 
-            photoQuestion.save().then(function (obj) {
+            photoQuestion.save(null, {useMasterKey: true}).then(function (obj) {
                 console.log("PhotoQuestion obj saved successful");
             }, function (error) {
                 console.error(error.message);
@@ -149,7 +145,7 @@ var createDefaultRankRules = function () {
     var promise = new Parse.Promise();
     var _rankRuleClass = Parse.Object.extend(_rankRuleClassName);
     var rankRuleQuery = new Parse.Query(_rankRuleClass);
-    rankRuleQuery.count().then(function (count) {
+    rankRuleQuery.count({useMasterKey: true}).then(function (count) {
         if (0 >= count) {
             var defaultRankRules = model.DefaultRankRules;
             for (var key in defaultRankRules) {
@@ -166,7 +162,7 @@ var createDefaultRankRules = function () {
                         rankRule.set("value2", rule.value2);
                     }
                     rankRule.setACL(setupACLs());
-                    rankRule.save().then(function (obj) {
+                    rankRule.save(null, {useMasterKey: true}).then(function (obj) {
                         console.log("RankRule obj " + obj.get("name") + " saved successful");
                     }, function (error) {
                         console.error(error.message);

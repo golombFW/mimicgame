@@ -1,6 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Parse = require('parse').Parse;
+var $ = require('./utils/Utils.js').$;
 var moment = require('moment');
 var Keys = require('./KeyConfig.js');
 
@@ -33,7 +34,8 @@ moment.updateLocale('en', {
     }
 });
 
-Parse.initialize(Keys.ParseAppId, Keys.ParseJavaScriptKey);
+Parse.initialize(Keys.ParseAppId);
+Parse.serverURL = $.getAppUrl() + '/parse';
 
 var LoginWrapper = require('./LoginWrapper.react.js');
 

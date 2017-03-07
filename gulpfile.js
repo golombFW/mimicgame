@@ -1,8 +1,10 @@
+require('dotenv').config({path: './config.env'});
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var stripify = require('stripify');
 var htmlreplace = require('gulp-html-replace');
 var source = require('vinyl-source-stream');
+var rename = require('gulp-rename');
 var less = require('gulp-less');
 var watchLess = require('gulp-watch-less2');
 var plumber = require('gulp-plumber');
@@ -24,10 +26,10 @@ var path = {
     FAVICON_SRC: 'src/favicon.ico',
     DEFAULT_EMOTIONS_SRC: 'src/resources/default_emotions/**/*',
     EMOTICONS_SRC: 'src/resources/emoticons/**/*',
+    PROD_SERVER_SRC: 'src/prodserver.js',
+    PROD_SERVER_PKG_SRC: 'src/prodpackage.json',
     JS_ENTRY_POINT: 'src/js/app.js',
     CLOUD_SRC: 'src/cloud/**/*',
-    CLOUD_PROD_RES_SRC: 'src/cloud/resources/prod/**/*',
-    CLOUD_DEV_RES_SRC: 'src/cloud/resources/dev/**/*',
 
     OUT: 'bundle.js',
     MINIFIED_OUT: 'bundle.min.js',
@@ -37,9 +39,10 @@ var path = {
     DEST_JS: 'public/js',
     DEST_RESOURCES: 'public/resources',
     DEST_CLOUD: 'cloud',
+    // SERVER_PATH: process.env.SERVER_PATH || '../parse-server-mimicgame',
 
     DEST_DEV: 'target',
-    DEST_PROD: 'target-prod'
+    DEST_PROD: process.env.SERVER_PATH || 'target-prod'
 };
 
 gulp.task('copy-html', function () {
@@ -53,20 +56,6 @@ gulp.task('copy-cloud', function () {
         .pipe(
             gulp.dest(
                 pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_CLOUD)));
-
-    if ('production' === process.env.NODE_ENV) {
-        console.log("Copying production resources cloud code");
-        gulp.src(path.CLOUD_PROD_RES_SRC)
-            .pipe(
-                gulp.dest(
-                    pathJoin.join(path.DEST_PROD, (path.DEST_CLOUD + "/resources"))));
-    } else {
-        console.log("Copying development resources cloud code");
-        gulp.src(path.CLOUD_DEV_RES_SRC)
-            .pipe(
-                gulp.dest(
-                    pathJoin.join(path.DEST_DEV, (path.DEST_CLOUD + "/resources"))));
-    }
 });
 
 gulp.task('copy-webcamswf', function () {
@@ -97,6 +86,17 @@ gulp.task('copy-otherfiles', function () {
         .pipe(
             gulp.dest(
                 pathJoin.join('production' === process.env.NODE_ENV ? path.DEST_PROD : path.DEST_DEV, path.DEST_RESOURCES)));
+
+    //prod server
+    if ('production' === process.env.NODE_ENV) {
+        console.log("copying production server files");
+        gulp.src(path.PROD_SERVER_SRC)
+            .pipe(rename('index.js'))
+            .pipe(gulp.dest(path.DEST_PROD));
+        gulp.src(path.PROD_SERVER_PKG_SRC)
+            .pipe(rename('package.json'))
+            .pipe(gulp.dest(path.DEST_PROD));
+    }
 });
 
 gulp.task('watch', function () {
@@ -244,6 +244,23 @@ var getNPMAppVersion = function () {
 
     return 0 < ver.length ? ver + "_" : null;
 };
+
+gulp.task('production-debug', ['set-prod-node-env', 'replaceHTML', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build-less'], function () {
+    var b = browserify({
+        entries: [path.JS_ENTRY_POINT],
+        transform: [[reactify], ['envify', {
+            'global': true,
+            '_': 'purge',
+            NODE_ENV: 'production',
+            APP_VERSION: getNPMAppVersion()
+        }]]
+    });
+
+    b.bundle()
+        .pipe(source(path.MINIFIED_OUT))
+        .on('error', gutil.log)
+        .pipe(gulp.dest(pathJoin.join(path.DEST_PROD, path.DEST_JS)));
+});
 
 gulp.task('production', ['set-prod-node-env', 'replaceHTML', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build', 'build-less']);
 gulp.task('build-dev', ['copy-html', 'copy-otherfiles', 'copy-webcamswf', 'copy-cloud', 'build-vendor', 'watch', 'watch-css']);

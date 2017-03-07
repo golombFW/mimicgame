@@ -1,19 +1,10 @@
-require('dotenv').config({path: './config.env'});
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var fs = require('fs');
-var https = require('https');
 var path = require('path');
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
-var ParseDashboard = require('parse-dashboard');
 var S3Adapter = require('parse-server').S3Adapter;
 var bodyParser = require('body-parser');
-var mimicAddons = require('./target/cloud/app.js');
-
-var privateKey = fs.readFileSync('sslcert/server.key', 'utf8');
-var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-var allowInsecureHTTP = false;
+var mimicAddons = require('./cloud/app.js');
 
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
 
@@ -32,7 +23,7 @@ var awsRegion = process.env.AWS_REGION || 'eu-central-1';
 
 var api = new ParseServer({
     databaseURI: databaseUri,
-    cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/target/cloud/main.js',
+    cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
     appId: appId,
     masterKey: masterKey,
     serverURL: serverUrl,
@@ -50,21 +41,8 @@ var api = new ParseServer({
     )
 });
 
-var dashboard = new ParseDashboard({
-    // Parse Dashboard settings
-    "apps": [
-        {
-            "serverURL": serverUrl,
-            "appId": appId,
-            "masterKey": masterKey,
-            "appName": "mimicgame"
-        }
-    ]
-}, allowInsecureHTTP);
-
 var app = express();
-app.set('port', (process.env.PORT || 1337));
-app.use('/', express.static(path.join(__dirname, 'target/public')));
+app.use('/', express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 mimicAddons.initializeFunctions(app);
@@ -72,11 +50,9 @@ mimicAddons.initializeFunctions(app);
 var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
 
-app.use('/dashboard', dashboard);
-
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(app.get('port'), function () {
-    console.log('Server HTTPS started: https://localhost:' + (app.get('port')) + '/');
+var port = process.env.PORT || 1337;
+var httpsServer = app.listen(port, function () {
+    console.log('parse-server-example running on port ' + port + '.');
 });
 
 // This will enable the Live Query real-time server

@@ -1,4 +1,4 @@
-var model = require('cloud/model.js');
+var model = require('../model.js');
 
 var DEFAULT_SETTINGS = {
     ADDED_PHOTOS_PRIVACY: model.photoPrivacy.ALL_USERS

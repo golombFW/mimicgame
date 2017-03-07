@@ -1,15 +1,14 @@
 Parse.Cloud.afterSave("Turn", function (request) {
-    Parse.Cloud.useMasterKey();
-
     var turn = request.object;
-    _setTurnACL(turn, Parse.User.current());
+    _setTurnACL(turn, request.user);
 
     turn.save(null, {
         success: function (newTurn) {
         },
         error: function (obj, error) {
             console.error("afterSave Turn: " + error.message);
-        }
+        },
+        useMasterKey: true
     });
 });
 

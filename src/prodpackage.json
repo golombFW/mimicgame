@@ -1,0 +1,20 @@
+{
+  "name": "parse-server-mimicgame",
+  "version": "1.0.0",
+  "description": "An Parse server for mimic game",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "kerberos": "~0.0.x",
+    "parse": "~1.9.2",
+    "parse-server": "^2.3.6",
+    "underscore": "^1.8.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=4.3"
+  }
+}

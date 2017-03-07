@@ -5,9 +5,9 @@
 var _ = require('underscore');
 
 // === Model classes and keys ===
-var model = require('cloud/model.js');
-var common = require('cloud/common.js');
-var utils = require('cloud/utils.js');
+var model = require('./model.js');
+var common = require('./common.js');
+var utils = require('./utils.js');
 
 var _matchClassName = "Match";
 var _emotionClassName = "Emotion";
@@ -43,8 +43,7 @@ exports.joinAnonymousGame = function (player, options) {
     matchQuery.equalTo(_matchStatusKey, _matchStatusKeyWaiting);
     matchQuery.notEqualTo(_matchPlayer1Key, player); // Can't play with yourself
 
-    matchQuery.count({
-        success: function (count) {
+    matchQuery.count({useMasterKey: true}).then(function (count) {
             _log("Found " + count + " available games: ", player);
             if (0 < count) {
                 // If matches were found, fetch random one
@@ -56,8 +55,7 @@ exports.joinAnonymousGame = function (player, options) {
                 matchQuery.include(_matchPlayer2Key);
                 matchQuery.include(_matchPlayer2Key + "." + _facebookUserAttrName);
 
-                matchQuery.find({
-                    success: function (results) {
+                matchQuery.find({useMasterKey: true}).then(function (results) {
                         _log("Fetched random game: " + JSON.stringify(results[0]), player);
                         if (0 < results.length) {
                             // Attempt to join fetched game
@@ -69,16 +67,19 @@ exports.joinAnonymousGame = function (player, options) {
                             _getOrCreateMatch(player, options);
                         }
                     },
-                    error: options.error
-                });
+                    function (error) {
+                        options.error(error)
+                    }
+                );
             } else {
                 // If no matches were found, create new one
                 _log("Creating new game since no available games were found", player);
                 _getOrCreateMatch(player, options);
             }
         },
-        error: options.error
-    });
+        function (error) {
+            options.error(error)
+        });
 };
 
 exports.cancelAnonymousGame = function (player, matchId, options) {
@@ -87,18 +88,18 @@ exports.cancelAnonymousGame = function (player, matchId, options) {
     matchQuery.equalTo(_matchStatusKey, _matchStatusKeyWaiting);
     matchQuery.equalTo(_matchPlayer1Key, player);
 
-    matchQuery.find().then(function (matches) {
+    matchQuery.find({useMasterKey: true}).then(function (matches) {
         if (1 > matches.length) {
             return Parse.Promise.error("No waiting matches for player");
         } else {
             var match = matches[0];
             match.increment(_matchLockKey);
-            return match.save();
+            return match.save(null, {useMasterKey: true});
         }
     }).then(function (updatedMatch) {
         if (updatedMatch.get(_matchLockKey) <= _matchLockKeyMax) {
             updatedMatch.set(_matchStatusKey, _matchStatusKeyCancelled);
-            return updatedMatch.save();
+            return updatedMatch.save(null, {useMasterKey: true});
         } else {
             _log("Game lock failed, can't cancel match: " + updatedMatch.id, player);
             return Parse.Promise.error("Game lock failed, match has started");
@@ -128,7 +129,8 @@ exports.joinSingleplayerGame = function (player, options) {
                 },
                 error: function (error) {
                     options.error(error.message);
-                }
+                },
+                useMasterKey: true
             });
         }, function (error) {
             _log("Create turns failed " + error.message, player);
@@ -144,14 +146,14 @@ exports.challengePlayer = function (player, userId, options) {
     } else {
         var playerQuery = new Parse.Query(Parse.User);
         var opponent;
-        playerQuery.get(userId).then(function (fetchedOpponent) {
+        playerQuery.get(userId, {useMasterKey: true}).then(function (fetchedOpponent) {
             opponent = fetchedOpponent;
             var challengeRequestQuery = new Parse.Query(_challengeRequestClassName);
             challengeRequestQuery.equalTo("player", player);
             challengeRequestQuery.equalTo("opponent", opponent);
             challengeRequestQuery.equalTo('status', model.challengeStatus.INITIAL);
 
-            return challengeRequestQuery.find();
+            return challengeRequestQuery.find({useMasterKey: true});
         }, function (error) {
             options.error("Something goes wrong while getting user to challenge " + error.message);
         }).then(function (challengeRequests) {
@@ -167,7 +169,7 @@ exports.challengePlayer = function (player, userId, options) {
                 challengeRequest.set("status", model.challengeStatus.INITIAL);
                 _setChallengeRequestACL(challengeRequest, userId);
 
-                return challengeRequest.save();
+                return challengeRequest.save(null, {useMasterKey: true});
             }
         }, function (error) {
             options.error("Something wrong while searching challenge requests " + error.message);
@@ -193,7 +195,7 @@ exports.joinDeterminedGame = function (player1, player2, options) {
         matchQuery.include(_matchPlayer1Key + "." + _facebookUserAttrName);
         matchQuery.include(_matchPlayer2Key);
         matchQuery.include(_matchPlayer2Key + "." + _facebookUserAttrName);
-        matchQuery.get(createdMatch.id).then(function (fetchedMatch) {
+        matchQuery.get(createdMatch.id, {useMasterKey: true}).then(function (fetchedMatch) {
             match = fetchedMatch;
             return _createTurns(player1, match, model.GameType.DEFAULT);
         }).then(function (turns) {
@@ -206,7 +208,8 @@ exports.joinDeterminedGame = function (player1, player2, options) {
                 },
                 error: function (error) {
                     options.error(error.message);
-                }
+                },
+                useMasterKey: true
             });
         }, function (error) {
             _log("Create turns failed " + error.message, player1);
@@ -245,7 +248,8 @@ _joinMatchAttempt = function (match, player, options) {
                         },
                         error: function (error) {
                             options.error(error.message);
-                        }
+                        },
+                        useMasterKey: true
                     });
                 }, function (error) {
                     _log("Create turns failed " + error.message, player);
@@ -257,7 +261,8 @@ _joinMatchAttempt = function (match, player, options) {
                 _getOrCreateMatch(player, options);
             }
         },
-        error: options.error
+        error: options.error,
+        useMasterKey: true
     });
 };
 
@@ -289,13 +294,15 @@ _getOrCreateMatch = function (player, options) {
                             _createNew2PlayerMatch(player, options);
                         }
                     },
-                    error: options.error
+                    error: options.error,
+                    useMasterKey: true
                 });
             } else {
                 //create new match
                 _createNew2PlayerMatch(player, options);
             }
-        }
+        },
+        useMasterKey: true
     });
 };
 
@@ -323,7 +330,7 @@ _createNewMatch = function (player, matchType, player2) {
     _log("Creating new game with properties:", player);
     _log(JSON.stringify(match), player);
     // Create match
-    return match.save();
+    return match.save(null, {useMasterKey: true});
 };
 
 _createNew2PlayerMatch = function (player, options) {
@@ -352,7 +359,7 @@ _createTurns = function (player, match, gameTypeObj) {
     var promise = new Parse.Promise();
     var emotionQuery = new Parse.Query(_emotionClassName);
 
-    var emotionsPromise = emotionQuery.find();
+    var emotionsPromise = emotionQuery.find({useMasterKey: true});
     var gameTypesPromise = _loadGameTypes();
 
     var playerQuestionPromise = _playerRandomQuestionsList(player, match.get(_matchPlayer1Key), match.get(_matchPlayer2Key));
@@ -433,7 +440,7 @@ _loadGameTypes = function () {
         turnTypes[turnType.name] = turnType;
     }
 
-    gameTypeQuery.find().then(function (gameTypes) {
+    gameTypeQuery.find({useMasterKey: true}).then(function (gameTypes) {
         var resultGameTypes = {};
         for (var gameTypeIdx in gameTypes) {
             var gameType = gameTypes[gameTypeIdx];
@@ -464,12 +471,12 @@ _playerRandomQuestionsList = function (user, player1, player2) {
     allUsersQuestionsQuery.equalTo("accessLevel", model.photoPrivacy.ALL_USERS);
 
     var facebookUser1 = player1.get(_facebookUserAttrName);
-    var fbUser1Promise = facebookUser1.fetch();
+    var fbUser1Promise = facebookUser1.fetch({useMasterKey: true});
 
     var facebookUser2, fbUser2Promise;
     if (player2) {
         facebookUser2 = player2.get(_facebookUserAttrName);
-        fbUser2Promise = facebookUser2.fetch();
+        fbUser2Promise = facebookUser2.fetch({useMasterKey: true});
     } else {
         fbUser2Promise = Parse.Promise.as(null);
     }
@@ -495,7 +502,7 @@ _playerRandomQuestionsList = function (user, player1, player2) {
 
         var questionQuery = Parse.Query.or(friendsQuestionsQuery, allUsersQuestionsQuery);
         questionQuery.notEqualTo("reportStatus", model.photoQuestionReportStatus.BLOCKED);
-        return questionQuery.find();
+        return questionQuery.find({useMasterKey: true});
     }, function (error) {
         console.error("Can't fetch facebook user from user: " + JSON.stringify(player1));
         promise.reject(error);
@@ -515,7 +522,7 @@ _defaultQuestionsList = function (player) {
 
     var questionsQuery = new Parse.Query(_photoQuestionClassName);
     questionsQuery.exists("default");
-    questionsQuery.find().then(function (questionsList) {
+    questionsQuery.find({useMasterKey: true}).then(function (questionsList) {
         promise.resolve(questionsList);
     }, function (error) {
         console.error("Problem with getting default photo questions: " + error.message);

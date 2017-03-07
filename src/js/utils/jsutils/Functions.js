@@ -9,6 +9,12 @@ var Functions = {
     },
     isNullOrEmpty: function (obj) {
         return null == obj || this.isEmpty(obj)
+    },
+    getAppUrl: function () {
+        var port = window.location.port;
+        var url = window.location.protocol + '//' + window.location.hostname;
+        if (port) url = url + ':' + port;
+        return url;
     }
 };
 

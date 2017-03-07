@@ -2,8 +2,11 @@ var React = require('react');
 
 var SettingsState = require('../../states/SettingsState.js');
 
-
 var SettingsMenu = React.createClass({
+    propTypes: {
+        currentTab: React.PropTypes.string,
+        changeTabFunc: React.PropTypes.func
+    },
     contents: [
         [SettingsState.USER, "Użytkownik", "fa fa-user"],
         [SettingsState.PRIVACY, "Prywatność", "fa fa-user-secret"]
