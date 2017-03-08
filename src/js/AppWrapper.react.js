@@ -16,6 +16,7 @@ var FriendChallenge = require('./views/game/FacebookFriendChallenge.react.js');
 var Game = require('./views/game/Game.react.js');
 var Ranking = require('./views/Ranking.react.js');
 var Survey = require('./views/Survey.react.js');
+var AdminPanel = require('./views/AdminPanel.react.js');
 
 var VelocityTransitionGroup = require('velocity-react').VelocityTransitionGroup;
 var directions = ["Up", "Down", "Left", "Right"];
@@ -37,6 +38,7 @@ var AppWrapper = React.createClass({
         this.contents[AppState.GAME] = <Game key={AppState.GAME}/>;
         this.contents[AppState.RANKING] = <Ranking key={AppState.RANKING}/>;
         this.contents[AppState.SURVEY] = <Survey key={AppState.SURVEY}/>;
+        this.contents[AppState.ADMIN_PANEL] = AdminPanel ? (<AdminPanel key={AppState.ADMIN_PANEL}/>) : "";
     },
     render: function () {
         var content = this.contents[this.state.currentAppState];

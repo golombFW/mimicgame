@@ -11,6 +11,7 @@ var AppState = {
     REPORT_PHOTO: "REPORT_PHOTO",
     HOW_TO_PLAY: "HOW_TO_PLAY",
     SURVEY: "SURVEY",
+    ADMIN_PANEL: "ADMIN_PANEL",
     TEST: "TEST"
 };
 

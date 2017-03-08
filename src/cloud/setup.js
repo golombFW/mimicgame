@@ -39,6 +39,14 @@ Parse.Cloud.job("createDefaultRankRules", function (request, status) {
     });
 });
 
+Parse.Cloud.job("createRoles", function (request, status) {
+    createRoles().then(function () {
+        status.success("Creating roles completed successfully.");
+    }, function (error) {
+        status.error("Something went wrong");
+    })
+});
+
 var createEmotionsList = function () {
     var promise = new Parse.Promise();
 
@@ -177,6 +185,17 @@ var createDefaultRankRules = function () {
         console.error(error.message);
         promise.reject(error.message);
     });
+    return promise;
+};
+
+var createRoles = function () {
+    var promise = new Parse.Promise();
+
+    var roleACL = new Parse.ACL();
+    roleACL.setPublicReadAccess(true);
+    var role = new Parse.Role("Administrator", roleACL);
+    role.save(null, {useMasterKey: true});
+
     return promise;
 };
 
