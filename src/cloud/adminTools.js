@@ -51,6 +51,23 @@ Parse.Cloud.define("migrationUpdatePhoto", function (request, response) {
     }
 });
 
+Parse.Cloud.define("onePhotoUsersLists", function (request, response) {
+    console.log("Getting Users Set with minimum 1 photo" + request.user);
+
+    var user = request.user;
+    if (user) {
+        isUserAdmin(user.id).then(function (result) {
+            return getPhotoUsers();
+        }).then(function (photoUsers) {
+            response.success(photoUsers);
+        }, function (error) {
+            console.error(error);
+        });
+    } else {
+        response.error("Authentication failed");
+    }
+});
+
 var getPhotoQuestions = function () {
     var promise = new Parse.Promise();
 
@@ -93,6 +110,33 @@ var updatePhoto = function (photoQuestionId, photo, fileName) {
         promise.reject(error.message);
     });
 
+    return promise;
+};
+
+var getPhotoUsers = function () {
+    var promise = new Parse.Promise();
+    var photoQuestionsQuery = new Parse.Query(_photoQuestionClassName);
+
+    photoQuestionsQuery.find({useMasterKey: true}).then(function (photoQuestions) {
+        // var uniquePlayers = new Set();
+        var playersPhotosNumber = {};
+
+        for (var x in photoQuestions) {
+            var photoQuestion = photoQuestions[x];
+            var author = photoQuestion.get("author");
+            if (author) {
+                // uniquePlayers.add(author.id);
+                var photosNumber = playersPhotosNumber[author.id];
+                if (null == photosNumber) {
+                    photosNumber = 0;
+                }
+                playersPhotosNumber[author.id] = photosNumber + 1;
+            }
+        }
+        promise.resolve(playersPhotosNumber)
+    }, function (error) {
+        promise.reject(error);
+    });
     return promise;
 };
 

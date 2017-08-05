@@ -9,7 +9,8 @@ var AdminMenu = React.createClass({
     },
     contents: [
         [AdminPanelState.MIGRATION, "Migracja"],
-        [AdminPanelState.INFO, "Dodaj zdjęcie"]
+        [AdminPanelState.INFO, "Dodaj zdjęcie"],
+        [AdminPanelState.RESULTS, "Wyniki"]
     ],
 
     render: function () {
@@ -30,7 +31,7 @@ var AdminMenu = React.createClass({
             }.bind(this)
         );
         return (
-            <div id="adminpanel-menu">
+            <div id="adminpanel-menu" className="row">
                 <ul className="nav nav-pills">
                     {menuOptions}
                 </ul>
